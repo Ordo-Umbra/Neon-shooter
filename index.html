@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+        body { background: #000; margin: 0; overflow: hidden; font-family: 'Courier New', monospace; color: #0ff; touch-action: none; }
+        canvas { display: block; }
+        #ui { position: absolute; top: 10px; width: 100%; text-align: center; pointer-events: none; font-size: 20px; }
+    </style>
+</head>
+<body>
+    <div id="ui">SCORE: <span id="s">0</span> | LEVEL: <span id="lvl">1</span></div>
+    <canvas id="c"></canvas>
+    <script>
+        const c = document.getElementById("c"), x = c.getContext("2d");
+        c.width = window.innerWidth; c.height = window.innerHeight;
+
+        let p = { x: c.width/2, y: c.height*0.8, s: 25, fury: 0 }, bots = [], bullets = [], score = 0, boss = null, phase = 'swarm';
+
+        c.addEventListener("touchmove", (e) => {
+            p.x = e.touches[0].clientX - p.s/2; p.y = e.touches[0].clientY - p.s/2;
+            if(Math.random() < 0.4) bullets.push({x: p.x+10, y: p.y, v: -20, enemy: false, width: p.fury > 0 ? 20 : 4});
+        });
+
+        function loop() {
+            x.fillStyle = "rgba(0,0,0,0.3)"; x.fillRect(0,0,c.width,c.height);
+            x.fillStyle = p.fury > 0 ? "#ff0" : "#0ff"; x.fillRect(p.x, p.y, 25, 25);
+            if(p.fury > 0) { x.shadowBlur=20; x.shadowColor="#ff0"; p.fury--; }
+
+            let level = Math.floor(score/50) + 1;
+            document.getElementById("lvl").innerText = level;
+            if(score >= 300) { alert("VICTORY! You saved the galaxy."); location.reload(); }
+
+            if(score >= 100 && phase === 'swarm') { boss = {x: c.width/2-50, y: 50, hp: 150, dir: 4}; phase = 'boss'; }
+
+            if(phase === 'boss' && boss) {
+                boss.x += boss.dir; if(boss.x < 0 || boss.x > c.width-100) boss.dir *= -1;
+                x.fillStyle = "#f0f"; x.fillRect(boss.x, boss.y, 100, 80);
+                x.fillStyle = "#f00"; x.fillRect(c.width/4, 20, (boss.hp/150)*(c.width/2), 10);
+            } else if (phase === 'swarm' && Math.random() < 0.05 + (level*0.01)) {
+                bots.push({x: Math.random()*c.width, y: -30, v: 3 + level, hp: 1, color: '#f00'});
+            }
+
+            bots.forEach((b, i) => {
+                b.y += b.v; x.fillStyle=b.color; x.fillRect(b.x, b.y, 25, 25);
+                if(Math.hypot(p.x-b.x, p.y-b.y) < 25) location.reload();
+                if(b.y > c.height) bots.splice(i, 1);
+            });
+
+            bullets.forEach((b, i) => {
+                b.y += b.v; x.fillStyle = b.enemy ? "#f0f" : "#fff"; x.fillRect(b.x, b.y, b.width, 15);
+                if(!b.enemy && boss && b.x > boss.x && b.x < boss.x+100 && b.y < boss.y+80) {
+                    boss.hp--; bullets.splice(i, 1);
+                    if(boss.hp <= 0) { boss=null; phase='swarm'; score+=50; p.fury=500; }
+                } else if (!b.enemy) {
+                    bots.forEach((bot, bi) => {
+                        if(Math.hypot(b.x-bot.x, b.y-bot.y) < 25) { bots.splice(bi, 1); score++; document.getElementById("s").innerText = score; }
+                    });
+                }
+                if(b.y < 0) bullets.splice(i, 1);
+            });
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>
