@@ -218,7 +218,7 @@ const stars = Array.from({length:150}, () => ({
 // ================================================================
 let audioCtx = null;
 function getAudioCtx() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioCtx) audioCtx = new AudioContext();
     return audioCtx;
 }
 function playSound(type) {
@@ -495,7 +495,8 @@ function playerHit() {
     if(player.shieldActive) {
         player.shieldActive = false; player.invincFrames = 80;
         spawnParticles(player.x+12, player.y+12, '#0ff', 12);
-        playSound('shieldHit'); return;
+        playSound('shieldHit');
+        return;
     }
     player.hp--; player.invincFrames = 120;
     spawnParticles(player.x+12, player.y+12, '#f44', 15);
