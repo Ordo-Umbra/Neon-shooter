@@ -123,7 +123,7 @@ const LEVELS = [
 // ================================================================
 // GAME STATE
 // ================================================================
-let gameState = 'title'; // title | intro | playing | levelComplete | customize | gameover | victory
+let gameState = 'title'; // title | intro | playing | levelComplete | shop | customize | gameover | victory
 let currentLevelIdx = 0;
 let score = 0, levelStartScore = 0, levelBonus = 0;
 let killCount = 0, bossKilledThisLevel = false;
@@ -133,6 +133,10 @@ let boss = null, fireTimer = 0;
 let shipConfig = { hull:0, color:0, engine:0 };
 let customizationUnlocked = false;
 let lastClickX = 0, lastClickY = 0;
+let scraps = 0;
+let screenShake = 0;
+let upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
+let floatingTexts = [];
 
 const stars = Array.from({length:150}, () => ({
     x: Math.random()*W, y: Math.random()*H,
@@ -168,9 +172,25 @@ function handleTap() {
     if(gameState === 'title')         { gameState = 'intro'; }
     else if(gameState === 'intro')         { startLevel(currentLevelIdx); }
     else if(gameState === 'levelComplete') {
-        if(customizationUnlocked && lastClickY > H*0.62 && lastClickY < H*0.78) {
+        if(lastClickY > H*0.78 && lastClickY < H*0.91) {
+            gameState = 'shop';
+        } else if(customizationUnlocked && lastClickY > H*0.62 && lastClickY < H*0.78) {
             gameState = 'customize';
         } else { nextLevel(); }
+    }
+    else if(gameState === 'shop') {
+        const rH = H*0.115, r0 = H*0.315;
+        if(lastClickY >= r0 && lastClickY < r0+rH) {
+            if(scraps >= 15 && player.hp < player.maxHp) { scraps -= 15; player.hp++; }
+        } else if(lastClickY >= r0+rH && lastClickY < r0+2*rH) {
+            if(scraps >= 30 && upgrades.fireRate < 2) { scraps -= 30; upgrades.fireRate++; }
+        } else if(lastClickY >= r0+2*rH && lastClickY < r0+3*rH) {
+            if(scraps >= 50 && upgrades.maxHpBonus < 2) { scraps -= 50; upgrades.maxHpBonus++; player.maxHp = 3 + upgrades.maxHpBonus; }
+        } else if(lastClickY >= r0+3*rH && lastClickY < r0+4*rH) {
+            if(scraps >= 20 && !upgrades.shieldOnStart) { scraps -= 20; upgrades.shieldOnStart = true; }
+        } else if(lastClickY > H*0.82) {
+            gameState = 'levelComplete';
+        }
     }
     else if(gameState === 'customize') {
         // Row centres: H*0.40 (hull), H*0.52 (color), H*0.64 (engine); rowH = H*0.09
@@ -197,6 +217,8 @@ function resetGame() {
     bots=[]; bullets=[]; particles=[]; powerups=[]; boss=null;
     killCount=0; bossKilledThisLevel=false; fireTimer=0;
     shipConfig = { hull:0, color:0, engine:0 }; customizationUnlocked = false;
+    scraps = 0; screenShake = 0; floatingTexts = [];
+    upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
     gameState = 'title';
 }
 
@@ -204,6 +226,10 @@ function startLevel(idx) {
     levelStartScore = score; killCount = 0; bossKilledThisLevel = false; fireTimer = 0;
     bots=[]; bullets=[]; powerups=[]; boss=null; particles=[];
     player.x = W/2-12; player.y = H*0.82; player.invincFrames = 0;
+    player.maxHp = 3 + upgrades.maxHpBonus;
+    player.hp = Math.min(player.hp, player.maxHp);
+    if(upgrades.shieldOnStart) { player.shieldActive = true; upgrades.shieldOnStart = false; }
+    floatingTexts = [];
     const lvl = LEVELS[idx];
     stars.forEach(s => s.color = lvl.starColor || '#fff');
     if(lvl.boss) {
@@ -220,9 +246,10 @@ function nextLevel() {
 
 function retryLevel() {
     score = levelStartScore;
-    player = { x:W/2-12, y:H*0.82, hp:3, maxHp:3, invincFrames:0, shieldActive:false, rapidTimer:0 };
+    const rMaxHp = 3 + upgrades.maxHpBonus;
+    player = { x:W/2-12, y:H*0.82, hp:rMaxHp, maxHp:rMaxHp, invincFrames:0, shieldActive:false, rapidTimer:0 };
     bots=[]; bullets=[]; particles=[]; powerups=[]; boss=null;
-    killCount=0; bossKilledThisLevel=false; fireTimer=0;
+    killCount=0; bossKilledThisLevel=false; fireTimer=0; floatingTexts=[];
     gameState = 'intro';
 }
 
@@ -256,13 +283,13 @@ function spawnEnemy() {
     for(let em of lvl.enemyMix) { r -= em.w; if(r <= 0) { type = em.type; break; } }
     const ex = Math.random()*(W-50)+10, li = currentLevelIdx;
     if(type === 'scout')
-        bots.push({x:ex,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0});
+        bots.push({x:ex,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0,flashTimer:0});
     else if(type === 'raider')
-        bots.push({x:ex,y:-30,v:2.5+li*0.25,hp:2,maxHp:2,color:'#f80',size:28,type:'raider',drift:(Math.random()-0.5)*0.8,shootTimer:Math.floor(Math.random()*80)});
+        bots.push({x:ex,y:-30,v:2.5+li*0.25,hp:2,maxHp:2,color:'#f80',size:28,type:'raider',drift:(Math.random()-0.5)*0.8,shootTimer:Math.floor(Math.random()*80),flashTimer:0});
     else if(type === 'heavy')
-        bots.push({x:ex,y:-30,v:1.8+li*0.18,hp:4,maxHp:4,color:'#a0f',size:36,type:'heavy',drift:0,shootTimer:Math.floor(Math.random()*60)});
+        bots.push({x:ex,y:-30,v:1.8+li*0.18,hp:4,maxHp:4,color:'#a0f',size:36,type:'heavy',drift:0,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
     else if(type === 'asteroid')
-        bots.push({x:ex,y:-30,v:2+li*0.12,hp:6,maxHp:6,color:'#666',size:38,type:'asteroid',drift:(Math.random()-0.5)*0.5,shootTimer:0});
+        bots.push({x:ex,y:-30,v:2+li*0.12,hp:6,maxHp:6,color:'#666',size:38,type:'asteroid',drift:(Math.random()-0.5)*0.5,shootTimer:0,flashTimer:0});
 }
 
 function maybeDropPowerup(ex, ey) {
@@ -280,6 +307,7 @@ function applyPowerup(type) {
 
 function playerHit() {
     if(gameState !== 'playing' || player.invincFrames > 0) return;
+    screenShake = 14;
     if(player.shieldActive) {
         player.shieldActive = false; player.invincFrames = 80;
         spawnParticles(player.x+12, player.y+12, '#0ff', 12); return;
@@ -487,6 +515,9 @@ function drawHUD() {
     ctx.fillStyle='#888'; ctx.font='13px Courier New';
     ctx.fillText('LVL '+(currentLevelIdx+1)+' — '+LEVELS[currentLevelIdx].name, W/2, 48);
     ctx.textAlign='left';
+    ctx.fillStyle='#ff0'; ctx.font='16px Courier New'; ctx.textAlign='right';
+    ctx.fillText('\u2B21 '+scraps, W-15, 58);
+    ctx.textAlign='left';
     if(LEVELS[currentLevelIdx].quota > 0) {
         ctx.fillStyle='#0f0'; ctx.font='16px Courier New'; ctx.textAlign='right';
         ctx.fillText('KILLS: '+killCount+'/'+LEVELS[currentLevelIdx].quota, W-15, 36);
@@ -550,6 +581,61 @@ function drawCustomizeScreen() {
     ctx.textAlign='left'; ctx.shadowBlur=0;
 }
 
+function drawShopScreen() {
+    ctx.fillStyle='rgba(0,0,0,0.92)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.shadowBlur=22; ctx.shadowColor='#ff0'; ctx.fillStyle='#ff0';
+    ctx.font='bold 28px Courier New';
+    ctx.fillText('\u2B21  SCRAP SHOP  \u2B21', W/2, H*0.12);
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#0ff'; ctx.font='20px Courier New';
+    ctx.fillText('SCRAPS: '+scraps, W/2, H*0.21);
+    ctx.fillStyle='#555'; ctx.font='13px Courier New';
+    ctx.fillText('Tap an item to purchase', W/2, H*0.27);
+
+    const items = [
+        { name:'REPAIR HULL',   desc:'Restore 1 HP',
+          cost:15, col:'#0f0',  canBuy: scraps>=15 && player.hp<player.maxHp,
+          note: player.hp>=player.maxHp ? '(FULL HP)' : '' },
+        { name:'RAPID BOOST',   desc:'Fire rate +1  ('+upgrades.fireRate+'/2)',
+          cost:30, col:'#ff0',  canBuy: scraps>=30 && upgrades.fireRate<2,
+          note: upgrades.fireRate>=2 ? '(MAXED)' : '' },
+        { name:'HULL PLATE',    desc:'+1 Max HP  ('+upgrades.maxHpBonus+'/2)',
+          cost:50, col:'#0ff',  canBuy: scraps>=50 && upgrades.maxHpBonus<2,
+          note: upgrades.maxHpBonus>=2 ? '(MAXED)' : '' },
+        { name:'SHIELD CHARGE', desc:'Start next level with shield',
+          cost:20, col:'#a0f',  canBuy: scraps>=20 && !upgrades.shieldOnStart,
+          note: upgrades.shieldOnStart ? '(READY)' : '' },
+    ];
+    const rowH = H*0.115;
+    items.forEach((item, i) => {
+        const rowY = H*0.315 + i*rowH;
+        ctx.fillStyle = item.canBuy ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)';
+        ctx.fillRect(W*0.07, rowY, W*0.86, rowH*0.88);
+        ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor = item.col;
+        ctx.fillStyle = item.canBuy ? item.col : '#444';
+        ctx.font='bold 15px Courier New'; ctx.textAlign='left';
+        ctx.fillText(item.name, W*0.12, rowY+rowH*0.42);
+        ctx.shadowBlur=0; ctx.fillStyle = item.canBuy ? '#aaa' : '#444';
+        ctx.font='12px Courier New';
+        ctx.fillText(item.desc, W*0.12, rowY+rowH*0.75);
+        ctx.textAlign='right';
+        ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor='#ff0';
+        ctx.fillStyle = item.canBuy ? '#ff0' : '#443300';
+        ctx.font='bold 16px Courier New';
+        ctx.fillText('\u2B21 '+item.cost, W*0.88, rowY+rowH*0.42);
+        if(item.note) {
+            ctx.shadowBlur=0; ctx.fillStyle='#777'; ctx.font='12px Courier New';
+            ctx.fillText(item.note, W*0.88, rowY+rowH*0.75);
+        }
+        ctx.textAlign='center';
+    });
+    ctx.shadowBlur=12; ctx.shadowColor='#0ff'; ctx.fillStyle='#0ff';
+    ctx.font='bold 16px Courier New';
+    ctx.fillText('\u25B6  LEAVE SHOP  \u25C0', W/2, H*0.93);
+    ctx.shadowBlur=0; ctx.textAlign='left';
+}
+
 // ================================================================
 // MAIN LOOP
 // ================================================================
@@ -589,9 +675,19 @@ function loop() {
             [lvl.name, '',
              'ENEMIES DEFEATED: '+killCount,
              'LEVEL BONUS: +'+levelBonus,
-             'TOTAL SCORE: '+score],
+             'TOTAL SCORE: '+score,
+             '\u2B21 SCRAPS: '+scraps],
             '\u25B6  TOUCH OR CLICK TO CONTINUE  \u25C0',
-            customizationUnlocked ? '\u2605  TAP HERE TO CUSTOMIZE SHIP  \u2605' : null);
+            customizationUnlocked ? '\u2605  CUSTOMIZE SHIP  \u2605' : null);
+        ctx.textAlign='center';
+        ctx.shadowBlur=14; ctx.shadowColor='#ff0'; ctx.fillStyle='#ff0';
+        ctx.font='bold 16px Courier New';
+        ctx.fillText('\u2B21  VISIT SCRAP SHOP  \u2B21', W/2, H*0.84);
+        ctx.shadowBlur=0; ctx.textAlign='left';
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'shop') {
+        drawShopScreen();
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'customize') {
@@ -616,6 +712,15 @@ function loop() {
 
     // --- PLAYING ---
 
+    // Screen shake
+    let shakeApplied = false;
+    if(screenShake > 0) {
+        ctx.save();
+        ctx.translate((Math.random()-0.5)*screenShake*1.5, (Math.random()-0.5)*screenShake*1.5);
+        screenShake = Math.max(0, screenShake - 1.5);
+        shakeApplied = true;
+    }
+
     // Particles
     for(let i=particles.length-1; i>=0; i--) {
         const pt=particles[i];
@@ -639,11 +744,21 @@ function loop() {
         }
         drawPlayerShip(player.x+12, player.y+12, player.rapidTimer>0 ? '#ff8' : SHIP_COLORS[shipConfig.color]);
     }
+    // Engine trail
+    if(showPlayer) {
+        const engCol = ENGINE_COLORS[shipConfig.engine];
+        if(Math.random() < 0.75) {
+            particles.push({ x:player.x+12+(Math.random()-0.5)*5, y:player.y+26,
+                vx:(Math.random()-0.5)*0.6, vy:Math.random()*2.5+0.8,
+                life:0.65, decay:0.07, r:Math.random()*2.2+0.5, color:engCol });
+        }
+    }
     ctx.shadowBlur=0;
 
     // Auto-fire
     fireTimer++;
-    if(fireTimer >= (player.rapidTimer>0 ? 2 : 6)) {
+    // Base cadence: 6 frames (no upgrade), 5 (lv1), 4 (lv2); rapid overrides to 2
+    if(fireTimer >= (player.rapidTimer>0 ? 2 : Math.max(3, 6-upgrades.fireRate))) {
         fireTimer=0;
         bullets.push({x:player.x+10, y:player.y-2, v:-18, enemy:false, width:4});
         if(player.rapidTimer > 0) {
@@ -703,6 +818,13 @@ function loop() {
         if(b.type==='asteroid')    drawAsteroid(b.x,b.y,b.size,b.color);
         else if(b.type==='heavy')  drawHeavyShip(b.x,b.y,b.size,b.color);
         else                       drawEnemyShip(b.x,b.y,b.size,b.color);
+        if(b.flashTimer > 0) {
+            b.flashTimer--;
+            ctx.save(); ctx.globalAlpha = (b.flashTimer/6)*0.6; ctx.shadowBlur=0;
+            ctx.fillStyle='#fff';
+            ctx.beginPath(); ctx.arc(b.x+b.size*0.5, b.y+b.size*0.5, b.size*0.55, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
         ctx.shadowBlur=0;
         if(Math.hypot(player.x+12-(b.x+b.size/2), player.y+12-(b.y+b.size/2)) < b.size*0.65) {
             spawnParticles(b.x+b.size/2, b.y+b.size/2, b.color, 8);
@@ -720,6 +842,16 @@ function loop() {
             applyPowerup(pu.type); powerups.splice(i,1);
         } else if(pu.y > H+20 || pu.life<=0) powerups.splice(i,1);
     }
+
+    // Floating texts
+    for(let i=floatingTexts.length-1; i>=0; i--) {
+        const ft=floatingTexts[i]; ft.y+=ft.vy; ft.life-=ft.decay;
+        if(ft.life<=0) { floatingTexts.splice(i,1); continue; }
+        ctx.save(); ctx.globalAlpha=ft.life; ctx.shadowBlur=6; ctx.shadowColor=ft.color;
+        ctx.fillStyle=ft.color; ctx.font='bold 13px Courier New'; ctx.textAlign='center';
+        ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
+    }
+    ctx.globalAlpha=1; ctx.textAlign='left';
 
     // Bullets
     for(let i=bullets.length-1; i>=0; i--) {
@@ -740,8 +872,13 @@ function loop() {
             boss.hp--; bullets.splice(i,1); removed=true;
             if(boss.hp<=0) {
                 spawnParticles(boss.x+60,boss.y+45,boss.color,55);
+                const bsc = 20+currentLevelIdx*3;
+                scraps += bsc;
+                floatingTexts.push({x:boss.x+60,y:boss.y+45,text:'+'+bsc+'\u2B21',color:'#ff0',life:1.2,decay:0.016,vy:-1.5});
                 score += 100+currentLevelIdx*20;
                 boss=null; bossKilledThisLevel=true; checkLevelComplete();
+            } else {
+                spawnParticles(b.x, b.y, boss.color, 4);
             }
         } else if(!b.enemy) {
             for(let bi=bots.length-1; bi>=0; bi--) {
@@ -751,9 +888,15 @@ function loop() {
                     if(bot.hp<=0) {
                         spawnParticles(bot.x+bot.size/2,bot.y+bot.size/2,bot.color,14);
                         maybeDropPowerup(bot.x+bot.size/2,bot.y+bot.size/2);
+                        const sc=bot.type==='heavy'?4:bot.type==='raider'?2:bot.type==='asteroid'?3:1;
+                        scraps+=sc;
+                        floatingTexts.push({x:bot.x+bot.size/2,y:bot.y+bot.size/2,text:'+'+sc+'\u2B21',color:'#ff0',life:1.0,decay:0.022,vy:-1.4});
                         bots.splice(bi,1);
                         score += bot.type==='heavy'?5 : bot.type==='raider'?3 : bot.type==='asteroid'?3 : 1;
                         killCount++; checkLevelComplete();
+                    } else {
+                        bot.flashTimer = 6;
+                        spawnParticles(b.x, b.y, '#fff', 3);
                     }
                     break;
                 }
@@ -762,6 +905,7 @@ function loop() {
         if(!removed && (b.y<-25||b.y>H+25||b.x<-25||b.x>W+25)) bullets.splice(i,1);
     }
 
+    if(shakeApplied) ctx.restore();
     drawHUD();
     requestAnimationFrame(loop);
 }
