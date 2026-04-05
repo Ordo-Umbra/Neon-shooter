@@ -1299,7 +1299,7 @@ function loop() {
                 floatingTexts.push({x:boss.x+60,y:boss.y+45,text:'+'+bsc+'\u2B21',color:'#ff0',life:1.2,decay:0.016,vy:-1.5});
                 score += 100+currentLevelIdx*20;
                 const lvlDef = LEVELS[currentLevelIdx];
-                bossLoreHeadline = (lvlDef.boss ? lvlDef.boss.name : 'BOSS') + ' DESTROYED';
+                bossLoreHeadline = lvlDef.boss.name + ' DESTROYED';
                 bossLoreLines = lvlDef.bossLore || ['The enemy falls. Move forward.'];
                 boss=null; bossKilledThisLevel=true;
                 gameState = 'bossLore';
