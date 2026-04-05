@@ -275,7 +275,12 @@ function handleTap() {
             gameState = 'levelComplete';
         }
     }
-    else if(gameState === 'bossLore')       { checkLevelComplete(); }
+    else if(gameState === 'bossLore') {
+        levelBonus = killCount * 3 + 150 + currentLevelIdx * 15;
+        score += levelBonus;
+        if(currentLevelIdx >= 2) customizationUnlocked = true;
+        gameState = 'levelComplete';
+    }
     else if(gameState === 'gameover')      { retryLevel(); }
     else if(gameState === 'victory')       { resetGame(); }
 }
