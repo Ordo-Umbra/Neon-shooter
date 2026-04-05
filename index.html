@@ -110,7 +110,7 @@ const LEVELS = [
     {
         id:12, name:"THE VOID HARBINGER",
         story:["An ancient entity emerges from the void.", "Eight spiked arms. A pulsing dark core.", "Destroy it before it tears space apart."],
-        quota:0, boss:{hp:500,maxHp:500,speed:7,color:'#0af',name:'VOID HARBINGER',fireRate:33,spread:4,shape:'harbinger'},
+        quota:0, boss:{hp:400,maxHp:400,speed:6,color:'#0af',name:'VOID HARBINGER',fireRate:40,spread:4,shape:'harbinger'},
         bossLore:["The Harbinger's spiked hull implodes into a collapsing singularity.", "Its death-shriek tears across eleven dimensions simultaneously.", "'Something older... without name... has heard the call.' Your scanner screams."],
         spawnRate:0.030, enemyMix:[{type:'heavy',w:2},{type:'raider',w:1}],
         starColor:'#4af', bgTint:'rgba(0,6,14,0.42)'
@@ -263,7 +263,7 @@ let boss = null, fireTimer = 0;
 let shipConfig = { hull:0, color:0, engine:0 };
 let customizationUnlocked = false;
 let lastClickX = 0, lastClickY = 0;
-let guideScrollY = 0, guideMaxScroll = 0, guideTouchStartY = 0;
+let guideScrollY = 0, guideMaxScroll = 0, guideTouchStartY = 0, guideTapStartY = 0;
 let scraps = 0;
 let screenShake = 0;
 let upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
@@ -399,12 +399,13 @@ canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     lastClickX = e.touches[0].clientX; lastClickY = e.touches[0].clientY;
     guideTouchStartY = e.touches[0].clientY;
+    guideTapStartY = e.touches[0].clientY;
     if(gameState !== 'guide') handleTap();
 }, {passive:false});
 canvas.addEventListener('touchend', e => {
     if(gameState === 'guide') {
-        const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : guideTouchStartY;
-        if(Math.abs(endY - guideTouchStartY) < 10) handleTap();
+        const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : guideTapStartY;
+        if(Math.abs(endY - guideTapStartY) < 10) handleTap();
     }
 }, {passive:false});
 canvas.addEventListener('click', e => { lastClickX = e.clientX; lastClickY = e.clientY; handleTap(); });
