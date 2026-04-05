@@ -44,7 +44,7 @@ const LEVELS = [
     {
         id:3, name:"THE GATEKEEPER",
         story:["A battlecruiser guards the jump gate.", "Its single cannon fires aimed shots.", "Destroy it to reach the next sector."],
-        quota:0, boss:{hp:150,maxHp:150,speed:3,color:'#f0f',name:'GATEKEEPER',fireRate:60,spread:1,shape:'gatekeeper'},
+        quota:0, boss:{hp:100,maxHp:100,speed:3,color:'#f0f',name:'GATEKEEPER',fireRate:80,spread:1,shape:'gatekeeper'},
         bossLore:["The jump gate shudders open. A distress frequency bleeds through static:", "'Warning — the Bastion is mobilizing. They know you are coming.'", "Something ancient stirs in the nebula beyond. Press on, pilot."],
         spawnRate:0.02, enemyMix:[{type:'scout',w:1}],
         starColor:'#fcf', bgTint:'rgba(10,0,10,0.38)'
@@ -66,7 +66,7 @@ const LEVELS = [
     {
         id:6, name:"IRON BASTION",
         story:["The enemy command fortress looms ahead.", "Its triple spread-cannons are devastating.", "Shatter their command — destroy it now."],
-        quota:0, boss:{hp:280,maxHp:280,speed:5,color:'#f80',name:'IRON BASTION',fireRate:45,spread:3,shape:'bastion'},
+        quota:0, boss:{hp:200,maxHp:200,speed:4,color:'#f80',name:'IRON BASTION',fireRate:60,spread:2,shape:'bastion'},
         bossLore:["The Bastion's reactor core detonates in a cascade of molten fire.", "Their chain of command collapses. But even now your sensors pulse:", "'Deep in the nebula — an ancient destroyer. It is awakening.'"],
         spawnRate:0.028, enemyMix:[{type:'raider',w:1}],
         starColor:'#fa8', bgTint:'rgba(12,4,0,0.38)'
@@ -88,7 +88,7 @@ const LEVELS = [
     {
         id:9, name:"DARK HERALD",
         story:["Warlord Zarak commands the destroyer.", "Its quadruple-spread cannon tears ships apart.", "Defeat the Dark Herald — end his reign."],
-        quota:0, boss:{hp:400,maxHp:400,speed:6,color:'#a0f',name:'DARK HERALD',fireRate:38,spread:4,shape:'herald'},
+        quota:0, boss:{hp:280,maxHp:280,speed:5,color:'#a0f',name:'DARK HERALD',fireRate:50,spread:3,shape:'herald'},
         bossLore:["Warlord Zarak's final transmission fractures across all frequencies:", "'You cannot stop what has been awakened, pilot. The Void... remembers.'", "The void pulses with cold energy. Something darker now rises from its depths."],
         spawnRate:0.034, enemyMix:[{type:'raider',w:2},{type:'heavy',w:1}],
         starColor:'#c8f', bgTint:'rgba(5,0,15,0.38)'
@@ -1668,7 +1668,7 @@ function loop() {
             }
         } else if(b.type==='interceptor') {
             b.shootTimer++;
-            if(b.shootTimer >= 55-currentLevelIdx*2) {
+            if(b.shootTimer >= Math.max(1, 55-currentLevelIdx*2)) {
                 b.shootTimer=0;
                 const a=Math.atan2(player.y+12-b.y, player.x+12-b.x);
                 bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.8, v:Math.sin(a)*6, vx:Math.cos(a)*6, enemy:true, width:4});
@@ -1701,6 +1701,13 @@ function loop() {
                 b.shootTimer=0;
                 const a=Math.atan2(player.y+12-b.y, player.x+12-b.x);
                 bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.8, v:Math.sin(a)*4.5, vx:Math.cos(a)*4.5, enemy:true, width:4});
+            }
+        } else if(b.type==='vanguard') {
+            b.shootTimer++;
+            if(b.shootTimer >= 62-currentLevelIdx*2) {
+                b.shootTimer=0;
+                bullets.push({x:b.x+b.size*0.2, y:b.y+b.size*0.85, v:3.6, vx:-1.2, enemy:true, width:6});
+                bullets.push({x:b.x+b.size*0.8, y:b.y+b.size*0.85, v:3.6, vx: 1.2, enemy:true, width:6});
             }
         } else if(b.type==='nullifier') {
             b.shootTimer++;
@@ -1767,7 +1774,7 @@ function loop() {
         if(b.home && b.enemy) {
             const dx=player.x+12-b.x, dy=player.y+12-b.y;
             const d=Math.hypot(dx,dy)||1;
-            b.vx=(b.vx||0)+dx/d*0.22; b.v+=dy/d*0.22;
+            b.vx=(b.vx||0)+dx/d*0.22; b.v=(b.v||0)+dy/d*0.22;
             const spd=Math.hypot(b.vx||0,b.v);
             if(spd>5.5){const s=5.5/spd; b.vx=(b.vx||0)*s; b.v*=s;}
         }
