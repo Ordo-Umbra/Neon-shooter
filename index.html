@@ -1731,8 +1731,8 @@ function loop() {
         ctx.globalAlpha = alpha * 0.4;
         ctx.beginPath(); ctx.moveTo(lx, player.y); ctx.lineTo(lx, 0); ctx.stroke();
         ctx.restore();
-        // Laser hits enemies
-        if(Math.random() < 0.5) playSound('laser');
+        // Laser hits enemies (sound throttled: play only every 8 frames)
+        if(player.laserTimer % 8 === 0) playSound('laser');
         for(let bi=bots.length-1; bi>=0; bi--) {
             const bot=bots[bi];
             if(Math.abs((bot.x+bot.size/2)-lx) < 8) {
