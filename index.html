@@ -214,6 +214,101 @@ const stars = Array.from({length:150}, () => ({
 }));
 
 // ================================================================
+// AUDIO  (Web Audio API — procedurally synthesised, no external files)
+// ================================================================
+let audioCtx = null;
+function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+}
+function playSound(type) {
+    try {
+        const ac = getAudioCtx();
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.connect(gain); gain.connect(ac.destination);
+        const t = ac.currentTime;
+        switch (type) {
+            case 'shoot':
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(880, t);
+                osc.frequency.exponentialRampToValueAtTime(440, t + 0.06);
+                gain.gain.setValueAtTime(0.07, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+                osc.start(t); osc.stop(t + 0.08);
+                break;
+            case 'enemyDie':
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(320, t);
+                osc.frequency.exponentialRampToValueAtTime(60, t + 0.15);
+                gain.gain.setValueAtTime(0.14, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+                osc.start(t); osc.stop(t + 0.16);
+                break;
+            case 'bossHit':
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(160, t);
+                osc.frequency.exponentialRampToValueAtTime(70, t + 0.12);
+                gain.gain.setValueAtTime(0.18, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+                osc.start(t); osc.stop(t + 0.14);
+                break;
+            case 'bossDie':
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, t);
+                osc.frequency.exponentialRampToValueAtTime(28, t + 0.9);
+                gain.gain.setValueAtTime(0.4, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 1.0);
+                osc.start(t); osc.stop(t + 1.0);
+                break;
+            case 'hit':
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, t);
+                osc.frequency.exponentialRampToValueAtTime(80, t + 0.22);
+                gain.gain.setValueAtTime(0.28, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+                osc.start(t); osc.stop(t + 0.25);
+                break;
+            case 'shieldHit':
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1400, t);
+                osc.frequency.exponentialRampToValueAtTime(400, t + 0.14);
+                gain.gain.setValueAtTime(0.15, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+                osc.start(t); osc.stop(t + 0.16);
+                break;
+            case 'powerup':
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, t);
+                osc.frequency.setValueAtTime(660, t + 0.1);
+                osc.frequency.setValueAtTime(880, t + 0.2);
+                gain.gain.setValueAtTime(0.2, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+                osc.start(t); osc.stop(t + 0.35);
+                break;
+            case 'levelComplete':
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523, t);
+                osc.frequency.setValueAtTime(659, t + 0.12);
+                osc.frequency.setValueAtTime(784, t + 0.24);
+                osc.frequency.setValueAtTime(1047, t + 0.36);
+                gain.gain.setValueAtTime(0.22, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+                osc.start(t); osc.stop(t + 0.55);
+                break;
+            case 'gameover':
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, t);
+                osc.frequency.exponentialRampToValueAtTime(55, t + 0.7);
+                gain.gain.setValueAtTime(0.32, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+                osc.start(t); osc.stop(t + 0.8);
+                break;
+        }
+    } catch(e) {}
+}
+
+// ================================================================
 // INPUT
 // ================================================================
 canvas.addEventListener('touchmove', e => {
@@ -343,6 +438,7 @@ function checkLevelComplete() {
         score += levelBonus;
         if(currentLevelIdx >= 2) customizationUnlocked = true; // level 3 is index 2 — parts unlock here
         gameState = 'levelComplete';
+        playSound('levelComplete');
     }
 }
 
@@ -390,6 +486,7 @@ function applyPowerup(type) {
     else if(type === 'rapid') { player.rapidTimer = 600; }
     else if(type === 'shield') { player.shieldActive = true; }
     spawnParticles(player.x+12, player.y+12, type==='health'?'#0f0':type==='rapid'?'#ff0':'#0ff', 18);
+    playSound('powerup');
 }
 
 function playerHit() {
@@ -397,11 +494,13 @@ function playerHit() {
     screenShake = 14;
     if(player.shieldActive) {
         player.shieldActive = false; player.invincFrames = 80;
-        spawnParticles(player.x+12, player.y+12, '#0ff', 12); return;
+        spawnParticles(player.x+12, player.y+12, '#0ff', 12);
+        playSound('shieldHit'); return;
     }
     player.hp--; player.invincFrames = 120;
     spawnParticles(player.x+12, player.y+12, '#f44', 15);
-    if(player.hp <= 0) gameState = 'gameover';
+    playSound('hit');
+    if(player.hp <= 0) { gameState = 'gameover'; playSound('gameover'); }
 }
 
 // ================================================================
@@ -770,8 +869,8 @@ function drawOverlay(title, titleColor, lines, footer, secondaryBtn) {
     ctx.shadowBlur=22; ctx.shadowColor=titleColor;
     ctx.fillStyle=titleColor; ctx.font='bold 36px Courier New';
     ctx.fillText(title, W/2, H*0.28);
-    ctx.shadowBlur=0; ctx.fillStyle='#ccc'; ctx.font='17px Courier New';
-    lines.forEach((l,i) => ctx.fillText(l, W/2, H*0.28+58+i*30));
+    ctx.shadowBlur=0; ctx.fillStyle='#ccc'; ctx.font='13px Courier New';
+    lines.forEach((l,i) => ctx.fillText(l, W/2, H*0.28+58+i*22));
     if(secondaryBtn) {
         ctx.shadowBlur=14; ctx.shadowColor='#ff0'; ctx.fillStyle='#ff0';
         ctx.font='bold 17px Courier New';
@@ -1118,6 +1217,7 @@ function loop() {
     if(fireTimer >= (player.rapidTimer>0 ? 2 : Math.max(3, 6-upgrades.fireRate))) {
         fireTimer=0;
         bullets.push({x:player.x+10, y:player.y-2, v:-18, enemy:false, width:4});
+        playSound('shoot');
         if(player.rapidTimer > 0) {
             bullets.push({x:player.x-2,  y:player.y+8, v:-16, vx:-1.8, enemy:false, width:3});
             bullets.push({x:player.x+22, y:player.y+8, v:-16, vx: 1.8, enemy:false, width:3});
@@ -1299,6 +1399,7 @@ function loop() {
             boss.hp--; bullets.splice(i,1); removed=true;
             if(boss.hp<=0) {
                 spawnParticles(boss.x+60,boss.y+45,boss.color,55);
+                playSound('bossDie');
                 const bsc = 20+currentLevelIdx*3;
                 scraps += bsc;
                 floatingTexts.push({x:boss.x+60,y:boss.y+45,text:'+'+bsc+'\u2B21',color:'#ff0',life:1.2,decay:0.016,vy:-1.5});
@@ -1310,6 +1411,7 @@ function loop() {
                 gameState = 'bossLore';
             } else {
                 spawnParticles(b.x, b.y, boss.color, 4);
+                playSound('bossHit');
             }
         } else if(!b.enemy) {
             for(let bi=bots.length-1; bi>=0; bi--) {
@@ -1318,6 +1420,7 @@ function loop() {
                     bot.hp--; bullets.splice(i,1); removed=true;
                     if(bot.hp<=0) {
                         spawnParticles(bot.x+bot.size/2,bot.y+bot.size/2,bot.color,14);
+                        playSound('enemyDie');
                         maybeDropPowerup(bot.x+bot.size/2,bot.y+bot.size/2);
                         const sc=bot.type==='titan'?6:bot.type==='heavy'?4:bot.type==='phantom'?3:bot.type==='marauder'?4:bot.type==='raider'?2:bot.type==='asteroid'?3:1;
                         const scFinal = bonusScrapActive ? sc*2 : sc;
