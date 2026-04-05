@@ -1704,7 +1704,7 @@ function loop() {
             }
         } else if(b.type==='vanguard') {
             b.shootTimer++;
-            if(b.shootTimer >= 62-currentLevelIdx*2) {
+            if(b.shootTimer >= Math.max(1, 62-currentLevelIdx*2)) {
                 b.shootTimer=0;
                 bullets.push({x:b.x+b.size*0.2, y:b.y+b.size*0.85, v:3.6, vx:-1.2, enemy:true, width:6});
                 bullets.push({x:b.x+b.size*0.8, y:b.y+b.size*0.85, v:3.6, vx: 1.2, enemy:true, width:6});
