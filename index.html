@@ -24,7 +24,7 @@ const ENGINE_COLORS = ['#08f','#f80','#0f8','#a0f'];
 const ENGINE_NAMES  = ['BLUE','AMBER','GREEN','PURPLE'];
 
 // ================================================================
-// LEVEL DEFINITIONS  (13 levels, 5 boss fights)
+// LEVEL DEFINITIONS  (21 levels, 8 boss fights)
 // ================================================================
 const LEVELS = [
     {
@@ -45,6 +45,7 @@ const LEVELS = [
         id:3, name:"THE GATEKEEPER",
         story:["A battlecruiser guards the jump gate.", "Its single cannon fires aimed shots.", "Destroy it to reach the next sector."],
         quota:0, boss:{hp:150,maxHp:150,speed:3,color:'#f0f',name:'GATEKEEPER',fireRate:60,spread:1,shape:'gatekeeper'},
+        bossLore:["The jump gate shudders open. A distress frequency bleeds through static:", "'Warning — the Bastion is mobilizing. They know you are coming.'", "Something ancient stirs in the nebula beyond. Press on, pilot."],
         spawnRate:0.02, enemyMix:[{type:'scout',w:1}],
         starColor:'#fcf', bgTint:'rgba(10,0,10,0.38)'
     },
@@ -66,6 +67,7 @@ const LEVELS = [
         id:6, name:"IRON BASTION",
         story:["The enemy command fortress looms ahead.", "Its triple spread-cannons are devastating.", "Shatter their command — destroy it now."],
         quota:0, boss:{hp:280,maxHp:280,speed:5,color:'#f80',name:'IRON BASTION',fireRate:45,spread:3,shape:'bastion'},
+        bossLore:["The Bastion's reactor core detonates in a cascade of molten fire.", "Their chain of command collapses. But even now your sensors pulse:", "'Deep in the nebula — an ancient destroyer. It is awakening.'"],
         spawnRate:0.028, enemyMix:[{type:'raider',w:1}],
         starColor:'#fa8', bgTint:'rgba(12,4,0,0.38)'
     },
@@ -87,6 +89,7 @@ const LEVELS = [
         id:9, name:"DARK HERALD",
         story:["Warlord Zarak commands the destroyer.", "Its quadruple-spread cannon tears ships apart.", "Defeat the Dark Herald — end his reign."],
         quota:0, boss:{hp:400,maxHp:400,speed:6,color:'#a0f',name:'DARK HERALD',fireRate:38,spread:4,shape:'herald'},
+        bossLore:["Warlord Zarak's final transmission fractures across all frequencies:", "'You cannot stop what has been awakened, pilot. The Void... remembers.'", "The void pulses with cold energy. Something darker now rises from its depths."],
         spawnRate:0.034, enemyMix:[{type:'raider',w:2},{type:'heavy',w:1}],
         starColor:'#c8f', bgTint:'rgba(5,0,15,0.38)'
     },
@@ -108,6 +111,7 @@ const LEVELS = [
         id:12, name:"THE VOID HARBINGER",
         story:["An ancient entity emerges from the void.", "Eight spiked arms. A pulsing dark core.", "Destroy it before it tears space apart."],
         quota:0, boss:{hp:500,maxHp:500,speed:7,color:'#0af',name:'VOID HARBINGER',fireRate:33,spread:4,shape:'harbinger'},
+        bossLore:["The Harbinger's spiked hull implodes into a collapsing singularity.", "Its death-shriek tears across eleven dimensions simultaneously.", "'Something older... without name... has heard the call.' Your scanner screams."],
         spawnRate:0.030, enemyMix:[{type:'heavy',w:2},{type:'raider',w:1}],
         starColor:'#4af', bgTint:'rgba(0,6,14,0.42)'
     },
@@ -115,6 +119,7 @@ const LEVELS = [
         id:13, name:"THE OVERLORD",
         story:["The Overlord. Destroyer of civilizations.", "Five cannons. Blinding speed. No mercy.", "This is the final battle. End it NOW."],
         quota:0, boss:{hp:600,maxHp:600,speed:9,color:'#f04',name:'THE OVERLORD',fireRate:28,spread:5,shape:'overlord'},
+        bossLore:["The Overlord's hull cracks apart in a blinding shockwave. Silence.", "But your scanner howls: a spectral fleet assembles in the phantom zone.", "'The wraith-king has been watching. He commands us all now.' Press on."],
         spawnRate:0.048, enemyMix:[{type:'scout',w:2},{type:'raider',w:2}],
         starColor:'#f44', bgTint:'rgba(15,0,0,0.38)'
     },
@@ -136,6 +141,7 @@ const LEVELS = [
         id:16, name:"PHANTOM KING",
         story:["The wraith-king commands a spectral fleet.", "Five blinding bursts fired with precision.", "Pierce the veil — destroy the Phantom King."],
         quota:0, boss:{hp:600,maxHp:600,speed:8,color:'#0cf',name:'PHANTOM KING',fireRate:30,spread:5,shape:'phantomking'},
+        bossLore:["The Phantom King shatters into ten thousand motes of spectral light.", "His wraith fleet dissolves. The veil tears open — a signal bleeds through:", "'Beyond the omega rift... the Sentinel waits. Nothing survives its gaze.'"],
         spawnRate:0.038, enemyMix:[{type:'phantom',w:2},{type:'raider',w:1}],
         starColor:'#0ef', bgTint:'rgba(0,8,14,0.42)'
     },
@@ -150,15 +156,38 @@ const LEVELS = [
         id:18, name:"THE ANNIHILATOR",
         story:["It exists to end all life in the universe.", "Six cannons. Indestructible wings. Pure hate.", "There is no tomorrow — ANNIHILATE IT NOW."],
         quota:0, boss:{hp:800,maxHp:800,speed:10,color:'#fff',name:'THE ANNIHILATOR',fireRate:24,spread:6,shape:'annihilator'},
+        bossLore:["The Annihilator's dreadnought frame tears apart in a blinding nova.", "In the silence that follows, your scanner detects one final anomaly:", "'The Omega Rift is opening. The Sentinel emerges. Humanity's last hope — is you.'"],
         spawnRate:0.055, enemyMix:[{type:'phantom',w:2},{type:'titan',w:1},{type:'raider',w:1}],
         starColor:'#fff', bgTint:'rgba(8,8,8,0.44)'
+    },
+    {
+        id:19, name:"EMERALD TIDE",
+        story:["A tide of Marauders pours from the omega rift.", "Their diagonal fire creates impossible kill zones.", "Destroy 75 enemies to carve a path forward."],
+        quota:75, boss:null,
+        spawnRate:0.080, enemyMix:[{type:'marauder',w:5},{type:'phantom',w:3},{type:'heavy',w:2}],
+        starColor:'#5f8', bgTint:'rgba(0,10,2,0.40)'
+    },
+    {
+        id:20, name:"CHAOS VORTEX",
+        story:["Every hostile class converges on your position.", "Titans, marauders, phantoms — no quarter given.", "Survive 90 kills. One final push. Do not fall."],
+        quota:90, boss:null,
+        spawnRate:0.098, enemyMix:[{type:'titan',w:2},{type:'marauder',w:3},{type:'phantom',w:2},{type:'heavy',w:2},{type:'raider',w:1}],
+        starColor:'#fa0', bgTint:'rgba(10,6,0,0.44)'
+    },
+    {
+        id:21, name:"THE OMEGA SENTINEL",
+        story:["Born from the collapse of a dead universe.", "Seven cannons. Regenerating plating. Zero mercy.", "This is humanity's last stand. END IT NOW."],
+        quota:0, boss:{hp:1000,maxHp:1000,speed:11,color:'#5f0',name:'OMEGA SENTINEL',fireRate:20,spread:7,shape:'sentinel'},
+        bossLore:["SIGNAL TERMINATED. The Omega Sentinel's core collapses in on itself.", "Across the galaxy, every enemy ship goes dark. Silence. Pure silence.", "You have saved everything. The stars remember your name. YOUR LEGEND IS ETERNAL."],
+        spawnRate:0.060, enemyMix:[{type:'marauder',w:2},{type:'titan',w:1},{type:'phantom',w:1}],
+        starColor:'#5f0', bgTint:'rgba(2,10,0,0.46)'
     }
 ];
 
 // ================================================================
 // GAME STATE
 // ================================================================
-let gameState = 'title'; // title | guide | intro | playing | levelComplete | shop | customize | gameover | victory
+let gameState = 'title'; // title | guide | intro | playing | bossLore | levelComplete | shop | customize | gameover | victory
 let currentLevelIdx = 0;
 let score = 0, levelStartScore = 0, levelBonus = 0;
 let killCount = 0, bossKilledThisLevel = false;
@@ -174,6 +203,7 @@ let upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
 let floatingTexts = [];
 let randomEventTimer = 700, activeEventText = '', activeEventDisplayTimer = 0;
 let bonusScrapActive = false, bonusScrapTimer = 0;
+let bossLoreLines = [], bossLoreHeadline = '';
 
 const stars = Array.from({length:150}, () => ({
     x: Math.random()*W, y: Math.random()*H,
@@ -245,6 +275,7 @@ function handleTap() {
             gameState = 'levelComplete';
         }
     }
+    else if(gameState === 'bossLore')       { checkLevelComplete(); }
     else if(gameState === 'gameover')      { retryLevel(); }
     else if(gameState === 'victory')       { resetGame(); }
 }
@@ -339,6 +370,8 @@ function spawnEnemy() {
         bots.push({x:ex,y:-30,v:3.0+li*0.22,hp:3,maxHp:3,color:'#0cf',size:30,type:'phantom',drift:(Math.random()-0.5)*2.5,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
     else if(type === 'titan')
         bots.push({x:ex,y:-30,v:1.3+li*0.10,hp:8,maxHp:8,color:'#e00',size:44,type:'titan',drift:0,shootTimer:Math.floor(Math.random()*90),flashTimer:0});
+    else if(type === 'marauder')
+        bots.push({x:ex,y:-30,v:2.0+li*0.20,hp:5,maxHp:5,color:'#5f0',size:32,type:'marauder',drift:(Math.random()-0.5)*0.6,shootTimer:Math.floor(Math.random()*65),flashTimer:0});
 }
 
 function maybeDropPowerup(ex, ey) {
@@ -470,6 +503,29 @@ function drawTitanShip(cx, cy, size, color) {
     ctx.beginPath(); ctx.arc(0, 0, size*0.1, 0, Math.PI*2); ctx.fill();
     ctx.restore();
 }
+
+function drawMarauderShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=14; ctx.shadowColor=color; ctx.fillStyle=color;
+    // Angular forward-swept diamond hull
+    ctx.beginPath();
+    ctx.moveTo(0, -size*0.5); ctx.lineTo(size*0.45, -size*0.08);
+    ctx.lineTo(size*0.28, size*0.5); ctx.lineTo(0, size*0.22);
+    ctx.lineTo(-size*0.28, size*0.5); ctx.lineTo(-size*0.45, -size*0.08);
+    ctx.closePath(); ctx.fill();
+    // Forward prongs
+    ctx.beginPath();
+    ctx.moveTo(size*0.18, -size*0.42); ctx.lineTo(size*0.38, -size*0.62); ctx.lineTo(size*0.28, -size*0.35);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-size*0.18, -size*0.42); ctx.lineTo(-size*0.38, -size*0.62); ctx.lineTo(-size*0.28, -size*0.35);
+    ctx.closePath(); ctx.fill();
+    // Central eye
+    ctx.shadowBlur=10; ctx.shadowColor='#fff'; ctx.fillStyle='rgba(255,255,255,0.9)';
+    ctx.beginPath(); ctx.ellipse(0, -size*0.08, size*0.1, size*0.07, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
 
 function drawBossShip(bx, by, bw, bh, color, shape) {
     ctx.save(); ctx.translate(bx+bw*0.5, by+bh*0.5);
@@ -621,6 +677,34 @@ function drawBossShip(bx, by, bw, bh, color, shape) {
         ctx.beginPath(); ctx.arc(-bw*0.18, -bh*0.15, 8, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc( bw*0.18, -bh*0.15, 8, 0, Math.PI*2); ctx.fill();
 
+    } else if(shape === 'sentinel') {
+        // Omega Sentinel — six-pronged star with rotating ring and pulsing core
+        for(let i=0; i<6; i++) {
+            ctx.save(); ctx.rotate((i/6)*Math.PI*2);
+            ctx.beginPath();
+            ctx.moveTo(-bw*0.08, 0); ctx.lineTo(0, -bh*0.58); ctx.lineTo(bw*0.08, 0);
+            ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+        // Armour ring
+        ctx.fillStyle='rgba(0,0,0,0.80)';
+        ctx.beginPath(); ctx.arc(0, 0, bh*0.3, 0, Math.PI*2); ctx.fill();
+        // Outer energy ring
+        ctx.globalAlpha=0.5; ctx.strokeStyle=color; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(0, 0, bh*0.42, 0, Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+        // Inner weapon ring
+        ctx.shadowBlur=20; ctx.shadowColor=color; ctx.strokeStyle=color; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(0, 0, bh*0.2, 0, Math.PI*2); ctx.stroke();
+        // Pulsing core
+        ctx.shadowBlur=45; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0, 0, bh*0.12, 0, Math.PI*2); ctx.fill();
+        // Weapon pods at alternating prong tips
+        ctx.shadowBlur=10;
+        for(let i=0; i<3; i++) {
+            const a = (i/3)*Math.PI*2 - Math.PI/2;
+            ctx.beginPath(); ctx.arc(Math.cos(a)*bh*0.44, Math.sin(a)*bh*0.44, 6, 0, Math.PI*2); ctx.fill();
+        }
+
     } else {
         // Fallback — original shape
         ctx.beginPath();
@@ -694,6 +778,23 @@ function drawOverlay(title, titleColor, lines, footer, secondaryBtn) {
     ctx.textAlign='left';
 }
 
+function drawBossLoreScreen() {
+    ctx.fillStyle='rgba(0,0,0,0.92)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.shadowBlur=22; ctx.shadowColor='#f0f'; ctx.fillStyle='#f0f';
+    ctx.font='bold 16px Courier New';
+    ctx.fillText('— TRANSMISSION INTERCEPTED —', W/2, H*0.20);
+    ctx.shadowBlur=28; ctx.shadowColor='#ff0'; ctx.fillStyle='#ff0';
+    ctx.font='bold 28px Courier New';
+    ctx.fillText(bossLoreHeadline, W/2, H*0.32);
+    ctx.shadowBlur=0; ctx.fillStyle='#ccc'; ctx.font='16px Courier New';
+    bossLoreLines.forEach((l, i) => ctx.fillText(l, W/2, H*0.46 + i*36));
+    ctx.fillStyle='#555'; ctx.font='14px Courier New';
+    ctx.fillText('\u25B6  TOUCH OR CLICK TO CONTINUE  \u25C0', W/2, H-55);
+    ctx.textAlign='left';
+}
+
+
 function drawCustomizeScreen() {
     ctx.fillStyle='rgba(0,0,0,0.90)'; ctx.fillRect(0,0,W,H);
     ctx.textAlign='center';
@@ -741,14 +842,15 @@ function drawGuideScreen() {
 
     // Enemy entries
     const enemies = [
-        { name:'SCOUT',    color:'#f44', size:22, hp:1, draw:'scout',    desc:'Fast. Unarmed. Deadly on contact.',         threat:'LOW' },
-        { name:'RAIDER',   color:'#f80', size:28, hp:2, draw:'raider',   desc:'Fires aimed shots at you.',                 threat:'MED' },
-        { name:'HEAVY',    color:'#a0f', size:36, hp:4, draw:'heavy',    desc:'Slow but fires straight-down blasts.',      threat:'HIGH' },
-        { name:'ASTEROID', color:'#888', size:38, hp:6, draw:'asteroid', desc:'Indestructible-feeling. No weapon.',        threat:'MED' },
-        { name:'PHANTOM',  color:'#0cf', size:30, hp:3, draw:'phantom',  desc:'Erratic. Twin burst shots. Hard to dodge.', threat:'HIGH' },
-        { name:'TITAN',    color:'#e00', size:44, hp:8, draw:'titan',    desc:'Armoured. Triple spread blasts. Very durable.', threat:'EXTREME' },
+        { name:'SCOUT',    color:'#f44', size:22, hp:1, draw:'scout',    desc:'Fast. Unarmed. Deadly on contact.',                threat:'LOW' },
+        { name:'RAIDER',   color:'#f80', size:28, hp:2, draw:'raider',   desc:'Fires aimed shots at you.',                        threat:'MED' },
+        { name:'HEAVY',    color:'#a0f', size:36, hp:4, draw:'heavy',    desc:'Slow but fires straight-down blasts.',             threat:'HIGH' },
+        { name:'ASTEROID', color:'#888', size:38, hp:6, draw:'asteroid', desc:'Indestructible-feeling. No weapon.',               threat:'MED' },
+        { name:'PHANTOM',  color:'#0cf', size:30, hp:3, draw:'phantom',  desc:'Erratic. Twin burst shots. Hard to dodge.',        threat:'HIGH' },
+        { name:'TITAN',    color:'#e00', size:44, hp:8, draw:'titan',    desc:'Armoured. Triple spread blasts. Very durable.',    threat:'EXTREME' },
+        { name:'MARAUDER', color:'#5f0', size:32, hp:5, draw:'marauder', desc:'Diagonal twin shots. Forward-swept prongs.',       threat:'HIGH' },
     ];
-    const rowH = H * 0.085;
+    const rowH = H * 0.075;
     enemies.forEach((e, i) => {
         const rowY = H*0.155 + i*rowH;
         const previewCX = W*0.14, previewCY = rowY + rowH*0.4;
@@ -756,6 +858,7 @@ function drawGuideScreen() {
         else if(e.draw==='heavy')    drawHeavyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         else if(e.draw==='titan')    drawTitanShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         else if(e.draw==='phantom')  drawPhantomShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='marauder') drawMarauderShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         else                         drawEnemyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         ctx.shadowBlur=8; ctx.shadowColor=e.color; ctx.fillStyle=e.color;
         ctx.font='bold 13px Courier New'; ctx.textAlign='left';
@@ -793,13 +896,14 @@ function drawGuideScreen() {
     ctx.fillText('— BOSS ENCOUNTERS —', W/2, bossY);
     ctx.shadowBlur=0;
     const bossList = [
-        {name:'GATEKEEPER',    lvl:3,  color:'#f0f'},
-        {name:'IRON BASTION',  lvl:6,  color:'#f80'},
-        {name:'DARK HERALD',   lvl:9,  color:'#a0f'},
-        {name:'VOID HARBINGER',lvl:12, color:'#0af'},
-        {name:'THE OVERLORD',  lvl:13, color:'#f04'},
-        {name:'PHANTOM KING',  lvl:16, color:'#0cf'},
-        {name:'THE ANNIHILATOR',lvl:18,color:'#fff'},
+        {name:'GATEKEEPER',     lvl:3,  color:'#f0f'},
+        {name:'IRON BASTION',   lvl:6,  color:'#f80'},
+        {name:'DARK HERALD',    lvl:9,  color:'#a0f'},
+        {name:'VOID HARBINGER', lvl:12, color:'#0af'},
+        {name:'THE OVERLORD',   lvl:13, color:'#f04'},
+        {name:'PHANTOM KING',   lvl:16, color:'#0cf'},
+        {name:'THE ANNIHILATOR',lvl:18, color:'#fff'},
+        {name:'OMEGA SENTINEL', lvl:21, color:'#5f0'},
     ];
     // Two-column layout so all bosses fit
     const colMid = W * 0.3, colRight = W * 0.72;
@@ -893,9 +997,9 @@ function loop() {
     if(gameState === 'title') {
         drawOverlay('NEON SHOOTER', '#0ff',
             ['— A SPACE ADVENTURE —', '',
-             '13 LEVELS  \u00B7  4 ENEMY TYPES  \u00B7  5 BOSSES',
+             '21 LEVELS  \u00B7  7 ENEMY TYPES  \u00B7  8 BOSSES',
              'TRAVERSE NEBULAE, ASTEROID FIELDS',
-             'AND FACE THE OVERLORD'],
+             'AND FACE THE OMEGA SENTINEL'],
             '\u25B6  TOUCH OR CLICK TO START  \u25C0');
         ctx.textAlign='center';
         ctx.shadowBlur=14; ctx.shadowColor='#ff8'; ctx.fillStyle='#ff8';
@@ -912,6 +1016,10 @@ function loop() {
         drawOverlay('LEVEL '+(currentLevelIdx+1), '#ff0',
             [lvl.name, '', ...lvl.story],
             '\u25B6  TOUCH OR CLICK TO BEGIN  \u25C0');
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'bossLore') {
+        drawBossLoreScreen();
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'levelComplete') {
@@ -948,8 +1056,8 @@ function loop() {
     }
     if(gameState === 'victory') {
         drawOverlay('MISSION COMPLETE', '#ff0',
-            ['THE OVERLORD IS DEFEATED.', 'THE GALAXY IS SAVED.', '',
-             'FINAL SCORE: '+score, 'ALL 13 LEVELS CLEARED!'],
+            ['THE OMEGA SENTINEL IS DESTROYED.', 'THE GALAXY IS SAVED. YOUR LEGEND IS ETERNAL.', '',
+             'FINAL SCORE: '+score, 'ALL 21 LEVELS CLEARED!'],
             '\u25B6  TOUCH OR CLICK TO PLAY AGAIN  \u25C0');
         requestAnimationFrame(loop); return;
     }
@@ -1064,10 +1172,11 @@ function loop() {
                 activeEventText='\u{1F47B} PHANTOM STRIKE!'; activeEventDisplayTimer=140;
             } else {
                 for(let i=0;i<3;i++) {
-                    const t2=['raider','heavy','scout','phantom'][Math.floor(Math.random()*4)];
+                    const t2=['raider','heavy','scout','phantom','marauder'][Math.floor(Math.random()*5)];
                     if(t2==='raider') bots.push({x:Math.random()*(W-50)+10,y:-30,v:2.5+li*0.25,hp:2,maxHp:2,color:'#f80',size:28,type:'raider',drift:(Math.random()-0.5)*0.8,shootTimer:Math.floor(Math.random()*80),flashTimer:0});
                     else if(t2==='heavy') bots.push({x:Math.random()*(W-50)+10,y:-30,v:1.8+li*0.18,hp:4,maxHp:4,color:'#a0f',size:36,type:'heavy',drift:0,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
                     else if(t2==='phantom') bots.push({x:Math.random()*(W-50)+10,y:-30,v:3.0+li*0.22,hp:3,maxHp:3,color:'#0cf',size:30,type:'phantom',drift:(Math.random()-0.5)*2.5,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
+                    else if(t2==='marauder') bots.push({x:Math.random()*(W-50)+10,y:-30,v:2.0+li*0.20,hp:5,maxHp:5,color:'#5f0',size:32,type:'marauder',drift:(Math.random()-0.5)*0.6,shootTimer:Math.floor(Math.random()*65),flashTimer:0});
                     else bots.push({x:Math.random()*(W-50)+10,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0,flashTimer:0});
                 }
                 activeEventText='\u2620 ENEMY SURGE!'; activeEventDisplayTimer=140;
@@ -1117,11 +1226,19 @@ function loop() {
                 bullets.push({x:b.x+b.size/2,    y:b.y+b.size*0.9, v:3.0, enemy:true, width:8});
                 bullets.push({x:b.x+b.size/2+12, y:b.y+b.size*0.9, v:3.0, enemy:true, width:8});
             }
+        } else if(b.type==='marauder') {
+            b.shootTimer++;
+            if(b.shootTimer >= 65-currentLevelIdx*2) {
+                b.shootTimer=0;
+                bullets.push({x:b.x+b.size*0.3, y:b.y+b.size*0.8, v:3.5, vx:-1.8, enemy:true, width:6});
+                bullets.push({x:b.x+b.size*0.7, y:b.y+b.size*0.8, v:3.5, vx: 1.8, enemy:true, width:6});
+            }
         }
         if(b.type==='asteroid')      drawAsteroid(b.x,b.y,b.size,b.color);
         else if(b.type==='heavy')    drawHeavyShip(b.x,b.y,b.size,b.color);
         else if(b.type==='titan')    drawTitanShip(b.x,b.y,b.size,b.color);
         else if(b.type==='phantom')  drawPhantomShip(b.x,b.y,b.size,b.color);
+        else if(b.type==='marauder') drawMarauderShip(b.x,b.y,b.size,b.color);
         else                         drawEnemyShip(b.x,b.y,b.size,b.color);
         if(b.flashTimer > 0) {
             b.flashTimer--;
@@ -1181,7 +1298,11 @@ function loop() {
                 scraps += bsc;
                 floatingTexts.push({x:boss.x+60,y:boss.y+45,text:'+'+bsc+'\u2B21',color:'#ff0',life:1.2,decay:0.016,vy:-1.5});
                 score += 100+currentLevelIdx*20;
-                boss=null; bossKilledThisLevel=true; checkLevelComplete();
+                const lvlDef = LEVELS[currentLevelIdx];
+                bossLoreHeadline = (lvlDef.boss ? lvlDef.boss.name : 'BOSS') + ' DESTROYED';
+                bossLoreLines = lvlDef.bossLore || ['The enemy falls. Move forward.'];
+                boss=null; bossKilledThisLevel=true;
+                gameState = 'bossLore';
             } else {
                 spawnParticles(b.x, b.y, boss.color, 4);
             }
@@ -1193,12 +1314,12 @@ function loop() {
                     if(bot.hp<=0) {
                         spawnParticles(bot.x+bot.size/2,bot.y+bot.size/2,bot.color,14);
                         maybeDropPowerup(bot.x+bot.size/2,bot.y+bot.size/2);
-                        const sc=bot.type==='titan'?6:bot.type==='heavy'?4:bot.type==='phantom'?3:bot.type==='raider'?2:bot.type==='asteroid'?3:1;
+                        const sc=bot.type==='titan'?6:bot.type==='heavy'?4:bot.type==='phantom'?3:bot.type==='marauder'?4:bot.type==='raider'?2:bot.type==='asteroid'?3:1;
                         const scFinal = bonusScrapActive ? sc*2 : sc;
                         scraps+=scFinal;
                         floatingTexts.push({x:bot.x+bot.size/2,y:bot.y+bot.size/2,text:'+'+scFinal+'\u2B21'+(bonusScrapActive?' x2':''),color:'#ff0',life:1.0,decay:0.022,vy:-1.4});
                         bots.splice(bi,1);
-                        score += bot.type==='titan'?8 : bot.type==='heavy'?5 : bot.type==='phantom'?4 : bot.type==='raider'?3 : bot.type==='asteroid'?3 : 1;
+                        score += bot.type==='titan'?8 : bot.type==='heavy'?5 : bot.type==='phantom'?4 : bot.type==='marauder'?5 : bot.type==='raider'?3 : bot.type==='asteroid'?3 : 1;
                         killCount++; checkLevelComplete();
                     } else {
                         bot.flashTimer = 6;
