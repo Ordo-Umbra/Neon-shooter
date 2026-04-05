@@ -24,7 +24,7 @@ const ENGINE_COLORS = ['#08f','#f80','#0f8','#a0f'];
 const ENGINE_NAMES  = ['BLUE','AMBER','GREEN','PURPLE'];
 
 // ================================================================
-// LEVEL DEFINITIONS  (21 levels, 8 boss fights)
+// LEVEL DEFINITIONS  (50 levels, 14 boss fights)
 // ================================================================
 const LEVELS = [
     {
@@ -248,6 +248,133 @@ const LEVELS = [
         spawnRate:0.065, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:1},{type:'wraith',w:1}],
         starColor:'#c0f', bgTint:'rgba(10,0,18,0.48)'
     }
+    ,{
+        id:31, name:"PULSE GATE",
+        story:["Pulsar cannons seed the approach corridor.", "Their radial blasts ignore cover — dodge fast.", "Destroy 100 enemies to break through the gate."],
+        quota:100, boss:null,
+        spawnRate:0.092, enemyMix:[{type:'pulsar',w:4},{type:'interceptor',w:3},{type:'drone',w:3}],
+        starColor:'#f8a', bgTint:'rgba(14,4,6,0.44)'
+    },{
+        id:32, name:"CARRIER CONVOY",
+        story:["Enemy carriers flood the sector with drone swarms.", "Destroy the carriers before they overwhelm you.", "Eliminate 85 targets to punch through the convoy."],
+        quota:85, boss:null,
+        spawnRate:0.078, enemyMix:[{type:'carrier',w:3},{type:'drone',w:5},{type:'scout',w:2}],
+        starColor:'#28f', bgTint:'rgba(0,4,14,0.44)'
+    },{
+        id:33, name:"THE SPECTRE",
+        story:["A ghost-ship of infinite dread materialises.", "Its spectral cannons phase through shields.", "Destroy the Spectre — end its haunting NOW."],
+        quota:0, boss:{hp:1600,maxHp:1600,speed:9,color:'#adf',name:'THE SPECTRE',fireRate:22,spread:7,shape:'spectre'},
+        bossLore:["The Spectre dissolves into shrieking void-light.", "Its death-scream echoes across dimensions:", "'We were Legion. The Undying carries our will forward. Destroy it... if you can.'"],
+        spawnRate:0.040, enemyMix:[{type:'stealth',w:2},{type:'wraith',w:1}],
+        starColor:'#adf', bgTint:'rgba(4,8,16,0.46)'
+    },{
+        id:34, name:"LANCER BLITZ",
+        story:["Lancer strike craft tear through your defences.", "Their triple column fire is nearly undodgeable.", "Destroy 90 lancers to end the blitz."],
+        quota:90, boss:null,
+        spawnRate:0.088, enemyMix:[{type:'lancer',w:5},{type:'interceptor',w:3},{type:'phantom',w:2}],
+        starColor:'#0fe', bgTint:'rgba(0,10,8,0.44)'
+    },{
+        id:35, name:"KAMIKAZE STORM",
+        story:["Suicide drones detonate across your flight path.", "Nothing will stop their final charge.", "Survive 95 kills — or be consumed by the storm."],
+        quota:95, boss:null,
+        spawnRate:0.096, enemyMix:[{type:'kamikaze',w:5},{type:'drone',w:4},{type:'scout',w:1}],
+        starColor:'#f40', bgTint:'rgba(14,4,0,0.44)'
+    },{
+        id:36, name:"THE UNDYING",
+        story:["It has died a thousand times — and risen each time.", "Armour that regenerates. Hatred that never fades.", "DESTROY THE UNDYING — END THE CYCLE NOW."],
+        quota:0, boss:{hp:1800,maxHp:1800,speed:9,color:'#4fa',name:'THE UNDYING',fireRate:20,spread:8,shape:'undying'},
+        bossLore:["The Undying finally, truly, falls.", "Its fractured hull bleeds void-energy across the sector:", "'The Architect... built us all. It waits beyond the rift. You will not survive its gaze.'"],
+        spawnRate:0.044, enemyMix:[{type:'kamikaze',w:2},{type:'carrier',w:1}],
+        starColor:'#4fa', bgTint:'rgba(2,10,4,0.46)'
+    },{
+        id:37, name:"STEALTH ZONE",
+        story:["Stealth operatives phase in and out of visibility.", "You cannot target what you cannot see.", "Destroy 80 ghost-ships to clear the zone."],
+        quota:80, boss:null,
+        spawnRate:0.082, enemyMix:[{type:'stealth',w:4},{type:'wraith',w:3},{type:'nullifier',w:2},{type:'phantom',w:1}],
+        starColor:'#8f8', bgTint:'rgba(2,8,2,0.44)'
+    },{
+        id:38, name:"CARRIER ARMADA",
+        story:["Carrier battlegroups deploy endless drone waves.", "Pulsar cannons guard every approach vector.", "Destroy 85 ships to shatter the armada."],
+        quota:85, boss:null,
+        spawnRate:0.080, enemyMix:[{type:'carrier',w:3},{type:'pulsar',w:3},{type:'vanguard',w:2},{type:'drone',w:2}],
+        starColor:'#48f', bgTint:'rgba(2,4,16,0.46)'
+    },{
+        id:39, name:"OMEGA BREACH",
+        story:["Void-energy tears the fabric of space open.", "The heaviest units pour through without mercy.", "Survive 110 kills or be swallowed by the breach."],
+        quota:110, boss:null,
+        spawnRate:0.108, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:2},{type:'berserker',w:3},{type:'titan',w:2}],
+        starColor:'#08f', bgTint:'rgba(0,4,16,0.48)'
+    },{
+        id:40, name:"THE ARCHITECT",
+        story:["The Architect — designer of all enemy weaponry.", "Crystalline hull. Fractal fire patterns. No limit.", "DESTROY THE ARCHITECT — BREAK THEIR DESIGN."],
+        quota:0, boss:{hp:2200,maxHp:2200,speed:10,color:'#fa4',name:'THE ARCHITECT',fireRate:18,spread:9,shape:'architect'},
+        bossLore:["The Architect's crystalline form shatters into ten thousand fragments.", "In the debris field, a single transmission bleeds through:", "'My masterpiece awaits beyond. The Reaper was forged to never fall. You will die — beautifully.'"],
+        spawnRate:0.050, enemyMix:[{type:'pulsar',w:2},{type:'lancer',w:1},{type:'carrier',w:1}],
+        starColor:'#fa4', bgTint:'rgba(14,6,0,0.48)'
+    },{
+        id:41, name:"PULSAR INFERNO",
+        story:["Pulsars ignite in every direction — no safe zone.", "Titan armour guards the flanks without mercy.", "100 kills. Weave through the inferno and survive."],
+        quota:100, boss:null,
+        spawnRate:0.100, enemyMix:[{type:'pulsar',w:4},{type:'titan',w:3},{type:'bomber',w:2},{type:'drone',w:1}],
+        starColor:'#f8a', bgTint:'rgba(14,5,2,0.48)'
+    },{
+        id:42, name:"VOID SURGE",
+        story:["Void entities surge through every dimension at once.", "Berserkers lead the charge with lethal intensity.", "105 kills to seal the breach — move now."],
+        quota:105, boss:null,
+        spawnRate:0.106, enemyMix:[{type:'nullifier',w:3},{type:'zigzag',w:2},{type:'berserker',w:3},{type:'carrier',w:2}],
+        starColor:'#60f', bgTint:'rgba(6,0,16,0.48)'
+    },{
+        id:43, name:"LANCER ARMADA",
+        story:["Lancer destroyers spread in impossible formation.", "Snipers target from extreme range — no escape.", "Destroy 95 enemies — every shot must count."],
+        quota:95, boss:null,
+        spawnRate:0.098, enemyMix:[{type:'lancer',w:4},{type:'sniper',w:3},{type:'interceptor',w:2},{type:'phantom',w:1}],
+        starColor:'#0fe', bgTint:'rgba(0,10,8,0.48)'
+    },{
+        id:44, name:"THE REAPER",
+        story:["The Reaper — cosmic scythe of extinction.", "Its crescent hull splits space with every pass.", "Face your end. DESTROY THE REAPER NOW."],
+        quota:0, boss:{hp:2500,maxHp:2500,speed:11,color:'#f0a',name:'THE REAPER',fireRate:16,spread:9,shape:'reaper'},
+        bossLore:["The Reaper's crescent hull splits apart in a blinding arc of energy.", "As silence falls, a signal of incomprehensible scale saturates every frequency:", "'The Genesis Prime stirs. All that exists was born from it. All will return to it.'"],
+        spawnRate:0.055, enemyMix:[{type:'stealth',w:2},{type:'kamikaze',w:2}],
+        starColor:'#f0a', bgTint:'rgba(14,0,8,0.48)'
+    },{
+        id:45, name:"SHADOW STORM",
+        story:["Stealth operatives, kamikazes and carriers converge.", "Three threat types — no time to breathe.", "Destroy 100 enemies to outlast the shadow storm."],
+        quota:100, boss:null,
+        spawnRate:0.104, enemyMix:[{type:'stealth',w:3},{type:'carrier',w:2},{type:'kamikaze',w:3},{type:'lancer',w:2}],
+        starColor:'#8f8', bgTint:'rgba(2,8,2,0.48)'
+    },{
+        id:46, name:"DEATH SPIRAL",
+        story:["Every hostile class mobilized. No formation — pure chaos.", "There are no pauses, no respite, no quarter given.", "Destroy 120 enemies or be erased from history."],
+        quota:120, boss:null,
+        spawnRate:0.112, enemyMix:[{type:'pulsar',w:2},{type:'carrier',w:2},{type:'lancer',w:2},{type:'kamikaze',w:2},{type:'stealth',w:2},{type:'dreadnought',w:1},{type:'berserker',w:2},{type:'nullifier',w:2}],
+        starColor:'#f44', bgTint:'rgba(14,0,0,0.50)'
+    },{
+        id:47, name:"INFINITY GATE",
+        story:["The gate to the final dimension yawns before you.", "Nothing emerges from the other side alive.", "130 kills. The last wave before the end. Survive."],
+        quota:130, boss:null,
+        spawnRate:0.118, enemyMix:[{type:'pulsar',w:2},{type:'carrier',w:2},{type:'lancer',w:2},{type:'stealth',w:2},{type:'titan',w:2},{type:'nullifier',w:2},{type:'dreadnought',w:1},{type:'kamikaze',w:2},{type:'berserker',w:1}],
+        starColor:'#fff', bgTint:'rgba(8,8,8,0.50)'
+    },{
+        id:48, name:"THE GENESIS PRIME",
+        story:["The source of all void-life. The womb of extinction.", "Spider-like hull. Twelve weapon nodes. No mercy.", "DESTROY THE GENESIS PRIME — END ALL OF THIS."],
+        quota:0, boss:{hp:3000,maxHp:3000,speed:11,color:'#fa0',name:'GENESIS PRIME',fireRate:14,spread:10,shape:'genesisprime'},
+        bossLore:["The Genesis Prime's egg-hull ruptures in a cataclysmic nova.", "Reality fractures. Space-time rebuilds itself from the shockwave.", "'You dare... face the Cosmic Destroyer? You are NOTHING. Come. Be unmade.'"],
+        spawnRate:0.060, enemyMix:[{type:'carrier',w:2},{type:'pulsar',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fa0', bgTint:'rgba(14,8,0,0.50)'
+    },{
+        id:49, name:"ARMAGEDDON",
+        story:["Total annihilation from every direction at once.", "The final wave. The last test. The end of all hope.", "140 kills. This is ARMAGEDDON. Do not fall here."],
+        quota:140, boss:null,
+        spawnRate:0.124, enemyMix:[{type:'pulsar',w:2},{type:'carrier',w:2},{type:'lancer',w:2},{type:'kamikaze',w:2},{type:'stealth',w:2},{type:'dreadnought',w:2},{type:'berserker',w:2},{type:'nullifier',w:2},{type:'titan',w:1},{type:'wraith',w:1}],
+        starColor:'#f44', bgTint:'rgba(14,2,2,0.52)'
+    },{
+        id:50, name:"THE COSMIC DESTROYER",
+        story:["It unmakes galaxies for sport. It ends everything.", "Twelve void-cannons. Infinite power. Zero weakness.", "THIS IS THE ABSOLUTE END. DESTROY IT OR DIE FOREVER."],
+        quota:0, boss:{hp:4000,maxHp:4000,speed:12,color:'#fff',name:'COSMIC DESTROYER',fireRate:12,spread:12,shape:'cosmicdestroyer'},
+        bossLore:["THE COSMIC DESTROYER IS ANNIHILATED.", "Across all dimensions, across every timeline, every void entity screams and dissolves.", "You did the impossible. You are beyond legend. THE UNIVERSE LIVES BECAUSE OF YOU. ETERNAL GLORY."],
+        spawnRate:0.070, enemyMix:[{type:'pulsar',w:2},{type:'nullifier',w:2},{type:'dreadnought',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fff', bgTint:'rgba(8,8,8,0.52)'
+    }
 ];
 
 // ================================================================
@@ -273,6 +400,7 @@ let randomEventTimer = 700, activeEventText = '', activeEventDisplayTimer = 0;
 let bonusScrapActive = false, bonusScrapTimer = 0;
 let comboCount = 0, comboTimer = 0;
 let nukeFlash = 0;
+let freezeTimer = 0, overdriveTimer = 0;
 let bossLoreLines = [], bossLoreHeadline = '';
 
 const stars = Array.from({length:150}, () => ({
@@ -629,12 +757,22 @@ function spawnEnemy() {
         bots.push({x:ex,y:-30,v:2.8+li*0.24,hp:3,maxHp:3,color:'#0f4',size:26,type:'zigzag',drift:0,shootTimer:Math.floor(Math.random()*60),flashTimer:0,phase:Math.random()*Math.PI*2});
     else if(type === 'berserker')
         bots.push({x:ex,y:-34,v:2.8+li*0.25,hp:5,maxHp:5,color:'#f50',size:30,type:'berserker',drift:0,shootTimer:0,flashTimer:0,phase:0});
+    else if(type === 'pulsar')
+        bots.push({x:ex,y:-36,v:1.4+li*0.14,hp:4,maxHp:4,color:'#f8a',size:32,type:'pulsar',drift:(Math.random()-0.5)*0.4,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
+    else if(type === 'carrier')
+        bots.push({x:ex,y:-50,v:1.2+li*0.10,hp:8,maxHp:8,color:'#28f',size:46,type:'carrier',drift:0,shootTimer:0,flashTimer:0,droneTimer:Math.floor(Math.random()*120)+80});
+    else if(type === 'lancer')
+        bots.push({x:ex,y:-24,v:4.2+li*0.38,hp:2,maxHp:2,color:'#0fe',size:20,type:'lancer',drift:(Math.random()-0.5)*0.6,shootTimer:Math.floor(Math.random()*30),flashTimer:0,burstCount:0});
+    else if(type === 'kamikaze')
+        bots.push({x:ex,y:-28,v:2.2+li*0.20,hp:2,maxHp:2,color:'#f40',size:24,type:'kamikaze',drift:(Math.random()-0.5)*0.8,shootTimer:0,flashTimer:0,rushing:false});
+    else if(type === 'stealth')
+        bots.push({x:ex,y:-32,v:2.6+li*0.22,hp:3,maxHp:3,color:'#8f8',size:28,type:'stealth',drift:(Math.random()-0.5)*1.2,shootTimer:Math.floor(Math.random()*80),flashTimer:0,stealthPhase:Math.random()*Math.PI*2});
 }
 
 function maybeDropPowerup(ex, ey) {
     if(Math.random() > 0.13) return;
-    const types = ['health','rapid','shield','laser','nuke'];
-    const weights = [5,3,3,2,1];
+    const types = ['health','rapid','shield','laser','nuke','overdrive','freeze'];
+    const weights = [5,3,3,2,1,2,2];
     let total = weights.reduce((a,b)=>a+b,0), r = Math.random()*total;
     let type = types[0];
     for(let i=0;i<types.length;i++){r-=weights[i];if(r<=0){type=types[i];break;}}
@@ -646,6 +784,8 @@ function applyPowerup(type) {
     else if(type === 'rapid') { player.rapidTimer = 600; }
     else if(type === 'shield') { player.shieldActive = true; }
     else if(type === 'laser') { player.laserTimer = 360; }
+    else if(type === 'overdrive') { overdriveTimer = 480; }
+    else if(type === 'freeze') { freezeTimer = 180; screenShake=8; spawnParticles(W/2,H/2,'#8ff',40); playSound('powerup'); return; }
     else if(type === 'nuke') {
         nukeFlash = 18;
         const killed = bots.length;
@@ -989,6 +1129,81 @@ function drawBerserkerShip(cx, cy, size, color) {
     ctx.restore();
 }
 
+function drawPulsarShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=14; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    for(let i=0;i<6;i++){const a=(i/6)*Math.PI*2-Math.PI/6;i===0?ctx.moveTo(Math.cos(a)*size*0.38,Math.sin(a)*size*0.38):ctx.lineTo(Math.cos(a)*size*0.38,Math.sin(a)*size*0.38);}
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=18;
+    for(let i=0;i<6;i++){
+        const a=(i/6)*Math.PI*2;
+        ctx.beginPath(); ctx.moveTo(Math.cos(a)*size*0.36,Math.sin(a)*size*0.36); ctx.lineTo(Math.cos(a)*size*0.56,Math.sin(a)*size*0.56); ctx.lineWidth=3; ctx.strokeStyle=color; ctx.stroke();
+    }
+    ctx.shadowBlur=22; ctx.fillStyle='rgba(255,255,200,0.9)';
+    ctx.beginPath(); ctx.arc(0,0,size*0.12,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
+function drawCarrierShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=12; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0,-size*0.45); ctx.lineTo(size*0.5,-size*0.18);
+    ctx.lineTo(size*0.5,size*0.42); ctx.lineTo(-size*0.5,size*0.42);
+    ctx.lineTo(-size*0.5,-size*0.18);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,0.70)';
+    ctx.beginPath(); ctx.rect(-size*0.28,size*0.04,size*0.56,size*0.26); ctx.fill();
+    ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.moveTo(-size*0.28,size*0.17); ctx.lineTo(size*0.28,size*0.17); ctx.stroke();
+    ctx.fillStyle=color; ctx.shadowBlur=10;
+    ctx.beginPath(); ctx.rect(-size*0.14,-size*0.45,size*0.28,size*0.22); ctx.fill();
+    ctx.restore();
+}
+
+function drawLancerShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=14; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0,-size*0.62); ctx.lineTo(size*0.1,-size*0.18);
+    ctx.lineTo(size*0.28,size*0.5); ctx.lineTo(-size*0.28,size*0.5);
+    ctx.lineTo(-size*0.1,-size*0.18);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=22; ctx.shadowColor='#fff'; ctx.fillStyle='rgba(255,255,255,0.95)';
+    ctx.beginPath(); ctx.ellipse(0,-size*0.5,size*0.05,size*0.14,0,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
+function drawKamikazeShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=16; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0,-size*0.5); ctx.lineTo(size*0.22,-size*0.22);
+    ctx.lineTo(size*0.5,-size*0.36); ctx.lineTo(size*0.36,size*0.05);
+    ctx.lineTo(size*0.5,size*0.42); ctx.lineTo(0,size*0.22);
+    ctx.lineTo(-size*0.5,size*0.42); ctx.lineTo(-size*0.36,size*0.05);
+    ctx.lineTo(-size*0.5,-size*0.36); ctx.lineTo(-size*0.22,-size*0.22);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=24; ctx.shadowColor='#ff4'; ctx.fillStyle='#ff4';
+    ctx.beginPath(); ctx.arc(0,size*0.06,size*0.15,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
+function drawStealthShip(cx, cy, size, color, alpha) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.globalAlpha = alpha;
+    ctx.shadowBlur=12; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0,-size*0.5); ctx.lineTo(size*0.32,-size*0.08);
+    ctx.lineTo(size*0.48,size*0.38); ctx.lineTo(0,size*0.18);
+    ctx.lineTo(-size*0.48,size*0.38); ctx.lineTo(-size*0.32,-size*0.08);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=16; ctx.shadowColor='#fff'; ctx.fillStyle='rgba(255,255,255,0.75)';
+    ctx.beginPath(); ctx.arc(0,-size*0.08,size*0.1,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
 function drawBossShip(bx, by, bw, bh, color, shape) {
     ctx.save(); ctx.translate(bx+bw*0.5, by+bh*0.5);
     ctx.shadowBlur=30; ctx.shadowColor=color; ctx.fillStyle=color;
@@ -1227,6 +1442,118 @@ function drawBossShip(bx, by, bw, bh, color, shape) {
             ctx.beginPath(); ctx.arc(Math.cos(a)*bh*0.44, Math.sin(a)*bh*0.44, 8, 0, Math.PI*2); ctx.fill();
         }
 
+    } else if(shape === 'spectre') {
+        ctx.globalAlpha=0.82;
+        ctx.beginPath();
+        ctx.moveTo(0,-bh*0.5);
+        ctx.bezierCurveTo(bw*0.18,-bh*0.35, bw*0.55,-bh*0.45, bw*0.5,bh*0.08);
+        ctx.lineTo(bw*0.25,bh*0.5); ctx.lineTo(0,bh*0.32);
+        ctx.lineTo(-bw*0.25,bh*0.5); ctx.lineTo(-bw*0.5,bh*0.08);
+        ctx.bezierCurveTo(-bw*0.55,-bh*0.45, -bw*0.18,-bh*0.35, 0,-bh*0.5);
+        ctx.closePath(); ctx.fill();
+        ctx.globalAlpha=1;
+        ctx.fillStyle='rgba(0,0,0,0.88)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.24,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=40; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.11,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=0.35; ctx.strokeStyle=color; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.44,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+
+    } else if(shape === 'undying') {
+        ctx.beginPath();
+        ctx.moveTo(0,-bh*0.5); ctx.lineTo(bw*0.3,-bh*0.28); ctx.lineTo(bw*0.5,bh*0.1);
+        ctx.lineTo(bw*0.3,bh*0.5); ctx.lineTo(-bw*0.3,bh*0.5);
+        ctx.lineTo(-bw*0.5,bh*0.1); ctx.lineTo(-bw*0.3,-bh*0.28);
+        ctx.closePath(); ctx.fill();
+        for(let i=0;i<5;i++){
+            const a=(i/5)*Math.PI*2-Math.PI/2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a)*bh*0.3,Math.sin(a)*bh*0.3);
+            ctx.lineTo(Math.cos(a)*bh*0.56,Math.sin(a)*bh*0.56);
+            ctx.lineWidth=5; ctx.strokeStyle=color; ctx.shadowBlur=12;
+            ctx.stroke();
+        }
+        ctx.fillStyle='rgba(0,0,0,0.80)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.26,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=38; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.12,0,Math.PI*2); ctx.fill();
+
+    } else if(shape === 'architect') {
+        for(let i=0;i<4;i++){
+            ctx.save(); ctx.rotate((i/4)*Math.PI*2+(Math.PI/4));
+            ctx.beginPath();
+            ctx.moveTo(-bw*0.08,0); ctx.lineTo(0,-bh*0.55); ctx.lineTo(bw*0.08,0);
+            ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+        ctx.save(); ctx.rotate(Math.PI/4);
+        ctx.fillStyle=color; ctx.shadowBlur=16;
+        ctx.beginPath(); ctx.rect(-bh*0.22,-bh*0.22,bh*0.44,bh*0.44); ctx.fill();
+        ctx.restore();
+        ctx.fillStyle='rgba(0,0,0,0.85)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.22,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=44; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.11,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=0.4; ctx.strokeStyle=color; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.38,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+
+    } else if(shape === 'reaper') {
+        ctx.shadowBlur=28;
+        ctx.beginPath(); ctx.arc(0,bh*0.1,bh*0.5,Math.PI*1.1,Math.PI*1.9,false);
+        ctx.arc(0,bh*0.22,bh*0.3,Math.PI*1.9,Math.PI*1.1,true);
+        ctx.closePath(); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(-bw*0.48,-bh*0.08); ctx.lineTo(-bw*0.5,bh*0.2); ctx.lineTo(-bw*0.35,bh*0.12);
+        ctx.closePath(); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(bw*0.48,-bh*0.08); ctx.lineTo(bw*0.5,bh*0.2); ctx.lineTo(bw*0.35,bh*0.12);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle='rgba(0,0,0,0.88)';
+        ctx.beginPath(); ctx.arc(0,bh*0.1,bh*0.18,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=40; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,bh*0.1,bh*0.09,0,Math.PI*2); ctx.fill();
+
+    } else if(shape === 'genesisprime') {
+        ctx.beginPath(); ctx.ellipse(0,0,bw*0.3,bh*0.38,0,0,Math.PI*2); ctx.fill();
+        for(let i=0;i<12;i++){
+            ctx.save(); ctx.rotate((i/12)*Math.PI*2);
+            ctx.beginPath();
+            ctx.moveTo(-bw*0.06,0); ctx.lineTo(0,-bh*0.56); ctx.lineTo(bw*0.06,0);
+            ctx.closePath(); ctx.shadowBlur=10; ctx.fill(); ctx.restore();
+        }
+        ctx.fillStyle='rgba(0,0,0,0.82)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.28,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=0.45; ctx.strokeStyle=color; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.44,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+        ctx.shadowBlur=50; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.14,0,Math.PI*2); ctx.fill();
+
+    } else if(shape === 'cosmicdestroyer') {
+        for(let i=0;i<12;i++){
+            ctx.save(); ctx.rotate((i/12)*Math.PI*2);
+            ctx.beginPath();
+            ctx.moveTo(-bw*0.05,0); ctx.lineTo(0,-bh*0.62); ctx.lineTo(bw*0.05,0);
+            ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+        ctx.fillStyle='rgba(0,0,0,0.86)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.38,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=0.5; ctx.strokeStyle=color; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.50,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=0.35; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.42,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+        ctx.fillStyle='rgba(0,0,0,0.70)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.25,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=60; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.15,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=14;
+        for(let i=0;i<6;i++){
+            const a=(i/6)*Math.PI*2-Math.PI/2;
+            ctx.beginPath(); ctx.arc(Math.cos(a)*bh*0.46,Math.sin(a)*bh*0.46,9,0,Math.PI*2); ctx.fill();
+        }
+
     } else {
         // Fallback — original shape
         ctx.beginPath();
@@ -1260,6 +1587,13 @@ function drawPowerup(pu) {
         ctx.beginPath(); ctx.arc(0,0,4,0,Math.PI*2); ctx.fill();
         ctx.strokeStyle='#f40'; ctx.lineWidth=1.5;
         for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*9,Math.sin(a)*9);ctx.lineTo(Math.cos(a)*14,Math.sin(a)*14);ctx.stroke();}
+    } else if(pu.type === 'overdrive') {
+        ctx.shadowColor='#f80'; ctx.fillStyle='#f80';
+        ctx.beginPath(); ctx.moveTo(0,-12); ctx.lineTo(6,0); ctx.lineTo(3,0); ctx.lineTo(3,12); ctx.lineTo(-3,12); ctx.lineTo(-3,0); ctx.lineTo(-6,0); ctx.closePath(); ctx.fill();
+    } else if(pu.type === 'freeze') {
+        ctx.shadowColor='#8ff'; ctx.strokeStyle='#8ff'; ctx.lineWidth=2;
+        for(let i=0;i<6;i++){const a=(i/6)*Math.PI*2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*11,Math.sin(a)*11);ctx.stroke();}
+        ctx.fillStyle='#8ff'; ctx.beginPath(); ctx.arc(0,0,4,0,Math.PI*2); ctx.fill();
     } else {
         ctx.shadowColor='#0ff'; ctx.strokeStyle='#0ff'; ctx.lineWidth=2.5;
         ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.stroke();
@@ -1279,6 +1613,8 @@ function drawHUD() {
     if(player.shieldActive)    { ctx.fillStyle='#0ff'; ctx.font='15px Courier New'; ctx.fillText('SHIELD',buffX,36); buffX+=80; }
     if(player.rapidTimer > 0)  { ctx.fillStyle='#ff0'; ctx.font='15px Courier New'; ctx.fillText('RAPID', buffX,36); buffX+=70; }
     if(player.laserTimer > 0)  { ctx.fillStyle='#f8f'; ctx.font='15px Courier New'; ctx.fillText('LASER', buffX,36); buffX+=70; }
+    if(overdriveTimer > 0)     { ctx.fillStyle='#f80'; ctx.font='15px Courier New'; ctx.fillText('OVERDRIVE', buffX,36); buffX+=110; }
+    if(freezeTimer > 0)        { ctx.fillStyle='#8ff'; ctx.font='15px Courier New'; ctx.fillText('FREEZE', buffX,36); buffX+=80; }
     if(bonusScrapActive)       { ctx.fillStyle='#f0f'; ctx.font='15px Courier New'; ctx.fillText('x2\u2B21', buffX,36); }
     ctx.fillStyle='#0ff'; ctx.font='18px Courier New'; ctx.textAlign='center';
     ctx.fillText('SCORE: '+score, W/2, 30);
@@ -1774,7 +2110,7 @@ function loop() {
     // Auto-fire
     fireTimer++;
     // Base cadence: 6 frames (no upgrade), 5 (lv1), 4 (lv2); rapid overrides to 2
-    if(fireTimer >= (player.rapidTimer>0 ? 2 : Math.max(3, 6-upgrades.fireRate))) {
+    if(fireTimer >= (player.rapidTimer>0 ? 2 : overdriveTimer>0 ? 1 : Math.max(3, 6-upgrades.fireRate))) {
         fireTimer=0;
         bullets.push({x:player.x+10, y:player.y-2, v:-18, enemy:false, width:4});
         playSound('shoot');
@@ -1821,7 +2157,7 @@ function loop() {
         if(randomEventTimer <= 0) {
             randomEventTimer = 600 + Math.floor(Math.random()*400);
             const li = currentLevelIdx;
-            const evts = ['scout_rush','asteroid_shower','bonus_scrap','enemy_surge','phantom_strike','drone_swarm','berserker_charge'];
+            const evts = ['scout_rush','asteroid_shower','bonus_scrap','enemy_surge','phantom_strike','drone_swarm','berserker_charge','kamikaze_wave','carrier_drop','powerup_storm','lancer_blitz','stealth_ambush'];
             const evt = evts[Math.floor(Math.random()*evts.length)];
             if(evt === 'scout_rush') {
                 for(let i=0;i<5;i++) bots.push({x:Math.random()*(W-50)+10,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0,flashTimer:0});
@@ -1841,6 +2177,21 @@ function loop() {
             } else if(evt === 'berserker_charge') {
                 for(let i=0;i<4;i++) bots.push({x:Math.random()*(W-50)+10,y:-34,v:2.8+li*0.25,hp:5,maxHp:5,color:'#f50',size:30,type:'berserker',drift:0,shootTimer:0,flashTimer:0,phase:0});
                 activeEventText='\uD83D\uDD25 BERSERKER CHARGE!'; activeEventDisplayTimer=140;
+            } else if(evt === 'kamikaze_wave') {
+                for(let i=0;i<6;i++) bots.push({x:Math.random()*(W-50)+10,y:-28,v:2.2+li*0.20,hp:2,maxHp:2,color:'#f40',size:24,type:'kamikaze',drift:(Math.random()-0.5)*0.8,shootTimer:0,flashTimer:0,rushing:false});
+                activeEventText='\uD83D\uDCA5 KAMIKAZE WAVE!'; activeEventDisplayTimer=140;
+            } else if(evt === 'carrier_drop') {
+                for(let i=0;i<2;i++) bots.push({x:Math.random()*(W-50)+10,y:-50,v:1.2+li*0.10,hp:8,maxHp:8,color:'#28f',size:46,type:'carrier',drift:0,shootTimer:0,flashTimer:0,droneTimer:80});
+                activeEventText='\uD83D\uDEF8 CARRIER DROP!'; activeEventDisplayTimer=140;
+            } else if(evt === 'powerup_storm') {
+                for(let i=0;i<4;i++){const types2=['health','rapid','shield','laser','overdrive','freeze'];powerups.push({x:Math.random()*(W-60)+30,y:Math.random()*H*0.4+80,type:types2[Math.floor(Math.random()*types2.length)],vy:1.0,life:500});}
+                activeEventText='\u2728 POWERUP STORM!'; activeEventDisplayTimer=140;
+            } else if(evt === 'lancer_blitz') {
+                for(let i=0;i<5;i++) bots.push({x:Math.random()*(W-50)+10,y:-24,v:4.2+li*0.38,hp:2,maxHp:2,color:'#0fe',size:20,type:'lancer',drift:(Math.random()-0.5)*0.6,shootTimer:Math.floor(Math.random()*30),flashTimer:0,burstCount:0});
+                activeEventText='\u26A1 LANCER BLITZ!'; activeEventDisplayTimer=140;
+            } else if(evt === 'stealth_ambush') {
+                for(let i=0;i<5;i++) bots.push({x:Math.random()*(W-50)+10,y:-32,v:2.6+li*0.22,hp:3,maxHp:3,color:'#8f8',size:28,type:'stealth',drift:(Math.random()-0.5)*1.2,shootTimer:Math.floor(Math.random()*80),flashTimer:0,stealthPhase:Math.random()*Math.PI*2});
+                activeEventText='\uD83D\uDC7B STEALTH AMBUSH!'; activeEventDisplayTimer=140;
             } else {
                 for(let i=0;i<3;i++) {
                     const t2=['raider','heavy','scout','phantom','marauder'][Math.floor(Math.random()*5)];
@@ -1867,7 +2218,7 @@ function loop() {
     // Bots
     for(let i=bots.length-1; i>=0; i--) {
         const b=bots[i];
-        b.y+=b.v; b.x+=b.drift;
+        if(freezeTimer <= 0) { b.y+=b.v; b.x+=b.drift; }
         if(b.type==='raider') {
             b.shootTimer++;
             if(b.shootTimer >= 90-currentLevelIdx*3) {
@@ -1977,6 +2328,46 @@ function loop() {
             b.x += dx * 0.028;
             const hpRatio = b.hp / b.maxHp;
             b.v = (2.8+currentLevelIdx*0.25) * (1 + (1-hpRatio)*1.2);
+        } else if(b.type==='pulsar') {
+            if(freezeTimer <= 0) b.shootTimer++;
+            if(b.shootTimer >= Math.max(30, 90-currentLevelIdx*2)) {
+                b.shootTimer=0;
+                for(let si=0;si<6;si++){
+                    const a=(si/6)*Math.PI*2;
+                    bullets.push({x:b.x+b.size/2,y:b.y+b.size/2,v:Math.sin(a)*4,vx:Math.cos(a)*4,enemy:true,width:4});
+                }
+            }
+        } else if(b.type==='carrier') {
+            if(freezeTimer <= 0) b.droneTimer--;
+            if(b.droneTimer <= 0) {
+                b.droneTimer = 180;
+                const li2=currentLevelIdx;
+                for(let si=0;si<2;si++) bots.push({x:b.x+b.size*0.15+si*b.size*0.5,y:b.y+b.size*0.5,v:4.0+li2*0.35,hp:1,maxHp:1,color:'#fa4',size:16,type:'drone',drift:(Math.random()-0.5)*2.2,shootTimer:0,flashTimer:0});
+            }
+        } else if(b.type==='lancer') {
+            if(freezeTimer <= 0) b.shootTimer++;
+            if(b.shootTimer >= Math.max(10, 40-currentLevelIdx)) {
+                b.shootTimer=0;
+                b.burstCount=(b.burstCount||0)+1;
+                bullets.push({x:b.x+b.size/2,y:b.y+b.size*0.6,v:9,enemy:true,width:3});
+                if(b.burstCount>=3){b.burstCount=0;b.shootTimer=-40;}
+            }
+        } else if(b.type==='kamikaze') {
+            if(freezeTimer <= 0 && !b.rushing && b.y > H*0.25) b.rushing=true;
+            if(b.rushing && freezeTimer <= 0) {
+                const dx=(player.x+12)-(b.x+b.size/2), dy=(player.y+12)-(b.y+b.size/2);
+                const d=Math.hypot(dx,dy)||1;
+                b.x+=dx/d*(4+currentLevelIdx*0.22); b.y+=dy/d*(4+currentLevelIdx*0.22);
+            }
+        } else if(b.type==='stealth') {
+            b.stealthPhase+=0.04;
+            if(freezeTimer <= 0) b.shootTimer++;
+            const stealthAlpha=0.18+Math.abs(Math.sin(b.stealthPhase))*0.82;
+            if(stealthAlpha > 0.7 && b.shootTimer >= Math.max(25,70-currentLevelIdx*2)){
+                b.shootTimer=0;
+                const a=Math.atan2(player.y+12-b.y,player.x+12-b.x);
+                bullets.push({x:b.x+b.size/2,y:b.y+b.size*0.8,v:Math.sin(a)*5,vx:Math.cos(a)*5,enemy:true,width:4});
+            }
         }
         if(b.type==='asteroid')      drawAsteroid(b.x,b.y,b.size,b.color);
         else if(b.type==='heavy')    drawHeavyShip(b.x,b.y,b.size,b.color);
@@ -1995,6 +2386,11 @@ function loop() {
         else if(b.type==='nullifier') drawNullifierShip(b.x,b.y,b.size,b.color);
         else if(b.type==='zigzag')   drawZigzagShip(b.x,b.y,b.size,b.color);
         else if(b.type==='berserker') drawBerserkerShip(b.x,b.y,b.size,b.color);
+        else if(b.type==='pulsar')    drawPulsarShip(b.x,b.y,b.size,b.color);
+        else if(b.type==='carrier')   drawCarrierShip(b.x,b.y,b.size,b.color);
+        else if(b.type==='lancer')    drawLancerShip(b.x,b.y,b.size,b.color);
+        else if(b.type==='kamikaze')  drawKamikazeShip(b.x,b.y,b.size,b.color);
+        else if(b.type==='stealth')   drawStealthShip(b.x,b.y,b.size,b.color,0.18+Math.abs(Math.sin(b.stealthPhase||0))*0.82);
         else                         drawEnemyShip(b.x,b.y,b.size,b.color);
         if(b.flashTimer > 0) {
             b.flashTimer--;
@@ -2081,12 +2477,12 @@ function loop() {
                         spawnParticles(bot.x+bot.size/2,bot.y+bot.size/2,bot.color,14);
                         playSound('enemyDie');
                         maybeDropPowerup(bot.x+bot.size/2,bot.y+bot.size/2);
-                        const sc=bot.type==='titan'?6:bot.type==='dreadnought'?8:bot.type==='vanguard'?5:bot.type==='heavy'?4:bot.type==='phantom'?3:bot.type==='marauder'?4:bot.type==='splitter'?4:bot.type==='bomber'?5:bot.type==='nullifier'?5:bot.type==='wraith'?3:bot.type==='gunship'?3:bot.type==='sniper'?2:bot.type==='interceptor'?2:bot.type==='raider'?2:bot.type==='asteroid'?3:1;
+                        const sc=bot.type==='titan'?6:bot.type==='dreadnought'?8:bot.type==='vanguard'?5:bot.type==='heavy'?4:bot.type==='phantom'?3:bot.type==='marauder'?4:bot.type==='splitter'?4:bot.type==='bomber'?5:bot.type==='nullifier'?5:bot.type==='wraith'?3:bot.type==='gunship'?3:bot.type==='sniper'?2:bot.type==='interceptor'?2:bot.type==='raider'?2:bot.type==='asteroid'?3:bot.type==='carrier'?7:bot.type==='pulsar'?4:bot.type==='lancer'?2:bot.type==='kamikaze'?2:bot.type==='stealth'?3:1;
                         const scFinal = bonusScrapActive ? sc*2 : sc;
                         scraps+=scFinal;
                         floatingTexts.push({x:bot.x+bot.size/2,y:bot.y+bot.size/2,text:'+'+scFinal+'\u2B21'+(bonusScrapActive?' x2':''),color:'#ff0',life:1.0,decay:0.022,vy:-1.4});
                         bots.splice(bi,1);
-                        score += bot.type==='titan'?8 : bot.type==='dreadnought'?10 : bot.type==='vanguard'?6 : bot.type==='heavy'?5 : bot.type==='phantom'?4 : bot.type==='marauder'?5 : bot.type==='bomber'?5 : bot.type==='splitter'?5 : bot.type==='nullifier'?5 : bot.type==='wraith'?4 : bot.type==='gunship'?4 : bot.type==='sniper'?3 : bot.type==='interceptor'?3 : bot.type==='raider'?3 : bot.type==='asteroid'?3 : 1;
+                        score += bot.type==='titan'?8 : bot.type==='dreadnought'?10 : bot.type==='vanguard'?6 : bot.type==='heavy'?5 : bot.type==='phantom'?4 : bot.type==='marauder'?5 : bot.type==='bomber'?5 : bot.type==='splitter'?5 : bot.type==='nullifier'?5 : bot.type==='wraith'?4 : bot.type==='gunship'?4 : bot.type==='sniper'?3 : bot.type==='interceptor'?3 : bot.type==='raider'?3 : bot.type==='asteroid'?3 : bot.type==='carrier'?9 : bot.type==='pulsar'?5 : bot.type==='lancer'?3 : bot.type==='kamikaze'?2 : bot.type==='stealth'?4 : 1;
                         if(bot.type==='splitter') {
                             for(let si=0;si<2;si++) bots.push({x:bot.x+(si-0.5)*bot.size,y:bot.y,v:4.0+currentLevelIdx*0.35,hp:1,maxHp:1,color:'#fa4',size:16,type:'drone',drift:(Math.random()-0.5)*2.2,shootTimer:0,flashTimer:0});
                         }
@@ -2120,6 +2516,13 @@ function loop() {
         ctx.fillRect(0,0,W,H);
         ctx.restore();
     }
+    if(freezeTimer > 0) {
+        freezeTimer--;
+        ctx.save(); ctx.globalAlpha = 0.10;
+        ctx.fillStyle='#8ff'; ctx.fillRect(0,0,W,H);
+        ctx.restore();
+    }
+    if(overdriveTimer > 0) overdriveTimer--;
     if(shakeApplied) ctx.restore();
     drawHUD();
     requestAnimationFrame(loop);
