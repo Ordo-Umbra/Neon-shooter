@@ -671,12 +671,12 @@ function loop() {
             boss.shootTimer=0;
             const sp = boss.spread || 1;
             for(let si=0; si<sp; si++) {
-                const baseA = Math.atan2(player.y-(boss.y+80), player.x-(boss.x+60));
+                const baseA = Math.atan2(player.y+12-(boss.y+80), player.x+12-(boss.x+60));
                 const a = baseA + (si-(sp-1)/2)*0.22, spd=5.5;
                 bullets.push({x:boss.x+60, y:boss.y+85, v:Math.sin(a)*spd, vx:Math.cos(a)*spd, enemy:true, width:5});
             }
         }
-        if(Math.hypot(player.x-(boss.x+60), player.y-(boss.y+45)) < 65) playerHit();
+        if(Math.hypot(player.x+12-(boss.x+60), player.y+12-(boss.y+45)) < 65) playerHit();
     }
 
     // Spawn enemies
@@ -690,7 +690,7 @@ function loop() {
             b.shootTimer++;
             if(b.shootTimer >= 90-currentLevelIdx*3) {
                 b.shootTimer=0;
-                const a=Math.atan2(player.y-b.y, player.x-b.x);
+                const a=Math.atan2(player.y+12-b.y, player.x+12-b.x);
                 bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.8, v:Math.sin(a)*4, vx:Math.cos(a)*4, enemy:true, width:4});
             }
         } else if(b.type==='heavy') {
