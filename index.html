@@ -123,7 +123,7 @@ const LEVELS = [
 // ================================================================
 // GAME STATE
 // ================================================================
-let gameState = 'title'; // title | intro | playing | levelComplete | shop | customize | gameover | victory
+let gameState = 'title'; // title | guide | intro | playing | levelComplete | shop | customize | gameover | victory
 let currentLevelIdx = 0;
 let score = 0, levelStartScore = 0, levelBonus = 0;
 let killCount = 0, bossKilledThisLevel = false;
@@ -137,6 +137,8 @@ let scraps = 0;
 let screenShake = 0;
 let upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
 let floatingTexts = [];
+let randomEventTimer = 700, activeEventText = '', activeEventDisplayTimer = 0;
+let bonusScrapActive = false, bonusScrapTimer = 0;
 
 const stars = Array.from({length:150}, () => ({
     x: Math.random()*W, y: Math.random()*H,
@@ -169,7 +171,11 @@ canvas.addEventListener('touchstart', e => {
 canvas.addEventListener('click', e => { lastClickX = e.clientX; lastClickY = e.clientY; handleTap(); });
 
 function handleTap() {
-    if(gameState === 'title')         { gameState = 'intro'; }
+    if(gameState === 'title') {
+        if(lastClickY > H*0.78 && lastClickY < H*0.91) { gameState = 'guide'; }
+        else { gameState = 'intro'; }
+    }
+    else if(gameState === 'guide')         { gameState = 'title'; }
     else if(gameState === 'intro')         { startLevel(currentLevelIdx); }
     else if(gameState === 'levelComplete') {
         if(lastClickY > H*0.78 && lastClickY < H*0.91) {
@@ -218,6 +224,8 @@ function resetGame() {
     killCount=0; bossKilledThisLevel=false; fireTimer=0;
     shipConfig = { hull:0, color:0, engine:0 }; customizationUnlocked = false;
     scraps = 0; screenShake = 0; floatingTexts = [];
+    randomEventTimer = 700; activeEventText = ''; activeEventDisplayTimer = 0;
+    bonusScrapActive = false; bonusScrapTimer = 0;
     upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
     gameState = 'title';
 }
@@ -230,6 +238,8 @@ function startLevel(idx) {
     player.hp = Math.min(player.hp, player.maxHp);
     if(upgrades.shieldOnStart) { player.shieldActive = true; upgrades.shieldOnStart = false; }
     floatingTexts = [];
+    randomEventTimer = 700; activeEventText = ''; activeEventDisplayTimer = 0;
+    bonusScrapActive = false; bonusScrapTimer = 0;
     const lvl = LEVELS[idx];
     stars.forEach(s => s.color = lvl.starColor || '#fff');
     if(lvl.boss) {
@@ -509,7 +519,8 @@ function drawHUD() {
     }
     let buffX = 110;
     if(player.shieldActive)   { ctx.fillStyle='#0ff'; ctx.font='15px Courier New'; ctx.fillText('SHIELD',buffX,36); buffX+=80; }
-    if(player.rapidTimer > 0) { ctx.fillStyle='#ff0'; ctx.font='15px Courier New'; ctx.fillText('RAPID', buffX,36); }
+    if(player.rapidTimer > 0) { ctx.fillStyle='#ff0'; ctx.font='15px Courier New'; ctx.fillText('RAPID', buffX,36); buffX+=70; }
+    if(bonusScrapActive)      { ctx.fillStyle='#f0f'; ctx.font='15px Courier New'; ctx.fillText('x2\u2B21', buffX,36); }
     ctx.fillStyle='#0ff'; ctx.font='18px Courier New'; ctx.textAlign='center';
     ctx.fillText('SCORE: '+score, W/2, 30);
     ctx.fillStyle='#888'; ctx.font='13px Courier New';
@@ -579,6 +590,81 @@ function drawCustomizeScreen() {
     ctx.fillStyle='#666'; ctx.font='15px Courier New';
     ctx.fillText('\u25B6  CONFIRM & CONTINUE  \u25C0', W/2, H*0.85);
     ctx.textAlign='left'; ctx.shadowBlur=0;
+}
+
+function drawGuideScreen() {
+    ctx.fillStyle='rgba(0,0,0,0.96)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.shadowBlur=22; ctx.shadowColor='#0ff'; ctx.fillStyle='#0ff';
+    ctx.font='bold 26px Courier New';
+    ctx.fillText('\u2139  ENEMY CODEX  \u2139', W/2, H*0.09);
+    ctx.shadowBlur=0;
+
+    // Enemy entries
+    const enemies = [
+        { name:'SCOUT',    color:'#f44', size:22, hp:1, draw:'scout',    desc:'Fast. Unarmed. Deadly on contact.',    threat:'LOW' },
+        { name:'RAIDER',   color:'#f80', size:28, hp:2, draw:'raider',   desc:'Fires aimed shots at you.',           threat:'MED' },
+        { name:'HEAVY',    color:'#a0f', size:36, hp:4, draw:'heavy',    desc:'Slow but fires straight-down blasts.', threat:'HIGH' },
+        { name:'ASTEROID', color:'#888', size:38, hp:6, draw:'asteroid', desc:'Indestructible-feeling. No weapon.',   threat:'MED' },
+    ];
+    const rowH = H * 0.125;
+    enemies.forEach((e, i) => {
+        const rowY = H*0.155 + i*rowH;
+        const previewCX = W*0.14, previewCY = rowY + rowH*0.35;
+        if(e.draw==='asteroid')    drawAsteroid(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='heavy')  drawHeavyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else                       drawEnemyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        ctx.shadowBlur=8; ctx.shadowColor=e.color; ctx.fillStyle=e.color;
+        ctx.font='bold 14px Courier New'; ctx.textAlign='left';
+        ctx.fillText(e.name+'  \u2665 HP: '+e.hp+'  THREAT: '+e.threat, W*0.24, previewCY-4);
+        ctx.shadowBlur=0; ctx.fillStyle='#aaa'; ctx.font='12px Courier New';
+        ctx.fillText(e.desc, W*0.24, previewCY+14);
+    });
+
+    // Powerups
+    const divY = H*0.155 + 4*rowH + H*0.015;
+    ctx.textAlign='center';
+    ctx.shadowBlur=10; ctx.shadowColor='#ff8'; ctx.fillStyle='#ff8';
+    ctx.font='bold 13px Courier New';
+    ctx.fillText('— POWERUPS —', W/2, divY);
+    ctx.shadowBlur=0;
+    const pups = [
+        { sym:'\u2665', col:'#0f0', label:'HEALTH', desc:'Restores 1 HP' },
+        { sym:'\u26A1', col:'#ff0', label:'RAPID',  desc:'Triple rapid fire (10s)' },
+        { sym:'\u25CE', col:'#0ff', label:'SHIELD',  desc:'Absorbs one hit' },
+    ];
+    const pw = W / pups.length;
+    pups.forEach((p, i) => {
+        const px = pw*(i+0.5);
+        ctx.shadowBlur=8; ctx.shadowColor=p.col; ctx.fillStyle=p.col;
+        ctx.font='bold 14px Courier New';
+        ctx.fillText(p.sym+' '+p.label, px, divY+22);
+        ctx.shadowBlur=0; ctx.fillStyle='#888'; ctx.font='11px Courier New';
+        ctx.fillText(p.desc, px, divY+38);
+    });
+
+    // Bosses
+    const bossY = divY + 60;
+    ctx.shadowBlur=10; ctx.shadowColor='#f0f'; ctx.fillStyle='#f0f';
+    ctx.font='bold 13px Courier New';
+    ctx.fillText('— BOSS ENCOUNTERS —', W/2, bossY);
+    ctx.shadowBlur=0;
+    const bossList = [
+        {name:'GATEKEEPER',    lvl:3,  color:'#f0f'},
+        {name:'IRON BASTION',  lvl:6,  color:'#f80'},
+        {name:'DARK HERALD',   lvl:9,  color:'#a0f'},
+        {name:'VOID HARBINGER',lvl:12, color:'#0af'},
+        {name:'THE OVERLORD',  lvl:13, color:'#f04'},
+    ];
+    bossList.forEach((b, i) => {
+        ctx.shadowBlur=5; ctx.shadowColor=b.color; ctx.fillStyle=b.color;
+        ctx.font='12px Courier New';
+        ctx.fillText('LVL '+b.lvl+': '+b.name, W/2, bossY+18+i*20);
+    });
+
+    ctx.shadowBlur=0; ctx.fillStyle='#555'; ctx.font='14px Courier New';
+    ctx.fillText('\u25B6  TOUCH OR CLICK TO GO BACK  \u25C0', W/2, H-40);
+    ctx.textAlign='left';
 }
 
 function drawShopScreen() {
@@ -662,6 +748,15 @@ function loop() {
              'TRAVERSE NEBULAE, ASTEROID FIELDS',
              'AND FACE THE OVERLORD'],
             '\u25B6  TOUCH OR CLICK TO START  \u25C0');
+        ctx.textAlign='center';
+        ctx.shadowBlur=14; ctx.shadowColor='#ff8'; ctx.fillStyle='#ff8';
+        ctx.font='bold 16px Courier New';
+        ctx.fillText('\u2139  ENEMY GUIDE  \u2139', W/2, H*0.84);
+        ctx.shadowBlur=0; ctx.textAlign='left';
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'guide') {
+        drawGuideScreen();
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'intro') {
@@ -797,6 +892,45 @@ function loop() {
     // Spawn enemies
     if(Math.random() < (lvl.spawnRate||0) + currentLevelIdx*0.002) spawnEnemy();
 
+    // Random events (non-boss levels only)
+    if(!boss && !lvl.boss) {
+        if(bonusScrapActive) { bonusScrapTimer--; if(bonusScrapTimer<=0) bonusScrapActive=false; }
+        randomEventTimer--;
+        if(randomEventTimer <= 0) {
+            randomEventTimer = 600 + Math.floor(Math.random()*400);
+            const li = currentLevelIdx;
+            const evts = ['scout_rush','asteroid_shower','bonus_scrap','enemy_surge'];
+            const evt = evts[Math.floor(Math.random()*evts.length)];
+            if(evt === 'scout_rush') {
+                for(let i=0;i<5;i++) bots.push({x:Math.random()*(W-50)+10,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0,flashTimer:0});
+                activeEventText='\u26A1 SCOUT RUSH!'; activeEventDisplayTimer=140;
+            } else if(evt === 'asteroid_shower') {
+                for(let i=0;i<4;i++) bots.push({x:Math.random()*(W-50)+10,y:-30,v:2+li*0.12,hp:6,maxHp:6,color:'#666',size:38,type:'asteroid',drift:(Math.random()-0.5)*0.5,shootTimer:0,flashTimer:0});
+                activeEventText='\u2604 ASTEROID SHOWER!'; activeEventDisplayTimer=140;
+            } else if(evt === 'bonus_scrap') {
+                bonusScrapActive=true; bonusScrapTimer=400;
+                activeEventText='\u2605 BONUS SCRAPS x2!'; activeEventDisplayTimer=140;
+            } else {
+                for(let i=0;i<3;i++) {
+                    const t2=['raider','heavy','scout'][Math.floor(Math.random()*3)];
+                    if(t2==='raider') bots.push({x:Math.random()*(W-50)+10,y:-30,v:2.5+li*0.25,hp:2,maxHp:2,color:'#f80',size:28,type:'raider',drift:(Math.random()-0.5)*0.8,shootTimer:Math.floor(Math.random()*80),flashTimer:0});
+                    else if(t2==='heavy') bots.push({x:Math.random()*(W-50)+10,y:-30,v:1.8+li*0.18,hp:4,maxHp:4,color:'#a0f',size:36,type:'heavy',drift:0,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
+                    else bots.push({x:Math.random()*(W-50)+10,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0,flashTimer:0});
+                }
+                activeEventText='\u2620 ENEMY SURGE!'; activeEventDisplayTimer=140;
+            }
+        }
+        if(activeEventDisplayTimer > 0) {
+            activeEventDisplayTimer--;
+            const alpha = Math.min(1, activeEventDisplayTimer / 30);
+            ctx.save(); ctx.textAlign='center'; ctx.globalAlpha=alpha;
+            ctx.shadowBlur=24; ctx.shadowColor='#ff0'; ctx.fillStyle='#ff0';
+            ctx.font='bold 24px Courier New';
+            ctx.fillText(activeEventText, W/2, H*0.5);
+            ctx.restore(); ctx.globalAlpha=1; ctx.textAlign='left';
+        }
+    }
+
     // Bots
     for(let i=bots.length-1; i>=0; i--) {
         const b=bots[i];
@@ -889,8 +1023,9 @@ function loop() {
                         spawnParticles(bot.x+bot.size/2,bot.y+bot.size/2,bot.color,14);
                         maybeDropPowerup(bot.x+bot.size/2,bot.y+bot.size/2);
                         const sc=bot.type==='heavy'?4:bot.type==='raider'?2:bot.type==='asteroid'?3:1;
-                        scraps+=sc;
-                        floatingTexts.push({x:bot.x+bot.size/2,y:bot.y+bot.size/2,text:'+'+sc+'\u2B21',color:'#ff0',life:1.0,decay:0.022,vy:-1.4});
+                        const scFinal = bonusScrapActive ? sc*2 : sc;
+                        scraps+=scFinal;
+                        floatingTexts.push({x:bot.x+bot.size/2,y:bot.y+bot.size/2,text:'+'+scFinal+'\u2B21'+(bonusScrapActive?' x2':''),color:'#ff0',life:1.0,decay:0.022,vy:-1.4});
                         bots.splice(bi,1);
                         score += bot.type==='heavy'?5 : bot.type==='raider'?3 : bot.type==='asteroid'?3 : 1;
                         killCount++; checkLevelComplete();
