@@ -263,6 +263,7 @@ let boss = null, fireTimer = 0;
 let shipConfig = { hull:0, color:0, engine:0 };
 let customizationUnlocked = false;
 let lastClickX = 0, lastClickY = 0;
+let guideScrollY = 0, guideMaxScroll = 0, guideTouchStartY = 0;
 let scraps = 0;
 let screenShake = 0;
 let upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
@@ -383,6 +384,10 @@ canvas.addEventListener('touchmove', e => {
     if(gameState === 'playing') {
         player.x = e.touches[0].clientX - 12;
         player.y = e.touches[0].clientY - 12;
+    } else if(gameState === 'guide') {
+        const dy = guideTouchStartY - e.touches[0].clientY;
+        guideTouchStartY = e.touches[0].clientY;
+        guideScrollY = Math.max(0, Math.min(guideMaxScroll, guideScrollY + dy));
     }
 }, {passive:false});
 
@@ -393,13 +398,32 @@ canvas.addEventListener('mousemove', e => {
 canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     lastClickX = e.touches[0].clientX; lastClickY = e.touches[0].clientY;
-    handleTap();
+    guideTouchStartY = e.touches[0].clientY;
+    if(gameState !== 'guide') handleTap();
+}, {passive:false});
+canvas.addEventListener('touchend', e => {
+    if(gameState === 'guide') {
+        const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : guideTouchStartY;
+        if(Math.abs(endY - guideTouchStartY) < 10) handleTap();
+    }
 }, {passive:false});
 canvas.addEventListener('click', e => { lastClickX = e.clientX; lastClickY = e.clientY; handleTap(); });
+canvas.addEventListener('wheel', e => {
+    if(gameState === 'guide') {
+        e.preventDefault();
+        guideScrollY = Math.max(0, Math.min(guideMaxScroll, guideScrollY + e.deltaY * 0.6));
+    }
+}, {passive:false});
+window.addEventListener('keydown', e => {
+    if(gameState === 'guide') {
+        if(e.key === 'ArrowDown') guideScrollY = Math.max(0, Math.min(guideMaxScroll, guideScrollY + 40));
+        else if(e.key === 'ArrowUp') guideScrollY = Math.max(0, Math.min(guideMaxScroll, guideScrollY - 40));
+    }
+});
 
 function handleTap() {
     if(gameState === 'title') {
-        if(lastClickY > H*0.78 && lastClickY < H*0.91) { gameState = 'guide'; }
+        if(lastClickY > H*0.78 && lastClickY < H*0.91) { gameState = 'guide'; guideScrollY = 0; }
         else { gameState = 'intro'; }
     }
     else if(gameState === 'guide')         { gameState = 'title'; }
@@ -1234,11 +1258,23 @@ function drawCustomizeScreen() {
 
 function drawGuideScreen() {
     ctx.fillStyle='rgba(0,0,0,0.96)'; ctx.fillRect(0,0,W,H);
+
+    // Fixed header
     ctx.textAlign='center';
     ctx.shadowBlur=22; ctx.shadowColor='#0ff'; ctx.fillStyle='#0ff';
     ctx.font='bold 26px Courier New';
     ctx.fillText('\u2139  ENEMY CODEX  \u2139', W/2, H*0.09);
     ctx.shadowBlur=0;
+
+    // Scrollable content area
+    const scrollTop = Math.round(H*0.12);
+    const scrollBottom = H - 44;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, scrollTop, W, scrollBottom - scrollTop);
+    ctx.clip();
+    ctx.translate(0, -guideScrollY);
 
     // Enemy entries
     const enemies = [
@@ -1287,8 +1323,8 @@ function drawGuideScreen() {
         ctx.fillText(e.desc, W*0.24, previewCY+13);
     });
 
-    // Powerups
-    const divY = H*0.155 + 6*rowH + H*0.012;
+    // Powerups (placed after all enemies)
+    const divY = H*0.155 + enemies.length * rowH + H*0.02;
     ctx.textAlign='center';
     ctx.shadowBlur=10; ctx.shadowColor='#ff8'; ctx.fillStyle='#ff8';
     ctx.font='bold 13px Courier New';
@@ -1338,8 +1374,27 @@ function drawGuideScreen() {
         ctx.fillText('LVL '+b.lvl+': '+b.name, col, bossY+16+row*17);
     });
 
+    const contentBottom = bossY + 16 + 4*17 + 20;
+    ctx.restore();
+
+    // Update max scroll based on content size
+    guideMaxScroll = Math.max(0, contentBottom - scrollBottom);
+
+    // Scrollbar
+    if(guideMaxScroll > 0) {
+        const sbX = W - 8, sbTrackTop = scrollTop + 4, sbTrackH = scrollBottom - scrollTop - 8;
+        const thumbH = Math.max(30, sbTrackH * (scrollBottom - scrollTop) / (contentBottom - scrollTop));
+        const thumbY = sbTrackTop + (guideScrollY / guideMaxScroll) * (sbTrackH - thumbH);
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.fillRect(sbX - 3, sbTrackTop, 6, sbTrackH);
+        ctx.fillStyle = 'rgba(0,255,255,0.5)';
+        ctx.fillRect(sbX - 3, thumbY, 6, thumbH);
+    }
+
+    // Fixed footer
     ctx.shadowBlur=0; ctx.fillStyle='#555'; ctx.font='14px Courier New';
-    ctx.fillText('\u25B6  TOUCH OR CLICK TO GO BACK  \u25C0', W/2, H-40);
+    ctx.textAlign='center';
+    ctx.fillText('\u25B6  TOUCH OR CLICK TO GO BACK  \u25C0', W/2, H-12);
     ctx.textAlign='left';
 }
 
