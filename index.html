@@ -117,6 +117,41 @@ const LEVELS = [
         quota:0, boss:{hp:600,maxHp:600,speed:9,color:'#f04',name:'THE OVERLORD',fireRate:28,spread:5,shape:'overlord'},
         spawnRate:0.048, enemyMix:[{type:'scout',w:2},{type:'raider',w:2}],
         starColor:'#f44', bgTint:'rgba(15,0,0,0.38)'
+    },
+    {
+        id:14, name:"PHANTOM ZONE",
+        story:["Phantom fighters cloak and strike from shadow.", "Their twin burst shots are lethal.", "Destroy 70 enemies to break the veil."],
+        quota:70, boss:null,
+        spawnRate:0.072, enemyMix:[{type:'phantom',w:5},{type:'heavy',w:3},{type:'raider',w:2}],
+        starColor:'#0ff', bgTint:'rgba(0,10,15,0.40)'
+    },
+    {
+        id:15, name:"TITAN ARMADA",
+        story:["Armoured titans march in silent formation.", "Their triple blasts shatter shields.", "Destroy 50 titans to break their line."],
+        quota:50, boss:null,
+        spawnRate:0.055, enemyMix:[{type:'titan',w:5},{type:'raider',w:3},{type:'phantom',w:2}],
+        starColor:'#f66', bgTint:'rgba(12,0,0,0.40)'
+    },
+    {
+        id:16, name:"PHANTOM KING",
+        story:["The wraith-king commands a spectral fleet.", "Five blinding bursts fired with precision.", "Pierce the veil — destroy the Phantom King."],
+        quota:0, boss:{hp:600,maxHp:600,speed:8,color:'#0cf',name:'PHANTOM KING',fireRate:30,spread:5,shape:'phantomking'},
+        spawnRate:0.038, enemyMix:[{type:'phantom',w:2},{type:'raider',w:1}],
+        starColor:'#0ef', bgTint:'rgba(0,8,14,0.42)'
+    },
+    {
+        id:17, name:"LAST STAND",
+        story:["Every enemy class — mobilized at once.", "Titans, phantoms, heavies — no quarter given.", "Destroy 80 enemies. One last push. Survive."],
+        quota:80, boss:null,
+        spawnRate:0.095, enemyMix:[{type:'titan',w:2},{type:'phantom',w:3},{type:'heavy',w:2},{type:'raider',w:2},{type:'scout',w:1}],
+        starColor:'#fff', bgTint:'rgba(8,8,8,0.42)'
+    },
+    {
+        id:18, name:"THE ANNIHILATOR",
+        story:["It exists to end all life in the universe.", "Six cannons. Indestructible wings. Pure hate.", "There is no tomorrow — ANNIHILATE IT NOW."],
+        quota:0, boss:{hp:800,maxHp:800,speed:10,color:'#fff',name:'THE ANNIHILATOR',fireRate:24,spread:6,shape:'annihilator'},
+        spawnRate:0.055, enemyMix:[{type:'phantom',w:2},{type:'titan',w:1},{type:'raider',w:1}],
+        starColor:'#fff', bgTint:'rgba(8,8,8,0.44)'
     }
 ];
 
@@ -300,6 +335,10 @@ function spawnEnemy() {
         bots.push({x:ex,y:-30,v:1.8+li*0.18,hp:4,maxHp:4,color:'#a0f',size:36,type:'heavy',drift:0,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
     else if(type === 'asteroid')
         bots.push({x:ex,y:-30,v:2+li*0.12,hp:6,maxHp:6,color:'#666',size:38,type:'asteroid',drift:(Math.random()-0.5)*0.5,shootTimer:0,flashTimer:0});
+    else if(type === 'phantom')
+        bots.push({x:ex,y:-30,v:3.0+li*0.22,hp:3,maxHp:3,color:'#0cf',size:30,type:'phantom',drift:(Math.random()-0.5)*2.5,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
+    else if(type === 'titan')
+        bots.push({x:ex,y:-30,v:1.3+li*0.10,hp:8,maxHp:8,color:'#e00',size:44,type:'titan',drift:0,shootTimer:Math.floor(Math.random()*90),flashTimer:0});
 }
 
 function maybeDropPowerup(ex, ey) {
@@ -387,6 +426,48 @@ function drawAsteroid(cx, cy, size, color) {
         i===0 ? ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r) : ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);
     }
     ctx.closePath(); ctx.fill();
+    ctx.restore();
+}
+
+function drawPhantomShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=14; ctx.shadowColor=color; ctx.fillStyle=color;
+    // Slim needle body with swept fins
+    ctx.beginPath();
+    ctx.moveTo(0, size*0.55);
+    ctx.lineTo(size*0.12, size*0.1);
+    ctx.lineTo(size*0.44, -size*0.32);
+    ctx.lineTo(size*0.08, -size*0.5);
+    ctx.lineTo(0, -size*0.3);
+    ctx.lineTo(-size*0.08, -size*0.5);
+    ctx.lineTo(-size*0.44, -size*0.32);
+    ctx.lineTo(-size*0.12, size*0.1);
+    ctx.closePath(); ctx.fill();
+    // Engine glow
+    ctx.shadowBlur=18; ctx.shadowColor=color;
+    ctx.fillStyle='rgba(0,220,255,0.65)';
+    ctx.beginPath(); ctx.arc(0, size*0.35, size*0.09, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
+function drawTitanShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=18; ctx.shadowColor=color; ctx.fillStyle=color;
+    // Wide armoured hull
+    ctx.beginPath();
+    ctx.moveTo(0, size*0.5);
+    ctx.lineTo(size*0.65, size*0.18);
+    ctx.lineTo(size*0.55, -size*0.35);
+    ctx.lineTo(size*0.2, -size*0.5);
+    ctx.lineTo(-size*0.2, -size*0.5);
+    ctx.lineTo(-size*0.55, -size*0.35);
+    ctx.lineTo(-size*0.65, size*0.18);
+    ctx.closePath(); ctx.fill();
+    // Armour centre void
+    ctx.fillStyle='rgba(0,0,0,0.55)';
+    ctx.beginPath(); ctx.arc(0, 0, size*0.22, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur=12; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath(); ctx.arc(0, 0, size*0.1, 0, Math.PI*2); ctx.fill();
     ctx.restore();
 }
 
@@ -481,6 +562,64 @@ function drawBossShip(bx, by, bw, bh, color, shape) {
         ctx.shadowBlur=14; ctx.shadowColor=color; ctx.fillStyle=color;
         ctx.beginPath(); ctx.arc(-bw*0.56,bh*0.0,8,0,Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc( bw*0.56,bh*0.0,8,0,Math.PI*2); ctx.fill();
+
+    } else if(shape === 'phantomking') {
+        // Phantom King — twin swept blades with a glowing spectral core
+        ctx.beginPath();
+        ctx.moveTo(0, -bh*0.5);
+        ctx.lineTo(bw*0.15, -bh*0.22);
+        ctx.lineTo(bw*0.65, -bh*0.45);
+        ctx.lineTo(bw*0.48, bh*0.15);
+        ctx.lineTo(bw*0.18, bh*0.5);
+        ctx.lineTo(0, bh*0.3);
+        ctx.lineTo(-bw*0.18, bh*0.5);
+        ctx.lineTo(-bw*0.48, bh*0.15);
+        ctx.lineTo(-bw*0.65, -bh*0.45);
+        ctx.lineTo(-bw*0.15, -bh*0.22);
+        ctx.closePath(); ctx.fill();
+        // Void core
+        ctx.fillStyle='rgba(0,0,0,0.82)';
+        ctx.beginPath(); ctx.arc(0, 0, bh*0.22, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur=35; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0, 0, bh*0.1, 0, Math.PI*2); ctx.fill();
+        // Outer energy ring
+        ctx.globalAlpha=0.4; ctx.strokeStyle=color; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(0, 0, bh*0.38, 0, Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+
+    } else if(shape === 'annihilator') {
+        // The Annihilator — colossal dreadnought with dual wing arrays
+        // Main hull
+        ctx.beginPath();
+        ctx.moveTo(0, -bh*0.5);
+        ctx.lineTo(bw*0.3, -bh*0.35);
+        ctx.lineTo(bw*0.45, bh*0.0);
+        ctx.lineTo(bw*0.3, bh*0.5);
+        ctx.lineTo(-bw*0.3, bh*0.5);
+        ctx.lineTo(-bw*0.45, bh*0.0);
+        ctx.lineTo(-bw*0.3, -bh*0.35);
+        ctx.closePath(); ctx.fill();
+        // Left wing
+        ctx.beginPath();
+        ctx.moveTo(-bw*0.3, -bh*0.1); ctx.lineTo(-bw*0.95, -bh*0.3);
+        ctx.lineTo(-bw*0.9, bh*0.2); ctx.lineTo(-bw*0.45, bh*0.22);
+        ctx.closePath(); ctx.fill();
+        // Right wing
+        ctx.beginPath();
+        ctx.moveTo( bw*0.3, -bh*0.1); ctx.lineTo( bw*0.95, -bh*0.3);
+        ctx.lineTo( bw*0.9, bh*0.2); ctx.lineTo( bw*0.45, bh*0.22);
+        ctx.closePath(); ctx.fill();
+        // Wing weapon pods
+        ctx.shadowBlur=18; ctx.shadowColor='#fff'; ctx.fillStyle='#fff';
+        ctx.beginPath(); ctx.arc(-bw*0.62, 0, 7, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc( bw*0.62, 0, 7, 0, Math.PI*2); ctx.fill();
+        // Central weapon core
+        ctx.shadowBlur=40; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0, bh*0.1, 16, 0, Math.PI*2); ctx.fill();
+        // Dual secondary cores
+        ctx.shadowBlur=14;
+        ctx.beginPath(); ctx.arc(-bw*0.18, -bh*0.15, 8, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc( bw*0.18, -bh*0.15, 8, 0, Math.PI*2); ctx.fill();
 
     } else {
         // Fallback — original shape
@@ -602,27 +741,31 @@ function drawGuideScreen() {
 
     // Enemy entries
     const enemies = [
-        { name:'SCOUT',    color:'#f44', size:22, hp:1, draw:'scout',    desc:'Fast. Unarmed. Deadly on contact.',    threat:'LOW' },
-        { name:'RAIDER',   color:'#f80', size:28, hp:2, draw:'raider',   desc:'Fires aimed shots at you.',           threat:'MED' },
-        { name:'HEAVY',    color:'#a0f', size:36, hp:4, draw:'heavy',    desc:'Slow but fires straight-down blasts.', threat:'HIGH' },
-        { name:'ASTEROID', color:'#888', size:38, hp:6, draw:'asteroid', desc:'Indestructible-feeling. No weapon.',   threat:'MED' },
+        { name:'SCOUT',    color:'#f44', size:22, hp:1, draw:'scout',    desc:'Fast. Unarmed. Deadly on contact.',         threat:'LOW' },
+        { name:'RAIDER',   color:'#f80', size:28, hp:2, draw:'raider',   desc:'Fires aimed shots at you.',                 threat:'MED' },
+        { name:'HEAVY',    color:'#a0f', size:36, hp:4, draw:'heavy',    desc:'Slow but fires straight-down blasts.',      threat:'HIGH' },
+        { name:'ASTEROID', color:'#888', size:38, hp:6, draw:'asteroid', desc:'Indestructible-feeling. No weapon.',        threat:'MED' },
+        { name:'PHANTOM',  color:'#0cf', size:30, hp:3, draw:'phantom',  desc:'Erratic. Twin burst shots. Hard to dodge.', threat:'HIGH' },
+        { name:'TITAN',    color:'#e00', size:44, hp:8, draw:'titan',    desc:'Armoured. Triple spread blasts. Very durable.', threat:'EXTREME' },
     ];
-    const rowH = H * 0.125;
+    const rowH = H * 0.085;
     enemies.forEach((e, i) => {
         const rowY = H*0.155 + i*rowH;
-        const previewCX = W*0.14, previewCY = rowY + rowH*0.35;
-        if(e.draw==='asteroid')    drawAsteroid(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
-        else if(e.draw==='heavy')  drawHeavyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
-        else                       drawEnemyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        const previewCX = W*0.14, previewCY = rowY + rowH*0.4;
+        if(e.draw==='asteroid')      drawAsteroid(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='heavy')    drawHeavyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='titan')    drawTitanShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='phantom')  drawPhantomShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else                         drawEnemyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         ctx.shadowBlur=8; ctx.shadowColor=e.color; ctx.fillStyle=e.color;
-        ctx.font='bold 14px Courier New'; ctx.textAlign='left';
-        ctx.fillText(e.name+'  \u2665 HP: '+e.hp+'  THREAT: '+e.threat, W*0.24, previewCY-4);
-        ctx.shadowBlur=0; ctx.fillStyle='#aaa'; ctx.font='12px Courier New';
-        ctx.fillText(e.desc, W*0.24, previewCY+14);
+        ctx.font='bold 13px Courier New'; ctx.textAlign='left';
+        ctx.fillText(e.name+'  \u2665 HP: '+e.hp+'  THREAT: '+e.threat, W*0.24, previewCY-3);
+        ctx.shadowBlur=0; ctx.fillStyle='#aaa'; ctx.font='11px Courier New';
+        ctx.fillText(e.desc, W*0.24, previewCY+13);
     });
 
     // Powerups
-    const divY = H*0.155 + 4*rowH + H*0.015;
+    const divY = H*0.155 + 6*rowH + H*0.012;
     ctx.textAlign='center';
     ctx.shadowBlur=10; ctx.shadowColor='#ff8'; ctx.fillStyle='#ff8';
     ctx.font='bold 13px Courier New';
@@ -637,14 +780,14 @@ function drawGuideScreen() {
     pups.forEach((p, i) => {
         const px = pw*(i+0.5);
         ctx.shadowBlur=8; ctx.shadowColor=p.col; ctx.fillStyle=p.col;
-        ctx.font='bold 14px Courier New';
-        ctx.fillText(p.sym+' '+p.label, px, divY+22);
+        ctx.font='bold 13px Courier New';
+        ctx.fillText(p.sym+' '+p.label, px, divY+20);
         ctx.shadowBlur=0; ctx.fillStyle='#888'; ctx.font='11px Courier New';
-        ctx.fillText(p.desc, px, divY+38);
+        ctx.fillText(p.desc, px, divY+35);
     });
 
     // Bosses
-    const bossY = divY + 60;
+    const bossY = divY + 48;
     ctx.shadowBlur=10; ctx.shadowColor='#f0f'; ctx.fillStyle='#f0f';
     ctx.font='bold 13px Courier New';
     ctx.fillText('— BOSS ENCOUNTERS —', W/2, bossY);
@@ -655,11 +798,17 @@ function drawGuideScreen() {
         {name:'DARK HERALD',   lvl:9,  color:'#a0f'},
         {name:'VOID HARBINGER',lvl:12, color:'#0af'},
         {name:'THE OVERLORD',  lvl:13, color:'#f04'},
+        {name:'PHANTOM KING',  lvl:16, color:'#0cf'},
+        {name:'THE ANNIHILATOR',lvl:18,color:'#fff'},
     ];
+    // Two-column layout so all bosses fit
+    const colMid = W * 0.3, colRight = W * 0.72;
     bossList.forEach((b, i) => {
+        const col = i < 4 ? colMid : colRight;
+        const row = i < 4 ? i : i - 4;
         ctx.shadowBlur=5; ctx.shadowColor=b.color; ctx.fillStyle=b.color;
         ctx.font='12px Courier New';
-        ctx.fillText('LVL '+b.lvl+': '+b.name, W/2, bossY+18+i*20);
+        ctx.fillText('LVL '+b.lvl+': '+b.name, col, bossY+16+row*17);
     });
 
     ctx.shadowBlur=0; ctx.fillStyle='#555'; ctx.font='14px Courier New';
@@ -899,7 +1048,7 @@ function loop() {
         if(randomEventTimer <= 0) {
             randomEventTimer = 600 + Math.floor(Math.random()*400);
             const li = currentLevelIdx;
-            const evts = ['scout_rush','asteroid_shower','bonus_scrap','enemy_surge'];
+            const evts = ['scout_rush','asteroid_shower','bonus_scrap','enemy_surge','phantom_strike'];
             const evt = evts[Math.floor(Math.random()*evts.length)];
             if(evt === 'scout_rush') {
                 for(let i=0;i<5;i++) bots.push({x:Math.random()*(W-50)+10,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0,flashTimer:0});
@@ -910,11 +1059,15 @@ function loop() {
             } else if(evt === 'bonus_scrap') {
                 bonusScrapActive=true; bonusScrapTimer=400;
                 activeEventText='\u2605 BONUS SCRAPS x2!'; activeEventDisplayTimer=140;
+            } else if(evt === 'phantom_strike') {
+                for(let i=0;i<4;i++) bots.push({x:Math.random()*(W-50)+10,y:-30,v:3.0+li*0.22,hp:3,maxHp:3,color:'#0cf',size:30,type:'phantom',drift:(Math.random()-0.5)*2.5,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
+                activeEventText='\u{1F47B} PHANTOM STRIKE!'; activeEventDisplayTimer=140;
             } else {
                 for(let i=0;i<3;i++) {
-                    const t2=['raider','heavy','scout'][Math.floor(Math.random()*3)];
+                    const t2=['raider','heavy','scout','phantom'][Math.floor(Math.random()*4)];
                     if(t2==='raider') bots.push({x:Math.random()*(W-50)+10,y:-30,v:2.5+li*0.25,hp:2,maxHp:2,color:'#f80',size:28,type:'raider',drift:(Math.random()-0.5)*0.8,shootTimer:Math.floor(Math.random()*80),flashTimer:0});
                     else if(t2==='heavy') bots.push({x:Math.random()*(W-50)+10,y:-30,v:1.8+li*0.18,hp:4,maxHp:4,color:'#a0f',size:36,type:'heavy',drift:0,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
+                    else if(t2==='phantom') bots.push({x:Math.random()*(W-50)+10,y:-30,v:3.0+li*0.22,hp:3,maxHp:3,color:'#0cf',size:30,type:'phantom',drift:(Math.random()-0.5)*2.5,shootTimer:Math.floor(Math.random()*60),flashTimer:0});
                     else bots.push({x:Math.random()*(W-50)+10,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0,flashTimer:0});
                 }
                 activeEventText='\u2620 ENEMY SURGE!'; activeEventDisplayTimer=140;
@@ -948,10 +1101,28 @@ function loop() {
                 b.shootTimer=0;
                 bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.9, v:3.5, enemy:true, width:7});
             }
+        } else if(b.type==='phantom') {
+            b.shootTimer++;
+            if(b.shootTimer >= 72-currentLevelIdx*2) {
+                b.shootTimer=0;
+                const a=Math.atan2(player.y+12-b.y, player.x+12-b.x);
+                bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.8, v:Math.sin(a)*5, vx:Math.cos(a)*5-0.3, enemy:true, width:4});
+                bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.8, v:Math.sin(a)*5, vx:Math.cos(a)*5+0.3, enemy:true, width:4});
+            }
+        } else if(b.type==='titan') {
+            b.shootTimer++;
+            if(b.shootTimer >= 95-currentLevelIdx*2) {
+                b.shootTimer=0;
+                bullets.push({x:b.x+b.size/2-12, y:b.y+b.size*0.9, v:3.0, enemy:true, width:8});
+                bullets.push({x:b.x+b.size/2,    y:b.y+b.size*0.9, v:3.0, enemy:true, width:8});
+                bullets.push({x:b.x+b.size/2+12, y:b.y+b.size*0.9, v:3.0, enemy:true, width:8});
+            }
         }
-        if(b.type==='asteroid')    drawAsteroid(b.x,b.y,b.size,b.color);
-        else if(b.type==='heavy')  drawHeavyShip(b.x,b.y,b.size,b.color);
-        else                       drawEnemyShip(b.x,b.y,b.size,b.color);
+        if(b.type==='asteroid')      drawAsteroid(b.x,b.y,b.size,b.color);
+        else if(b.type==='heavy')    drawHeavyShip(b.x,b.y,b.size,b.color);
+        else if(b.type==='titan')    drawTitanShip(b.x,b.y,b.size,b.color);
+        else if(b.type==='phantom')  drawPhantomShip(b.x,b.y,b.size,b.color);
+        else                         drawEnemyShip(b.x,b.y,b.size,b.color);
         if(b.flashTimer > 0) {
             b.flashTimer--;
             ctx.save(); ctx.globalAlpha = (b.flashTimer/6)*0.6; ctx.shadowBlur=0;
@@ -1022,12 +1193,12 @@ function loop() {
                     if(bot.hp<=0) {
                         spawnParticles(bot.x+bot.size/2,bot.y+bot.size/2,bot.color,14);
                         maybeDropPowerup(bot.x+bot.size/2,bot.y+bot.size/2);
-                        const sc=bot.type==='heavy'?4:bot.type==='raider'?2:bot.type==='asteroid'?3:1;
+                        const sc=bot.type==='titan'?6:bot.type==='heavy'?4:bot.type==='phantom'?3:bot.type==='raider'?2:bot.type==='asteroid'?3:1;
                         const scFinal = bonusScrapActive ? sc*2 : sc;
                         scraps+=scFinal;
                         floatingTexts.push({x:bot.x+bot.size/2,y:bot.y+bot.size/2,text:'+'+scFinal+'\u2B21'+(bonusScrapActive?' x2':''),color:'#ff0',life:1.0,decay:0.022,vy:-1.4});
                         bots.splice(bi,1);
-                        score += bot.type==='heavy'?5 : bot.type==='raider'?3 : bot.type==='asteroid'?3 : 1;
+                        score += bot.type==='titan'?8 : bot.type==='heavy'?5 : bot.type==='phantom'?4 : bot.type==='raider'?3 : bot.type==='asteroid'?3 : 1;
                         killCount++; checkLevelComplete();
                     } else {
                         bot.flashTimer = 6;
