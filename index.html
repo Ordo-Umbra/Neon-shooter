@@ -3,126 +3,558 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <style>
-        body { background: #000; margin: 0; overflow: hidden; font-family: 'Courier New', monospace; color: #0ff; touch-action: none; }
+        body { background: #000; margin: 0; overflow: hidden; font-family: 'Courier New', monospace; touch-action: none; }
         canvas { display: block; }
-        #ui { position: absolute; top: 10px; width: 100%; text-align: center; pointer-events: none; font-size: 20px; text-shadow: 0 0 10px #0ff; }
-        
-        #victory, #gameover {
-            display: none; position: absolute; top: 30%; width: 100%; text-align: center; 
-            font-size: 40px; font-weight: bold; z-index: 100;
-        }
-        #victory { color: #ff0; text-shadow: 0 0 20px #ff0; }
-        #gameover { color: #f00; font-size: 50px; text-shadow: 0 0 20px #f00; }
-        
-        button {
-            margin-top: 20px; padding: 15px 30px; font-size: 20px; font-weight: bold;
-            background: #0ff; color: #000; border: none; border-radius: 5px; cursor: pointer;
-            box-shadow: 0 0 15px #0ff;
-        }
     </style>
 </head>
 <body>
-    <div id="ui">SCORE: <span id="s">0</span> | LEVEL: <span id="lvl">1</span></div>
-    
-    <div id="victory">GALAXY SAVED!<br><button onclick="location.reload()">PLAY AGAIN</button></div>
-    <div id="gameover">SYSTEM FAILURE<br><button onclick="location.reload()">REBOOT</button></div>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById("c"), ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+const W = canvas.width, H = canvas.height;
 
-    <canvas id="c"></canvas>
-    
-    <script>
-        const c = document.getElementById("c"), x = c.getContext("2d");
-        c.width = window.innerWidth; c.height = window.innerHeight;
+// ================================================================
+// LEVEL DEFINITIONS  (10 levels, 4 boss fights)
+// ================================================================
+const LEVELS = [
+    {
+        id:1, name:"SECTOR ALPHA",
+        story:["Hostile scouts detected in Sector Alpha.", "Eliminate 15 enemy scouts to advance.", "Watch for flanking attacks."],
+        quota:15, boss:null,
+        spawnRate:0.034, enemyMix:[{type:'scout',w:10}],
+        starColor:'#8cf', bgTint:'rgba(0,0,8,0.38)'
+    },
+    {
+        id:2, name:"DEBRIS FIELD",
+        story:["An asteroid belt full of raider ambushes.", "Destroy 20 enemies to push through.", "Asteroids require multiple hits."],
+        quota:20, boss:null,
+        spawnRate:0.044, enemyMix:[{type:'scout',w:6},{type:'asteroid',w:4}],
+        starColor:'#aaa', bgTint:'rgba(5,5,2,0.38)'
+    },
+    {
+        id:3, name:"THE GATEKEEPER",
+        story:["A battlecruiser guards the jump gate.", "Its single cannon fires aimed shots.", "Destroy it to reach the next sector."],
+        quota:0, boss:{hp:150,maxHp:150,speed:3,color:'#f0f',name:'GATEKEEPER',fireRate:60,spread:1},
+        spawnRate:0.02, enemyMix:[{type:'scout',w:1}],
+        starColor:'#fcf', bgTint:'rgba(10,0,10,0.38)'
+    },
+    {
+        id:4, name:"NEBULA SECTOR",
+        story:["Ionized gas disrupts shields here.", "Raiders move faster in the nebula.", "Destroy 30 enemies to reach the far side."],
+        quota:30, boss:null,
+        spawnRate:0.054, enemyMix:[{type:'scout',w:5},{type:'raider',w:5}],
+        starColor:'#f8f', bgTint:'rgba(10,0,15,0.38)'
+    },
+    {
+        id:5, name:"FLEET VANGUARD",
+        story:["The enemy fleet's advance forces attack.", "Heavies and raiders in tight formation.", "Take out 40 ships to break their line."],
+        quota:40, boss:null,
+        spawnRate:0.062, enemyMix:[{type:'scout',w:3},{type:'raider',w:4},{type:'heavy',w:3}],
+        starColor:'#ff8', bgTint:'rgba(8,8,0,0.38)'
+    },
+    {
+        id:6, name:"IRON BASTION",
+        story:["The enemy command fortress looms ahead.", "Its triple spread-cannons are devastating.", "Shatter their command — destroy it now."],
+        quota:0, boss:{hp:280,maxHp:280,speed:5,color:'#f80',name:'IRON BASTION',fireRate:45,spread:3},
+        spawnRate:0.028, enemyMix:[{type:'raider',w:1}],
+        starColor:'#fa8', bgTint:'rgba(12,4,0,0.38)'
+    },
+    {
+        id:7, name:"STAR GRAVEYARD",
+        story:["Dead ships drift in total silence.", "Heavies patrol through the wreckage.", "Destroy 50 enemies to clear a path."],
+        quota:50, boss:null,
+        spawnRate:0.062, enemyMix:[{type:'raider',w:3},{type:'heavy',w:4},{type:'asteroid',w:3}],
+        starColor:'#aaf', bgTint:'rgba(0,0,12,0.38)'
+    },
+    {
+        id:8, name:"THE SWARM",
+        story:["Thousands of drones — no retreat, no mercy.", "Fight through the endless tide.", "Destroy 65 drones to break the swarm."],
+        quota:65, boss:null,
+        spawnRate:0.088, enemyMix:[{type:'scout',w:7},{type:'raider',w:2},{type:'heavy',w:1}],
+        starColor:'#f88', bgTint:'rgba(15,0,0,0.38)'
+    },
+    {
+        id:9, name:"DARK HERALD",
+        story:["Warlord Zarak commands the destroyer.", "Its quadruple-spread cannon tears ships apart.", "Defeat the Dark Herald — end his reign."],
+        quota:0, boss:{hp:400,maxHp:400,speed:6,color:'#a0f',name:'DARK HERALD',fireRate:38,spread:4},
+        spawnRate:0.034, enemyMix:[{type:'raider',w:2},{type:'heavy',w:1}],
+        starColor:'#c8f', bgTint:'rgba(5,0,15,0.38)'
+    },
+    {
+        id:10, name:"THE OVERLORD",
+        story:["The Overlord. Destroyer of civilizations.", "Five cannons. Blinding speed. No mercy.", "This is the final battle. End it NOW."],
+        quota:0, boss:{hp:600,maxHp:600,speed:9,color:'#f04',name:'THE OVERLORD',fireRate:28,spread:5},
+        spawnRate:0.048, enemyMix:[{type:'scout',w:2},{type:'raider',w:2}],
+        starColor:'#f44', bgTint:'rgba(15,0,0,0.38)'
+    }
+];
 
-        // Added 'bossesDefeated' to track our progress through the new longer game!
-        let p = { x: c.width/2, y: c.height*0.8, s: 25, fury: 0 }, bots = [], bullets = [];
-        let score = 0, boss = null, phase = 'swarm', isGameOver = false, bossesDefeated = 0;
+// ================================================================
+// GAME STATE
+// ================================================================
+let gameState = 'title'; // title | intro | playing | levelComplete | gameover | victory
+let currentLevelIdx = 0;
+let score = 0, levelStartScore = 0, levelBonus = 0;
+let killCount = 0, bossKilledThisLevel = false;
+let player = { x:W/2-12, y:H*0.82, hp:3, maxHp:3, invincFrames:0, shieldActive:false, rapidTimer:0 };
+let bots = [], bullets = [], particles = [], powerups = [];
+let boss = null, fireTimer = 0;
 
-        c.addEventListener("touchmove", (e) => {
-            if(isGameOver) return; 
-            p.x = e.touches[0].clientX - p.s/2; p.y = e.touches[0].clientY - p.s/2;
-            if(Math.random() < 0.4) bullets.push({x: p.x+10, y: p.y, v: -20, enemy: false, width: p.fury > 0 ? 20 : 4});
-        });
+const stars = Array.from({length:150}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.5+0.2,
+    speed: Math.random()*1.0+0.1,
+    alpha: Math.random()*0.7+0.3,
+    color: '#fff'
+}));
 
-        // A helper function to spawn different bosses
-        function spawnBoss(hp, speed) {
-            boss = {x: c.width/2-50, y: 50, hp: hp, maxHp: hp, dir: speed}; 
-            phase = 'boss';
+// ================================================================
+// INPUT
+// ================================================================
+canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if(gameState === 'playing') {
+        player.x = e.touches[0].clientX - 12;
+        player.y = e.touches[0].clientY - 12;
+    }
+}, {passive:false});
+
+canvas.addEventListener('mousemove', e => {
+    if(gameState === 'playing') { player.x = e.clientX-12; player.y = e.clientY-12; }
+});
+
+canvas.addEventListener('touchstart', e => { e.preventDefault(); handleTap(); }, {passive:false});
+canvas.addEventListener('click', () => handleTap());
+
+function handleTap() {
+    if(gameState === 'title')         { gameState = 'intro'; }
+    else if(gameState === 'intro')         { startLevel(currentLevelIdx); }
+    else if(gameState === 'levelComplete') { nextLevel(); }
+    else if(gameState === 'gameover')      { retryLevel(); }
+    else if(gameState === 'victory')       { resetGame(); }
+}
+
+// ================================================================
+// GAME CONTROL
+// ================================================================
+function resetGame() {
+    score = 0; currentLevelIdx = 0; levelStartScore = 0;
+    player = { x:W/2-12, y:H*0.82, hp:3, maxHp:3, invincFrames:0, shieldActive:false, rapidTimer:0 };
+    bots=[]; bullets=[]; particles=[]; powerups=[]; boss=null;
+    killCount=0; bossKilledThisLevel=false; fireTimer=0;
+    gameState = 'title';
+}
+
+function startLevel(idx) {
+    levelStartScore = score; killCount = 0; bossKilledThisLevel = false; fireTimer = 0;
+    bots=[]; bullets=[]; powerups=[]; boss=null; particles=[];
+    player.x = W/2-12; player.y = H*0.82; player.invincFrames = 0;
+    const lvl = LEVELS[idx];
+    stars.forEach(s => s.color = lvl.starColor || '#fff');
+    if(lvl.boss) {
+        boss = Object.assign({}, lvl.boss, { x:W/2-60, y:80, dir:lvl.boss.speed, shootTimer:0 });
+    }
+    gameState = 'playing';
+}
+
+function nextLevel() {
+    currentLevelIdx++;
+    if(currentLevelIdx >= LEVELS.length) { gameState = 'victory'; }
+    else { gameState = 'intro'; }
+}
+
+function retryLevel() {
+    score = levelStartScore;
+    player = { x:W/2-12, y:H*0.82, hp:3, maxHp:3, invincFrames:0, shieldActive:false, rapidTimer:0 };
+    bots=[]; bullets=[]; particles=[]; powerups=[]; boss=null;
+    killCount=0; bossKilledThisLevel=false; fireTimer=0;
+    gameState = 'intro';
+}
+
+function checkLevelComplete() {
+    if(gameState !== 'playing') return;
+    const lvl = LEVELS[currentLevelIdx];
+    const done = lvl.boss ? bossKilledThisLevel : (killCount >= lvl.quota);
+    if(done) {
+        levelBonus = killCount * 3 + (lvl.boss ? 150 : 50) + currentLevelIdx * 15;
+        score += levelBonus;
+        gameState = 'levelComplete';
+    }
+}
+
+// ================================================================
+// SPAWN & POWERUPS
+// ================================================================
+function spawnParticles(cx, cy, color, count) {
+    for(let i = 0; i < count; i++) {
+        const a = Math.random()*Math.PI*2, spd = Math.random()*5+0.5;
+        particles.push({ x:cx, y:cy, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd,
+            life:1.0, decay:Math.random()*0.04+0.015, r:Math.random()*3.5+1, color });
+    }
+}
+
+function spawnEnemy() {
+    const lvl = LEVELS[currentLevelIdx];
+    if(!lvl.enemyMix || lvl.enemyMix.length === 0) return;
+    let total = lvl.enemyMix.reduce((s,e) => s+e.w, 0), r = Math.random()*total, type = lvl.enemyMix[0].type;
+    for(let em of lvl.enemyMix) { r -= em.w; if(r <= 0) { type = em.type; break; } }
+    const ex = Math.random()*(W-50)+10, li = currentLevelIdx;
+    if(type === 'scout')
+        bots.push({x:ex,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0});
+    else if(type === 'raider')
+        bots.push({x:ex,y:-30,v:2.5+li*0.25,hp:2,maxHp:2,color:'#f80',size:28,type:'raider',drift:(Math.random()-0.5)*0.8,shootTimer:Math.floor(Math.random()*80)});
+    else if(type === 'heavy')
+        bots.push({x:ex,y:-30,v:1.8+li*0.18,hp:4,maxHp:4,color:'#a0f',size:36,type:'heavy',drift:0,shootTimer:Math.floor(Math.random()*60)});
+    else if(type === 'asteroid')
+        bots.push({x:ex,y:-30,v:2+li*0.12,hp:6,maxHp:6,color:'#666',size:38,type:'asteroid',drift:(Math.random()-0.5)*0.5,shootTimer:0});
+}
+
+function maybeDropPowerup(ex, ey) {
+    if(Math.random() > 0.13) return;
+    const types = ['health','rapid','shield'];
+    powerups.push({ x:ex, y:ey, type:types[Math.floor(Math.random()*types.length)], vy:1.4, life:320 });
+}
+
+function applyPowerup(type) {
+    if(type === 'health') { player.hp = Math.min(player.maxHp, player.hp+1); }
+    else if(type === 'rapid') { player.rapidTimer = 600; }
+    else if(type === 'shield') { player.shieldActive = true; }
+    spawnParticles(player.x+12, player.y+12, type==='health'?'#0f0':type==='rapid'?'#ff0':'#0ff', 18);
+}
+
+function playerHit() {
+    if(gameState !== 'playing' || player.invincFrames > 0) return;
+    if(player.shieldActive) {
+        player.shieldActive = false; player.invincFrames = 80;
+        spawnParticles(player.x+12, player.y+12, '#0ff', 12); return;
+    }
+    player.hp--; player.invincFrames = 120;
+    spawnParticles(player.x+12, player.y+12, '#f44', 15);
+    if(player.hp <= 0) gameState = 'gameover';
+}
+
+// ================================================================
+// DRAWING HELPERS
+// ================================================================
+function drawPlayerShip(cx, cy, color) {
+    const sz = 14;
+    ctx.save(); ctx.translate(cx, cy);
+    ctx.shadowBlur=18; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0,-sz); ctx.lineTo(sz*0.55,sz*0.65); ctx.lineTo(0,sz*0.25); ctx.lineTo(-sz*0.55,sz*0.65);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=12; ctx.shadowColor="#08f"; ctx.fillStyle="#08f";
+    ctx.beginPath(); ctx.ellipse(0,sz*0.55,sz*0.18,sz*0.12,0,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
+function drawEnemyShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=10; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0,size*0.55); ctx.lineTo(size*0.5,-size*0.45); ctx.lineTo(0,-size*0.15); ctx.lineTo(-size*0.5,-size*0.45);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+}
+
+function drawHeavyShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=14; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0,size*0.55); ctx.lineTo(size*0.55,size*0.1); ctx.lineTo(size*0.38,-size*0.5);
+    ctx.lineTo(0,-size*0.28); ctx.lineTo(-size*0.38,-size*0.5); ctx.lineTo(-size*0.55,size*0.1);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+}
+
+function drawAsteroid(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=5; ctx.shadowColor='#aaa'; ctx.fillStyle=color;
+    const offsets=[0.85,0.7,0.9,0.75,0.95,0.8,0.7,0.9,0.8];
+    ctx.beginPath();
+    for(let i=0;i<9;i++){
+        const a=(i/9)*Math.PI*2, r=size*0.5*offsets[i];
+        i===0 ? ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r) : ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+}
+
+function drawBossShip(bx, by, bw, bh, color) {
+    ctx.save(); ctx.translate(bx+bw*0.5, by+bh*0.5);
+    ctx.shadowBlur=30; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0,-bh*0.5); ctx.lineTo(bw*0.45,-bh*0.18); ctx.lineTo(bw*0.5,bh*0.22);
+    ctx.lineTo(0,bh*0.5); ctx.lineTo(-bw*0.5,bh*0.22); ctx.lineTo(-bw*0.45,-bh*0.18);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=16; ctx.shadowColor='#fff'; ctx.fillStyle='#fff';
+    ctx.beginPath(); ctx.arc(0,bh*0.1,9,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
+function drawPowerup(pu) {
+    ctx.save(); ctx.translate(pu.x, pu.y); ctx.shadowBlur=16;
+    if(pu.type === 'health') {
+        ctx.shadowColor='#0f0'; ctx.fillStyle='#0f0';
+        ctx.fillRect(-8,-3,16,6); ctx.fillRect(-3,-8,6,16);
+    } else if(pu.type === 'rapid') {
+        ctx.shadowColor='#ff0'; ctx.strokeStyle='#ff0'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.moveTo(3,-10); ctx.lineTo(-3,0); ctx.lineTo(3,0); ctx.lineTo(-3,10); ctx.stroke();
+    } else {
+        ctx.shadowColor='#0ff'; ctx.strokeStyle='#0ff'; ctx.lineWidth=2.5;
+        ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+}
+
+function drawHUD() {
+    ctx.shadowBlur=0; ctx.globalAlpha=1;
+    ctx.font='22px Courier New';
+    for(let i=0; i<player.maxHp; i++) {
+        ctx.fillStyle = i < player.hp ? '#f44' : '#400';
+        ctx.fillText('♥', 15+i*30, 36);
+    }
+    let buffX = 110;
+    if(player.shieldActive)   { ctx.fillStyle='#0ff'; ctx.font='15px Courier New'; ctx.fillText('SHIELD',buffX,36); buffX+=80; }
+    if(player.rapidTimer > 0) { ctx.fillStyle='#ff0'; ctx.font='15px Courier New'; ctx.fillText('RAPID', buffX,36); }
+    ctx.fillStyle='#0ff'; ctx.font='18px Courier New'; ctx.textAlign='center';
+    ctx.fillText('SCORE: '+score, W/2, 30);
+    ctx.fillStyle='#888'; ctx.font='13px Courier New';
+    ctx.fillText('LVL '+(currentLevelIdx+1)+' — '+LEVELS[currentLevelIdx].name, W/2, 48);
+    ctx.textAlign='left';
+    if(LEVELS[currentLevelIdx].quota > 0) {
+        ctx.fillStyle='#0f0'; ctx.font='16px Courier New'; ctx.textAlign='right';
+        ctx.fillText('KILLS: '+killCount+'/'+LEVELS[currentLevelIdx].quota, W-15, 36);
+        ctx.textAlign='left';
+    }
+}
+
+function drawOverlay(title, titleColor, lines, footer) {
+    ctx.fillStyle='rgba(0,0,0,0.74)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.shadowBlur=22; ctx.shadowColor=titleColor;
+    ctx.fillStyle=titleColor; ctx.font='bold 36px Courier New';
+    ctx.fillText(title, W/2, H*0.28);
+    ctx.shadowBlur=0; ctx.fillStyle='#ccc'; ctx.font='17px Courier New';
+    lines.forEach((l,i) => ctx.fillText(l, W/2, H*0.28+58+i*30));
+    ctx.fillStyle='#666'; ctx.font='15px Courier New';
+    ctx.fillText(footer, W/2, H-55);
+    ctx.textAlign='left';
+}
+
+// ================================================================
+// MAIN LOOP
+// ================================================================
+function loop() {
+    const lvl = LEVELS[Math.min(currentLevelIdx, LEVELS.length-1)];
+    ctx.fillStyle = lvl.bgTint || 'rgba(0,0,0,0.38)'; ctx.fillRect(0,0,W,H);
+
+    // Starfield (slower on non-playing screens)
+    ctx.shadowBlur=0;
+    const sSpeed = (gameState==='playing') ? 1 : 0.25;
+    for(let s of stars) {
+        s.y += s.speed * sSpeed;
+        if(s.y > H) { s.y=0; s.x=Math.random()*W; }
+        ctx.globalAlpha=s.alpha; ctx.fillStyle=s.color;
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    // --- NON-PLAYING SCREENS ---
+    if(gameState === 'title') {
+        drawOverlay('NEON SHOOTER', '#0ff',
+            ['— A SPACE ADVENTURE —', '',
+             '10 LEVELS  ·  4 ENEMY TYPES  ·  4 BOSSES',
+             'TRAVERSE NEBULAE, ASTEROID FIELDS',
+             'AND FACE THE OVERLORD'],
+            '▶  TOUCH OR CLICK TO START  ◀');
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'intro') {
+        drawOverlay('LEVEL '+(currentLevelIdx+1), '#ff0',
+            [lvl.name, '', ...lvl.story],
+            '▶  TOUCH OR CLICK TO BEGIN  ◀');
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'levelComplete') {
+        drawOverlay('LEVEL COMPLETE', '#0f0',
+            [lvl.name, '',
+             'ENEMIES DEFEATED: '+killCount,
+             'LEVEL BONUS: +'+levelBonus,
+             'TOTAL SCORE: '+score],
+            '▶  TOUCH OR CLICK TO CONTINUE  ◀');
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'gameover') {
+        drawOverlay('SHIP DESTROYED', '#f44',
+            ['LEVEL '+(currentLevelIdx+1)+': '+lvl.name, '',
+             'SCORE: '+score,  'KILLS THIS RUN: '+killCount, '',
+             'Score resets to start of this level.'],
+            '▶  TOUCH OR CLICK TO RETRY  ◀');
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'victory') {
+        drawOverlay('MISSION COMPLETE', '#ff0',
+            ['THE OVERLORD IS DEFEATED.', 'THE GALAXY IS SAVED.', '',
+             'FINAL SCORE: '+score, 'ALL 10 LEVELS CLEARED!'],
+            '▶  TOUCH OR CLICK TO PLAY AGAIN  ◀');
+        requestAnimationFrame(loop); return;
+    }
+
+    // --- PLAYING ---
+
+    // Particles
+    for(let i=particles.length-1; i>=0; i--) {
+        const pt=particles[i];
+        pt.x+=pt.vx; pt.y+=pt.vy; pt.vy+=0.06; pt.life-=pt.decay;
+        if(pt.life<=0) { particles.splice(i,1); continue; }
+        ctx.globalAlpha=pt.life; ctx.shadowBlur=5; ctx.shadowColor=pt.color; ctx.fillStyle=pt.color;
+        ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+
+    // Player
+    if(player.invincFrames > 0) player.invincFrames--;
+    if(player.rapidTimer > 0) player.rapidTimer--;
+    const showPlayer = player.invincFrames===0 || Math.floor(player.invincFrames/5)%2===0;
+    if(showPlayer) {
+        if(player.shieldActive) {
+            ctx.save(); ctx.shadowBlur=20; ctx.shadowColor='#0ff';
+            ctx.strokeStyle='rgba(0,255,255,0.7)'; ctx.lineWidth=2.5;
+            ctx.beginPath(); ctx.arc(player.x+12,player.y+12,24,0,Math.PI*2); ctx.stroke();
+            ctx.restore();
         }
+        drawPlayerShip(player.x+12, player.y+12, player.rapidTimer>0 ? '#ff8' : '#0ff');
+    }
+    ctx.shadowBlur=0;
 
-        function loop() {
-            if(isGameOver) return; 
+    // Auto-fire
+    fireTimer++;
+    if(fireTimer >= (player.rapidTimer>0 ? 2 : 6)) {
+        fireTimer=0;
+        bullets.push({x:player.x+10, y:player.y-2, v:-18, enemy:false, width:4});
+        if(player.rapidTimer > 0) {
+            bullets.push({x:player.x-2,  y:player.y+8, v:-16, vx:-1.8, enemy:false, width:3});
+            bullets.push({x:player.x+22, y:player.y+8, v:-16, vx: 1.8, enemy:false, width:3});
+        }
+    }
 
-            x.fillStyle = "rgba(0,0,0,0.3)"; x.fillRect(0,0,c.width,c.height);
-            x.fillStyle = p.fury > 0 ? "#ff0" : "#0ff"; x.fillRect(p.x, p.y, 25, 25);
-            if(p.fury > 0) { x.shadowBlur=20; x.shadowColor="#ff0"; p.fury--; }
-
-            let level = Math.floor(score/50) + 1;
-            document.getElementById("lvl").innerText = level;
-            
-            // INCREASED LENGTH: Victory is now at 500!
-            if(score >= 500) { 
-                document.getElementById("victory").style.display = "block"; 
-                isGameOver = true; return; 
+    // Boss
+    if(boss) {
+        boss.x += boss.dir;
+        if(boss.x < 0 || boss.x > W-120) boss.dir *= -1;
+        drawBossShip(boss.x, boss.y, 120, 90, boss.color);
+        ctx.shadowBlur=0;
+        // Boss name + HP bar
+        ctx.shadowBlur=8; ctx.shadowColor=boss.color;
+        ctx.fillStyle=boss.color; ctx.font='bold 14px Courier New'; ctx.textAlign='center';
+        ctx.fillText('▼ '+boss.name+' ▼', W/2, 14);
+        ctx.shadowBlur=0; ctx.textAlign='left';
+        ctx.fillStyle='#300'; ctx.fillRect(W*0.15,18,W*0.7,12);
+        ctx.fillStyle='#f00'; ctx.fillRect(W*0.15,18,(boss.hp/boss.maxHp)*W*0.7,12);
+        // Boss fires spread shots aimed at player
+        boss.shootTimer++;
+        if(boss.shootTimer >= boss.fireRate) {
+            boss.shootTimer=0;
+            const sp = boss.spread || 1;
+            for(let si=0; si<sp; si++) {
+                const baseA = Math.atan2(player.y-(boss.y+80), player.x-(boss.x+60));
+                const a = baseA + (si-(sp-1)/2)*0.22, spd=5.5;
+                bullets.push({x:boss.x+60, y:boss.y+85, v:Math.sin(a)*spd, vx:Math.cos(a)*spd, enemy:true, width:5});
             }
+        }
+        if(Math.hypot(player.x-(boss.x+60), player.y-(boss.y+45)) < 65) playerHit();
+    }
 
-            // TWO BOSS PHASES
-            if(score >= 100 && bossesDefeated === 0 && phase === 'swarm') spawnBoss(150, 4); // Boss 1
-            if(score >= 300 && bossesDefeated === 1 && phase === 'swarm') spawnBoss(300, 7); // Mega-Boss 2
+    // Spawn enemies
+    if(Math.random() < (lvl.spawnRate||0) + currentLevelIdx*0.002) spawnEnemy();
 
-            if(phase === 'boss' && boss) {
-                boss.x += boss.dir; if(boss.x < 0 || boss.x > c.width-100) boss.dir *= -1;
-                x.fillStyle = bossesDefeated === 1 ? "#f80" : "#f0f"; // Make the second boss orange!
-                x.fillRect(boss.x, boss.y, 100, 80);
-                x.fillStyle = "#f00"; x.fillRect(c.width/4, 20, (boss.hp/boss.maxHp)*(c.width/2), 10);
-            } 
-            else if (phase === 'swarm' && Math.random() < 0.05 + (level*0.01)) {
-                // INCREASED DIFFICULTY: Asteroids spawn after Level 2!
-                let isAsteroid = level > 2 && Math.random() < 0.2;
-                if(isAsteroid) {
-                    bots.push({x: Math.random()*c.width, y: -30, v: 2 + level*0.5, hp: 5, color: '#666', size: 35});
-                } else {
-                    bots.push({x: Math.random()*c.width, y: -30, v: 3 + level, hp: 1, color: '#f00', size: 25});
-                }
+    // Bots
+    for(let i=bots.length-1; i>=0; i--) {
+        const b=bots[i];
+        b.y+=b.v; b.x+=b.drift;
+        if(b.type==='raider') {
+            b.shootTimer++;
+            if(b.shootTimer >= 90-currentLevelIdx*3) {
+                b.shootTimer=0;
+                const a=Math.atan2(player.y-b.y, player.x-b.x);
+                bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.8, v:Math.sin(a)*4, vx:Math.cos(a)*4, enemy:true, width:4});
             }
+        } else if(b.type==='heavy') {
+            b.shootTimer++;
+            if(b.shootTimer >= 70-currentLevelIdx*2) {
+                b.shootTimer=0;
+                bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.9, v:3.5, enemy:true, width:7});
+            }
+        }
+        if(b.type==='asteroid')    drawAsteroid(b.x,b.y,b.size,b.color);
+        else if(b.type==='heavy')  drawHeavyShip(b.x,b.y,b.size,b.color);
+        else                       drawEnemyShip(b.x,b.y,b.size,b.color);
+        ctx.shadowBlur=0;
+        if(Math.hypot(player.x+12-(b.x+b.size/2), player.y+12-(b.y+b.size/2)) < b.size*0.65) {
+            spawnParticles(b.x+b.size/2, b.y+b.size/2, b.color, 8);
+            playerHit(); bots.splice(i,1); continue;
+        }
+        if(b.y > H+50) bots.splice(i,1);
+    }
 
-            bots.forEach((b, i) => {
-                b.y += b.v; x.fillStyle=b.color; x.fillRect(b.x, b.y, b.size, b.size);
-                
-                if(Math.hypot(p.x-b.x, p.y-b.y) < b.size) {
-                    document.getElementById("gameover").style.display = "block";
-                    isGameOver = true; return;
-                }
-                if(b.y > c.height) bots.splice(i, 1);
-            });
+    // Power-ups
+    for(let i=powerups.length-1; i>=0; i--) {
+        const pu=powerups[i];
+        pu.y+=pu.vy; pu.life--;
+        drawPowerup(pu); ctx.shadowBlur=0;
+        if(Math.hypot(player.x+12-pu.x, player.y+12-pu.y) < 26) {
+            applyPowerup(pu.type); powerups.splice(i,1);
+        } else if(pu.y > H+20 || pu.life<=0) powerups.splice(i,1);
+    }
 
-            bullets.forEach((b, i) => {
-                b.y += b.v; x.fillStyle = b.enemy ? "#f0f" : "#fff"; x.fillRect(b.x, b.y, b.width, 15);
-                
-                if (b.enemy && Math.hypot(p.x - b.x, p.y - b.y) < 20) {
-                    document.getElementById("gameover").style.display = "block";
-                    isGameOver = true; return;
-                }
-                
-                if(!b.enemy && boss && b.x > boss.x && b.x < boss.x+100 && b.y < boss.y+80) {
-                    boss.hp--; bullets.splice(i, 1);
-                    if(boss.hp <= 0) { 
-                        boss=null; phase='swarm'; score+=50; p.fury=500; bossesDefeated++; 
+    // Bullets
+    for(let i=bullets.length-1; i>=0; i--) {
+        const b=bullets[i];
+        b.y+=b.v; if(b.vx) b.x+=b.vx;
+        ctx.save(); ctx.shadowBlur=10;
+        ctx.shadowColor = b.enemy ? '#f0f' : (player.rapidTimer>0 ? '#ff0' : '#0ff');
+        ctx.fillStyle = b.enemy ? '#f8f' : '#fff';
+        if(b.enemy) { ctx.beginPath(); ctx.arc(b.x,b.y,5,0,Math.PI*2); ctx.fill(); }
+        else { ctx.fillRect(b.x,b.y,b.width,15); }
+        ctx.restore();
+
+        if(b.enemy && Math.hypot(player.x+12-b.x, player.y+12-b.y) < 18) {
+            bullets.splice(i,1); playerHit(); continue;
+        }
+        let removed=false;
+        if(!b.enemy && boss && b.x+b.width>boss.x && b.x<boss.x+120 && b.y>boss.y && b.y<boss.y+90) {
+            boss.hp--; bullets.splice(i,1); removed=true;
+            if(boss.hp<=0) {
+                spawnParticles(boss.x+60,boss.y+45,boss.color,55);
+                score += 100+currentLevelIdx*20;
+                boss=null; bossKilledThisLevel=true; checkLevelComplete();
+            }
+        } else if(!b.enemy) {
+            for(let bi=bots.length-1; bi>=0; bi--) {
+                const bot=bots[bi];
+                if(Math.hypot(b.x-bot.x-bot.size/2, b.y-bot.y-bot.size/2) < bot.size*0.65) {
+                    bot.hp--; bullets.splice(i,1); removed=true;
+                    if(bot.hp<=0) {
+                        spawnParticles(bot.x+bot.size/2,bot.y+bot.size/2,bot.color,14);
+                        maybeDropPowerup(bot.x+bot.size/2,bot.y+bot.size/2);
+                        bots.splice(bi,1);
+                        score += bot.type==='heavy'?5 : bot.type==='raider'?3 : bot.type==='asteroid'?3 : 1;
+                        killCount++; checkLevelComplete();
                     }
-                } else if (!b.enemy) {
-                    bots.forEach((bot, bi) => {
-                        if(Math.hypot(b.x-bot.x, b.y-bot.y) < bot.size) { 
-                            bot.hp--; bullets.splice(i, 1);
-                            if(bot.hp <= 0) {
-                                bots.splice(bi, 1); score++; document.getElementById("s").innerText = score; 
-                            }
-                        }
-                    });
+                    break;
                 }
-                if(b.y < 0) bullets.splice(i, 1);
-            });
-            requestAnimationFrame(loop);
+            }
         }
-        loop();
-    </script>
+        if(!removed && (b.y<-25||b.y>H+25||b.x<-25||b.x>W+25)) bullets.splice(i,1);
+    }
+
+    drawHUD();
+    requestAnimationFrame(loop);
+}
+loop();
+</script>
 </body>
 </html>
