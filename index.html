@@ -87,6 +87,34 @@ const LEVELS = [
         quota:0, boss:{hp:600,maxHp:600,speed:9,color:'#f04',name:'THE OVERLORD',fireRate:28,spread:5},
         spawnRate:0.048, enemyMix:[{type:'scout',w:2},{type:'raider',w:2}],
         starColor:'#f44', bgTint:'rgba(15,0,0,0.38)'
+    },
+    {
+        id:11, name:"VOID RUNNERS",
+        story:["The Overlord falls — but the war rages on.", "Rogue drone fleets swarm the void corridor.", "Eliminate 80 enemies to press forward."],
+        quota:80, boss:null,
+        spawnRate:0.09, enemyMix:[{type:'scout',w:4},{type:'raider',w:3},{type:'heavy',w:2},{type:'asteroid',w:1}],
+        starColor:'#acf', bgTint:'rgba(0,5,15,0.38)'
+    },
+    {
+        id:12, name:"STELLAR SIEGE",
+        story:["Enemy heavy units blockade the passage.", "Their combined fire creates a deadly wall.", "Break through — destroy 70 units."],
+        quota:70, boss:null,
+        spawnRate:0.075, enemyMix:[{type:'heavy',w:5},{type:'raider',w:3},{type:'asteroid',w:2}],
+        starColor:'#ffa', bgTint:'rgba(10,10,0,0.38)'
+    },
+    {
+        id:13, name:"SENTINEL PRIME",
+        story:["An ancient war machine guards the dark core.", "Its rotating cannon array is precise and deadly.", "Defeat the Sentinel to breach the final gate."],
+        quota:0, boss:{hp:520,maxHp:520,speed:7,color:'#0af',name:'SENTINEL PRIME',fireRate:33,spread:5},
+        spawnRate:0.03, enemyMix:[{type:'heavy',w:2},{type:'raider',w:1}],
+        starColor:'#aff', bgTint:'rgba(0,10,15,0.38)'
+    },
+    {
+        id:14, name:"THE VOID TYRANT",
+        story:["The true destroyer. Ancient. Infinite. Eternal.", "Seven cannons of pure annihilation. No mercy.", "THIS. IS. THE. END."],
+        quota:0, boss:{hp:800,maxHp:800,speed:11,color:'#ff4',name:'THE VOID TYRANT',fireRate:20,spread:7},
+        spawnRate:0.055, enemyMix:[{type:'scout',w:3},{type:'raider',w:2},{type:'heavy',w:1}],
+        starColor:'#ff8', bgTint:'rgba(15,15,0,0.38)'
     }
 ];
 
@@ -100,6 +128,10 @@ let killCount = 0, bossKilledThisLevel = false;
 let player = { x:W/2-12, y:H*0.82, hp:3, maxHp:3, invincFrames:0, shieldActive:false, rapidTimer:0 };
 let bots = [], bullets = [], particles = [], powerups = [];
 let boss = null, fireTimer = 0;
+let shipDesign = 0; // 0=Fighter  1=Interceptor  2=Bomber  3=Ghost
+let shipColorIdx = 0;
+const SHIP_COLORS = ['#0ff','#0f8','#f0f','#ff8','#f84','#48f'];
+const SHIP_NAMES  = ['FIGHTER','INTERCEPT','BOMBER','GHOST'];
 
 const stars = Array.from({length:150}, () => ({
     x: Math.random()*W, y: Math.random()*H,
@@ -124,15 +156,36 @@ canvas.addEventListener('mousemove', e => {
     if(gameState === 'playing') { player.x = e.clientX-12; player.y = e.clientY-12; }
 });
 
-canvas.addEventListener('touchstart', e => { e.preventDefault(); handleTap(); }, {passive:false});
-canvas.addEventListener('click', () => handleTap());
+canvas.addEventListener('touchstart', e => { e.preventDefault(); handleTap(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+canvas.addEventListener('click', e => handleTap(e.clientX, e.clientY));
 
-function handleTap() {
-    if(gameState === 'title')         { gameState = 'intro'; }
+function handleTap(x, y) {
+    if(gameState === 'title')            { gameState = 'customize'; }
+    else if(gameState === 'customize')   { handleCustomizeTap(x || W/2, y || H/2); }
     else if(gameState === 'intro')         { startLevel(currentLevelIdx); }
     else if(gameState === 'levelComplete') { nextLevel(); }
     else if(gameState === 'gameover')      { retryLevel(); }
     else if(gameState === 'victory')       { resetGame(); }
+}
+
+function handleCustomizeTap(x, y) {
+    const dSpacing = Math.min(W * 0.22, 155);
+    const dStartX  = W/2 - (SHIP_NAMES.length - 1) / 2 * dSpacing;
+    const dY = H * 0.56;
+    for(let i = 0; i < SHIP_NAMES.length; i++) {
+        if(Math.abs(x - (dStartX + i * dSpacing)) < dSpacing * 0.46 && Math.abs(y - dY) < 24) {
+            shipDesign = i; return;
+        }
+    }
+    const cSpacing = Math.min(W * 0.12, 58);
+    const cStartX  = W/2 - (SHIP_COLORS.length - 1) / 2 * cSpacing;
+    const cY = H * 0.72;
+    for(let i = 0; i < SHIP_COLORS.length; i++) {
+        if(Math.hypot(x - (cStartX + i * cSpacing), y - cY) < 28) {
+            shipColorIdx = i; return;
+        }
+    }
+    if(y > H * 0.82) { gameState = 'intro'; }
 }
 
 // ================================================================
@@ -241,11 +294,49 @@ function drawPlayerShip(cx, cy, color) {
     const sz = 14;
     ctx.save(); ctx.translate(cx, cy);
     ctx.shadowBlur=18; ctx.shadowColor=color; ctx.fillStyle=color;
-    ctx.beginPath();
-    ctx.moveTo(0,-sz); ctx.lineTo(sz*0.55,sz*0.65); ctx.lineTo(0,sz*0.25); ctx.lineTo(-sz*0.55,sz*0.65);
-    ctx.closePath(); ctx.fill();
-    ctx.shadowBlur=12; ctx.shadowColor="#08f"; ctx.fillStyle="#08f";
-    ctx.beginPath(); ctx.ellipse(0,sz*0.55,sz*0.18,sz*0.12,0,0,Math.PI*2); ctx.fill();
+    if(shipDesign === 1) {
+        // Interceptor: swept delta wings
+        ctx.beginPath();
+        ctx.moveTo(0,-sz); ctx.lineTo(sz*0.18,-sz*0.25);
+        ctx.lineTo(sz*0.72,sz*0.2); ctx.lineTo(sz*0.32,sz*0.65);
+        ctx.lineTo(0,sz*0.3); ctx.lineTo(-sz*0.32,sz*0.65);
+        ctx.lineTo(-sz*0.72,sz*0.2); ctx.lineTo(-sz*0.18,-sz*0.25);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur=12; ctx.shadowColor='#08f'; ctx.fillStyle='#08f';
+        ctx.beginPath(); ctx.ellipse(-sz*0.22,sz*0.52,sz*0.12,sz*0.09,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse( sz*0.22,sz*0.52,sz*0.12,sz*0.09,0,0,Math.PI*2); ctx.fill();
+    } else if(shipDesign === 2) {
+        // Bomber: wide hull with dome cockpit and triple thrusters
+        ctx.beginPath();
+        ctx.moveTo(0,-sz*0.7);
+        ctx.lineTo(sz*0.76,sz*0.05); ctx.lineTo(sz*0.58,sz*0.65);
+        ctx.lineTo(0,sz*0.42); ctx.lineTo(-sz*0.58,sz*0.65);
+        ctx.lineTo(-sz*0.76,sz*0.05);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur=8; ctx.shadowColor='rgba(255,255,255,0.8)'; ctx.fillStyle='rgba(255,255,255,0.55)';
+        ctx.beginPath(); ctx.ellipse(0,-sz*0.18,sz*0.24,sz*0.2,0,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=12; ctx.shadowColor='#08f'; ctx.fillStyle='#08f';
+        ctx.beginPath(); ctx.ellipse(-sz*0.35,sz*0.55,sz*0.14,sz*0.1,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0,sz*0.6,sz*0.14,sz*0.1,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse( sz*0.35,sz*0.55,sz*0.14,sz*0.1,0,0,Math.PI*2); ctx.fill();
+    } else if(shipDesign === 3) {
+        // Ghost: asymmetric stealth design
+        ctx.beginPath();
+        ctx.moveTo(0,-sz);
+        ctx.lineTo(sz*0.62,sz*0.28); ctx.lineTo(sz*0.32,sz*0.65);
+        ctx.lineTo(0,sz*0.18); ctx.lineTo(-sz*0.32,sz*0.65);
+        ctx.lineTo(-sz*0.88,sz*0.04);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur=12; ctx.shadowColor='#08f'; ctx.fillStyle='#08f';
+        ctx.beginPath(); ctx.ellipse(sz*0.08,sz*0.5,sz*0.16,sz*0.11,0,0,Math.PI*2); ctx.fill();
+    } else {
+        // Fighter (default): original triangle
+        ctx.beginPath();
+        ctx.moveTo(0,-sz); ctx.lineTo(sz*0.55,sz*0.65); ctx.lineTo(0,sz*0.25); ctx.lineTo(-sz*0.55,sz*0.65);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur=12; ctx.shadowColor='#08f'; ctx.fillStyle='#08f';
+        ctx.beginPath(); ctx.ellipse(0,sz*0.55,sz*0.18,sz*0.12,0,0,Math.PI*2); ctx.fill();
+    }
     ctx.restore();
 }
 
@@ -281,16 +372,142 @@ function drawAsteroid(cx, cy, size, color) {
     ctx.restore();
 }
 
-function drawBossShip(bx, by, bw, bh, color) {
+function drawBossShip(bx, by, bw, bh, color, bossName) {
     ctx.save(); ctx.translate(bx+bw*0.5, by+bh*0.5);
     ctx.shadowBlur=30; ctx.shadowColor=color; ctx.fillStyle=color;
-    ctx.beginPath();
-    ctx.moveTo(0,-bh*0.5); ctx.lineTo(bw*0.45,-bh*0.18); ctx.lineTo(bw*0.5,bh*0.22);
-    ctx.lineTo(0,bh*0.5); ctx.lineTo(-bw*0.5,bh*0.22); ctx.lineTo(-bw*0.45,-bh*0.18);
-    ctx.closePath(); ctx.fill();
-    ctx.shadowBlur=16; ctx.shadowColor='#fff'; ctx.fillStyle='#fff';
-    ctx.beginPath(); ctx.arc(0,bh*0.1,9,0,Math.PI*2); ctx.fill();
+    if(bossName === 'GATEKEEPER') {
+        // Gate/sentinel: two pillars, top beam, central eye, downward cannon
+        ctx.fillRect(-50,-38,22,65);
+        ctx.fillRect(28,-38,22,65);
+        ctx.fillRect(-50,-40,100,18);
+        ctx.beginPath(); ctx.arc(0,8,14,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-8,22); ctx.lineTo(0,44); ctx.lineTo(8,22); ctx.closePath(); ctx.fill();
+        ctx.shadowBlur=16; ctx.shadowColor='#fff'; ctx.fillStyle='rgba(255,255,255,0.9)';
+        ctx.beginPath(); ctx.arc(0,8,6,0,Math.PI*2); ctx.fill();
+    } else if(bossName === 'IRON BASTION') {
+        // Fortress: wide hull, battlements, side guns
+        ctx.fillRect(-55,-14,110,54);
+        ctx.fillRect(-46,-30,92,18);
+        ctx.fillRect(-32,-44,16,16); ctx.fillRect(-8,-44,16,16); ctx.fillRect(16,-44,16,16);
+        ctx.fillRect(-62,-4,14,10); ctx.fillRect(50,-4,14,10);
+        ctx.shadowBlur=16; ctx.shadowColor='#fff'; ctx.fillStyle='rgba(255,255,255,0.8)';
+        ctx.beginPath(); ctx.arc(0,-4,10,0,Math.PI*2); ctx.fill();
+    } else if(bossName === 'DARK HERALD') {
+        // Sleek cruiser with swept wings
+        ctx.beginPath();
+        ctx.moveTo(0,-44);
+        ctx.lineTo(55,-6); ctx.lineTo(38,44);
+        ctx.lineTo(18,14); ctx.lineTo(0,34);
+        ctx.lineTo(-18,14); ctx.lineTo(-38,44);
+        ctx.lineTo(-55,-6);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur=12; ctx.shadowColor='rgba(255,255,255,0.8)'; ctx.fillStyle='rgba(255,255,255,0.7)';
+        ctx.beginPath(); ctx.ellipse(0,-16,8,13,0,0,Math.PI*2); ctx.fill();
+    } else if(bossName === 'THE OVERLORD') {
+        // 8-point star with outer ring and bright core
+        ctx.beginPath();
+        for(let i=0;i<8;i++){
+            const a=(i/8)*Math.PI*2-Math.PI/2, ma=a+Math.PI/8;
+            i===0 ? ctx.moveTo(Math.cos(a)*45,Math.sin(a)*45) : ctx.lineTo(Math.cos(a)*45,Math.sin(a)*45);
+            ctx.lineTo(Math.cos(ma)*20,Math.sin(ma)*20);
+        }
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur=0; ctx.strokeStyle=color; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(0,0,28,0,Math.PI*2); ctx.stroke();
+        ctx.shadowBlur=20; ctx.shadowColor='#fff'; ctx.fillStyle='#fff';
+        ctx.beginPath(); ctx.arc(0,0,13,0,Math.PI*2); ctx.fill();
+    } else if(bossName === 'SENTINEL PRIME') {
+        // Mechanical octagon with 4 rotating gun pods
+        ctx.beginPath();
+        for(let i=0;i<8;i++){
+            const a=(i/8)*Math.PI*2, r=40;
+            i===0 ? ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r) : ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);
+        }
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle='rgba(0,0,0,0.45)';
+        ctx.beginPath(); ctx.arc(0,0,22,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=color;
+        for(let i=0;i<4;i++){
+            ctx.save(); ctx.rotate(i*Math.PI/2);
+            ctx.fillRect(-5,26,10,18);
+            ctx.beginPath(); ctx.arc(0,27,7,0,Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+        ctx.shadowBlur=16; ctx.shadowColor='#fff'; ctx.fillStyle='rgba(255,255,255,0.9)';
+        ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
+    } else if(bossName === 'THE VOID TYRANT') {
+        // Chaotic 12-point jagged star
+        ctx.beginPath();
+        for(let i=0;i<12;i++){
+            const a=(i/12)*Math.PI*2-Math.PI/2, ma=a+Math.PI/12;
+            const r1=i%3===0?44:36, r2=15;
+            i===0 ? ctx.moveTo(Math.cos(a)*r1,Math.sin(a)*r1) : ctx.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);
+            ctx.lineTo(Math.cos(ma)*r2,Math.sin(ma)*r2);
+        }
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur=0; ctx.strokeStyle='rgba(255,255,120,0.6)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(0,0,29,0,Math.PI*2); ctx.stroke();
+        ctx.shadowBlur=24; ctx.shadowColor='#fff'; ctx.fillStyle='rgba(255,255,200,0.95)';
+        ctx.beginPath(); ctx.arc(0,0,14,0,Math.PI*2); ctx.fill();
+    } else {
+        // Fallback: original hexagonal design
+        ctx.beginPath();
+        ctx.moveTo(0,-bh*0.5); ctx.lineTo(bw*0.45,-bh*0.18); ctx.lineTo(bw*0.5,bh*0.22);
+        ctx.lineTo(0,bh*0.5); ctx.lineTo(-bw*0.5,bh*0.22); ctx.lineTo(-bw*0.45,-bh*0.18);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur=16; ctx.shadowColor='#fff'; ctx.fillStyle='#fff';
+        ctx.beginPath(); ctx.arc(0,bh*0.1,9,0,Math.PI*2); ctx.fill();
+    }
     ctx.restore();
+}
+
+function drawCustomizeScreen() {
+    ctx.fillStyle='rgba(0,0,0,0.84)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    // Title
+    ctx.shadowBlur=22; ctx.shadowColor='#0ff';
+    ctx.fillStyle='#0ff'; ctx.font='bold 30px Courier New';
+    ctx.fillText('CUSTOMIZE YOUR SHIP', W/2, H*0.12);
+    // Ship preview (scaled up)
+    ctx.shadowBlur=0;
+    ctx.save(); ctx.scale(2.4,2.4);
+    drawPlayerShip(W/2/2.4, H*0.3/2.4, SHIP_COLORS[shipColorIdx]);
+    ctx.restore();
+    // Hull design buttons
+    ctx.shadowBlur=0; ctx.fillStyle='#888'; ctx.font='12px Courier New';
+    ctx.fillText('HULL DESIGN', W/2, H*0.48);
+    const dSpacing = Math.min(W*0.22,155);
+    const dStartX  = W/2 - (SHIP_NAMES.length-1)/2*dSpacing;
+    const dY = H*0.56;
+    for(let i=0;i<SHIP_NAMES.length;i++){
+        const bx=dStartX+i*dSpacing, sel=i===shipDesign;
+        ctx.shadowBlur=sel?14:0; ctx.shadowColor=SHIP_COLORS[shipColorIdx];
+        ctx.strokeStyle=sel?SHIP_COLORS[shipColorIdx]:'#444'; ctx.lineWidth=sel?2:1;
+        ctx.strokeRect(bx-dSpacing*0.42,dY-18,dSpacing*0.84,36);
+        ctx.fillStyle=sel?SHIP_COLORS[shipColorIdx]:'#666';
+        ctx.font=(sel?'bold ':'')+'11px Courier New';
+        ctx.fillText(SHIP_NAMES[i],bx,dY+5);
+    }
+    // Colour swatches
+    ctx.shadowBlur=0; ctx.fillStyle='#888'; ctx.font='12px Courier New';
+    ctx.fillText('HULL COLOUR', W/2, H*0.66);
+    const cSpacing=Math.min(W*0.12,58);
+    const cStartX=W/2-(SHIP_COLORS.length-1)/2*cSpacing;
+    const cY=H*0.72;
+    for(let i=0;i<SHIP_COLORS.length;i++){
+        const cx2=cStartX+i*cSpacing, sel=i===shipColorIdx;
+        ctx.shadowBlur=sel?18:5; ctx.shadowColor=SHIP_COLORS[i];
+        ctx.fillStyle=SHIP_COLORS[i];
+        ctx.beginPath(); ctx.arc(cx2,cY,sel?17:12,0,Math.PI*2); ctx.fill();
+        if(sel){ctx.shadowBlur=0;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx2,cY,21,0,Math.PI*2);ctx.stroke();}
+    }
+    // Start button
+    ctx.shadowBlur=16; ctx.shadowColor='#0f0';
+    ctx.fillStyle='#0f0'; ctx.font='bold 20px Courier New';
+    ctx.fillText('▶  START MISSION  ◀', W/2, H*0.87);
+    ctx.shadowBlur=0; ctx.fillStyle='#555'; ctx.font='13px Courier New';
+    ctx.fillText('CLICK A DESIGN OR COLOUR TO SELECT', W/2, H*0.93);
+    ctx.textAlign='left';
 }
 
 function drawPowerup(pu) {
@@ -366,10 +583,14 @@ function loop() {
     if(gameState === 'title') {
         drawOverlay('NEON SHOOTER', '#0ff',
             ['— A SPACE ADVENTURE —', '',
-             '10 LEVELS  ·  4 ENEMY TYPES  ·  4 BOSSES',
+             '14 LEVELS  ·  4 ENEMY TYPES  ·  6 BOSSES',
              'TRAVERSE NEBULAE, ASTEROID FIELDS',
-             'AND FACE THE OVERLORD'],
+             'AND FACE THE VOID TYRANT'],
             '▶  TOUCH OR CLICK TO START  ◀');
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'customize') {
+        drawCustomizeScreen();
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'intro') {
@@ -397,8 +618,8 @@ function loop() {
     }
     if(gameState === 'victory') {
         drawOverlay('MISSION COMPLETE', '#ff0',
-            ['THE OVERLORD IS DEFEATED.', 'THE GALAXY IS SAVED.', '',
-             'FINAL SCORE: '+score, 'ALL 10 LEVELS CLEARED!'],
+            ['THE VOID TYRANT IS DEFEATED.', 'THE GALAXY IS SAVED.', '',
+             'FINAL SCORE: '+score, 'ALL 14 LEVELS CLEARED!'],
             '▶  TOUCH OR CLICK TO PLAY AGAIN  ◀');
         requestAnimationFrame(loop); return;
     }
@@ -426,7 +647,7 @@ function loop() {
             ctx.beginPath(); ctx.arc(player.x+12,player.y+12,24,0,Math.PI*2); ctx.stroke();
             ctx.restore();
         }
-        drawPlayerShip(player.x+12, player.y+12, player.rapidTimer>0 ? '#ff8' : '#0ff');
+        drawPlayerShip(player.x+12, player.y+12, player.rapidTimer>0 ? '#ff8' : SHIP_COLORS[shipColorIdx]);
     }
     ctx.shadowBlur=0;
 
@@ -445,7 +666,7 @@ function loop() {
     if(boss) {
         boss.x += boss.dir;
         if(boss.x < 0 || boss.x > W-120) boss.dir *= -1;
-        drawBossShip(boss.x, boss.y, 120, 90, boss.color);
+        drawBossShip(boss.x, boss.y, 120, 90, boss.color, boss.name);
         ctx.shadowBlur=0;
         // Boss name + HP bar
         ctx.shadowBlur=8; ctx.shadowColor=boss.color;
