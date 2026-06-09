@@ -17,11 +17,14 @@ const W = canvas.width, H = canvas.height;
 // ================================================================
 // SHIP CUSTOMISATION OPTIONS
 // ================================================================
-const HULL_NAMES  = ['STANDARD','ANGULAR','WIDE','SLEEK','RAZOR'];
-const SHIP_COLORS = ['#0ff','#0f8','#ff8','#f0f','#f80','#fff','#80f'];
-const SHIP_COLOR_NAMES = ['CYAN','EMERALD','GOLD','MAGENTA','AMBER','WHITE','VIOLET'];
-const ENGINE_COLORS = ['#08f','#f80','#0f8','#a0f'];
-const ENGINE_NAMES  = ['BLUE','AMBER','GREEN','PURPLE'];
+const HULL_NAMES  = ['STANDARD','ANGULAR','WIDE','SLEEK','RAZOR','PHANTOM','TITAN','BLADE','DIAMOND','VIPER'];
+const HULL_PRICES = [0,0,0,0,0, 40,60,80,100,120];
+const SHIP_COLORS = ['#0ff','#0f8','#ff8','#f0f','#f80','#fff','#80f','#f00','#f4c','#0df','#f40','#4f4','#88f','#fa0'];
+const SHIP_COLOR_NAMES = ['CYAN','EMERALD','GOLD','MAGENTA','AMBER','WHITE','VIOLET','SCARLET','ROSE','ICE','BLAZE','LIME','INDIGO','SOLAR'];
+const COLOR_PRICES = [0,0,0,0,0,0,0, 25,25,30,25,30,35,35];
+const ENGINE_COLORS = ['#08f','#f80','#0f8','#a0f','#f00','#0ff','#fff','#ff0','#f0a'];
+const ENGINE_NAMES  = ['BLUE','AMBER','GREEN','PURPLE','RED','CYAN','WHITE','GOLD','PINK'];
+const ENGINE_PRICES = [0,0,0,0, 20,20,20,20,20];
 
 // ================================================================
 // LEVEL DEFINITIONS  (50 levels, 14 boss fights)
@@ -215,7 +218,7 @@ const LEVELS = [
         id:26, name:"VANGUARD ARMADA",
         story:["Vanguards march in crushing formation.", "Dreadnoughts absorb everything you fire.", "Destroy 85 heavy units to halt their advance."],
         quota:85, boss:null,
-        spawnRate:0.082, enemyMix:[{type:'vanguard',w:3},{type:'dreadnought',w:2},{type:'wraith',w:3},{type:'gunship',w:2},{type:'berserker',w:2}],
+        spawnRate:0.082, enemyMix:[{type:'vanguard',w:3},{type:'dreadnought',w:2},{type:'wraith',w:2},{type:'gunship',w:2},{type:'berserker',w:1},{type:'reflector',w:2}],
         starColor:'#0f8', bgTint:'rgba(0,8,4,0.42)'
     },
     {
@@ -271,7 +274,7 @@ const LEVELS = [
         id:34, name:"LANCER BLITZ",
         story:["Lancer strike craft tear through your defences.", "Their triple column fire is nearly undodgeable.", "Destroy 90 lancers to end the blitz."],
         quota:90, boss:null,
-        spawnRate:0.088, enemyMix:[{type:'lancer',w:5},{type:'interceptor',w:3},{type:'phantom',w:2}],
+        spawnRate:0.088, enemyMix:[{type:'lancer',w:5},{type:'interceptor',w:2},{type:'phantom',w:1},{type:'reflector',w:2}],
         starColor:'#0fe', bgTint:'rgba(0,10,8,0.44)'
     },{
         id:35, name:"KAMIKAZE STORM",
@@ -315,7 +318,7 @@ const LEVELS = [
         id:41, name:"PULSAR INFERNO",
         story:["Pulsars ignite in every direction — no safe zone.", "Titan armour guards the flanks without mercy.", "100 kills. Weave through the inferno and survive."],
         quota:100, boss:null,
-        spawnRate:0.100, enemyMix:[{type:'pulsar',w:4},{type:'titan',w:3},{type:'bomber',w:2},{type:'drone',w:1}],
+        spawnRate:0.100, enemyMix:[{type:'pulsar',w:4},{type:'titan',w:3},{type:'bomber',w:1},{type:'drone',w:1},{type:'reflector',w:1}],
         starColor:'#f8a', bgTint:'rgba(14,5,2,0.48)'
     },{
         id:42, name:"VOID SURGE",
@@ -327,7 +330,7 @@ const LEVELS = [
         id:43, name:"LANCER ARMADA",
         story:["Lancer destroyers spread in impossible formation.", "Snipers target from extreme range — no escape.", "Destroy 95 enemies — every shot must count."],
         quota:95, boss:null,
-        spawnRate:0.098, enemyMix:[{type:'lancer',w:4},{type:'sniper',w:3},{type:'interceptor',w:2},{type:'phantom',w:1}],
+        spawnRate:0.098, enemyMix:[{type:'lancer',w:4},{type:'sniper',w:3},{type:'interceptor',w:2},{type:'reflector',w:2}],
         starColor:'#0fe', bgTint:'rgba(0,10,8,0.48)'
     },{
         id:44, name:"THE REAPER",
@@ -375,6 +378,723 @@ const LEVELS = [
         spawnRate:0.070, enemyMix:[{type:'pulsar',w:2},{type:'nullifier',w:2},{type:'dreadnought',w:1},{type:'kamikaze',w:1}],
         starColor:'#fff', bgTint:'rgba(8,8,8,0.52)'
     }
+    ,    {
+        id:51, name:"DIMENSIONAL BREACH",
+        story:["The dimensional barrier collapses — enemies pour through endlessly.", "Every type of horror floods from the infinite dark beyond.", "Eliminate 150 enemies or be consumed by the tide."],
+        quota:145, boss:null,
+        spawnRate:0.124, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:2},{type:'pulsar',w:2},{type:'stealth',w:2},{type:'berserker',w:1}],
+        starColor:'#a6f', bgTint:'rgba(2,0,16,0.52)'
+    }
+    ,    {
+        id:52, name:"SECTOR 52",
+        story:["Level 52 of the infinite conflict.", "The enemies never stop. Neither can you.", "Destroy 145 enemies to advance."],
+        quota:145, boss:null,
+        spawnRate:0.125, enemyMix:[{type:'lancer',w:4},{type:'carrier',w:2},{type:'kamikaze',w:3},{type:'reflector',w:1}],
+        starColor:'#08f', bgTint:'rgba(0,4,16,0.52)'
+    }
+    ,    {
+        id:53, name:"HERALD OF CHAOS",
+        story:["The Herald of Chaos emerges from the dimensional collapse.", "Its fractured body pulses with nine cannon emplacements.", "'ORDER IS DEAD. CHAOS IS ETERNAL. YOU ARE NOTHING.'"],
+        quota:0, boss:{hp:4500,maxHp:4500,speed:13,color:'#f60',name:'HERALD OF CHAOS',fireRate:12,spread:9,shape:'heraldchaos'},
+        bossLore:["The Herald shatters — nine screaming shards of orange fire.", "Reality stabilises briefly. Your scanner cuts through static:", "'The Plague Bringer stirs. It cannot be stopped. Press forward.'"],
+        spawnRate:0.051, enemyMix:[{type:'nullifier',w:2},{type:'stealth',w:1},{type:'dreadnought',w:1}],
+        starColor:'#f60', bgTint:'rgba(4,2,0,0.54)'
+    }
+    ,    {
+        id:54, name:"ENTROPY WAVE",
+        story:["A wave of pure entropy rolls across the sector.", "Berserkers and reflectors tear through every formation.", "150 kills. Do not let entropy win."],
+        quota:145, boss:null,
+        spawnRate:0.125, enemyMix:[{type:'stealth',w:3},{type:'wraith',w:2},{type:'phantom',w:2},{type:'nullifier',w:2},{type:'zigzag',w:1}],
+        starColor:'#0ff', bgTint:'rgba(0,2,14,0.52)'
+    }
+    ,    {
+        id:55, name:"CRYSTAL FIELDS",
+        story:["Pulsar cannons seed every approach vector with radial fire.", "Stealth ships pick off stragglers in the crystalline debris.", "165 kills to clear the crystal fields."],
+        quota:150, boss:null,
+        spawnRate:0.125, enemyMix:[{type:'carrier',w:3},{type:'pulsar',w:3},{type:'drone',w:2},{type:'lancer',w:2}],
+        starColor:'#8af', bgTint:'rgba(2,2,16,0.52)'
+    }
+    ,    {
+        id:56, name:"GRAVITY WELLS",
+        story:["Carrier groups and nullifiers hold every approach locked down.", "Dreadnoughts grind forward through the gravity distortions.", "170 kills. Gravity bends — but it does not forgive."],
+        quota:150, boss:null,
+        spawnRate:0.126, enemyMix:[{type:'berserker',w:4},{type:'kamikaze',w:3},{type:'lancer',w:2},{type:'interceptor',w:1}],
+        starColor:'#6af', bgTint:'rgba(0,6,18,0.54)'
+    }
+    ,    {
+        id:57, name:"PLAGUE BRINGER",
+        story:["The Plague Bringer spreads extinction across star systems.", "Its twelve spore cannons corrupt everything they touch.", "'Turn back, pilot. There is nothing left to save here.'"],
+        quota:0, boss:{hp:5000,maxHp:5000,speed:11,color:'#0c4',name:'PLAGUE BRINGER',fireRate:11,spread:10,shape:'genesisprime'},
+        bossLore:["The Plague Bringer's spore-hull disintegrates in violet fire.", "A clean silence. Then your scanner shrieks a warning:", "'Eternal Wrath has been unshackled. The void shakes.'"],
+        spawnRate:0.052, enemyMix:[{type:'nullifier',w:2},{type:'stealth',w:1},{type:'dreadnought',w:1}],
+        starColor:'#f0f', bgTint:'rgba(4,0,14,0.54)'
+    }
+    ,    {
+        id:58, name:"THE BONE YARD",
+        story:["A graveyard of dead ships — but these enemies are very much alive.", "Titans and dreadnoughts patrol through the wreckage relentlessly.", "175 kills to escape the bone yard."],
+        quota:155, boss:null,
+        spawnRate:0.126, enemyMix:[{type:'pulsar',w:3},{type:'stealth',w:2},{type:'nullifier',w:2},{type:'carrier',w:2},{type:'wraith',w:1}],
+        starColor:'#0af', bgTint:'rgba(2,0,18,0.52)'
+    }
+    ,    {
+        id:59, name:"SHADOW CASCADE",
+        story:["Stealth ships flood the sector in coordinated waves.", "Wraiths and phantoms phase in from every angle simultaneously.", "175 kills to clear the shadow cascade."],
+        quota:155, boss:null,
+        spawnRate:0.126, enemyMix:[{type:'lancer',w:5},{type:'interceptor',w:2},{type:'phantom',w:1},{type:'kamikaze',w:2}],
+        starColor:'#68f', bgTint:'rgba(0,4,20,0.54)'
+    }
+    ,    {
+        id:60, name:"STATIC STORM",
+        story:["Ion lightning shreds sensor arrays across the entire zone.", "Lancers and interceptors tear through the electric chaos.", "180 kills to silence the static storm."],
+        quota:155, boss:null,
+        spawnRate:0.127, enemyMix:[{type:'dreadnought',w:2},{type:'nullifier',w:3},{type:'berserker',w:3},{type:'pulsar',w:2}],
+        starColor:'#4ff', bgTint:'rgba(6,0,16,0.52)'
+    }
+    ,    {
+        id:61, name:"DARK MATTER TIDE",
+        story:["Dark matter entities materialise from subspace without warning.", "Nullifiers and pulsars lead an unstoppable advance column.", "180 kills. The dark matter tide will not turn itself."],
+        quota:155, boss:null,
+        spawnRate:0.127, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:2},{type:'pulsar',w:2},{type:'stealth',w:2},{type:'berserker',w:1}],
+        starColor:'#88f', bgTint:'rgba(0,0,18,0.52)'
+    }
+    ,    {
+        id:62, name:"ETERNAL WRATH",
+        story:["Eternal Wrath — hatred given form, fury without limit.", "Twelve void-cannons, faster and deadlier than before.", "'I WILL UNMAKE YOU. I WILL UNMAKE EVERYTHING.'"],
+        quota:0, boss:{hp:5500,maxHp:5500,speed:12,color:'#f0f',name:'ETERNAL WRATH',fireRate:10,spread:10,shape:'cosmicdestroyer'},
+        bossLore:["Eternal Wrath implodes in a blinding magenta cascade.", "Fragments of its hull tear through seven dimensions.", "'The Devourer has awakened. It consumes all light. Run.'"],
+        spawnRate:0.054, enemyMix:[{type:'nullifier',w:2},{type:'stealth',w:1},{type:'dreadnought',w:1}],
+        starColor:'#f44', bgTint:'rgba(4,0,0,0.54)'
+    }
+    ,    {
+        id:63, name:"FIRE RAIN",
+        story:["Kamikazes and pulsars ignite the sector in rolling firestorms.", "Carrier drops add to the chaos with each passing second.", "185 kills. Don't stop moving."],
+        quota:160, boss:null,
+        spawnRate:0.127, enemyMix:[{type:'dreadnought',w:3},{type:'titan',w:2},{type:'vanguard',w:2},{type:'pulsar',w:1},{type:'wraith',w:2}],
+        starColor:'#4af', bgTint:'rgba(4,4,18,0.52)'
+    }
+    ,    {
+        id:64, name:"LAST SIEGE",
+        story:["A final siege formation — the heaviest units ever assembled.", "Dreadnoughts, titans and vanguards march as one unstoppable line.", "185 kills to break the siege."],
+        quota:160, boss:null,
+        spawnRate:0.128, enemyMix:[{type:'stealth',w:3},{type:'wraith',w:2},{type:'phantom',w:2},{type:'nullifier',w:2},{type:'zigzag',w:1}],
+        starColor:'#0cf', bgTint:'rgba(0,6,16,0.52)'
+    }
+    ,    {
+        id:65, name:"SINGULARITY",
+        story:["A micro-singularity tears open in the heart of the sector.", "Every known enemy type floods through the singularity rift.", "190 kills before the singularity consumes everything."],
+        quota:165, boss:null,
+        spawnRate:0.128, enemyMix:[{type:'carrier',w:3},{type:'pulsar',w:3},{type:'drone',w:2},{type:'lancer',w:2}],
+        starColor:'#89f', bgTint:'rgba(2,2,20,0.54)'
+    }
+    ,    {
+        id:66, name:"ECHO CHAMBER",
+        story:["Reflectors and zigzags create a cage of ricocheting fire.", "Snipers pick off any ship that holds still for even a second.", "190 kills to break out of the echo chamber."],
+        quota:165, boss:null,
+        spawnRate:0.128, enemyMix:[{type:'berserker',w:4},{type:'kamikaze',w:3},{type:'lancer',w:2},{type:'interceptor',w:1}],
+        starColor:'#a6f', bgTint:'rgba(2,0,16,0.52)'
+    }
+    ,    {
+        id:67, name:"THE DEVOURER",
+        story:["The Devourer — a living black hole in humanoid form.", "It consumes starlight, matter, hope — and your ship.", "'COME CLOSER. LET ME SWALLOW WHAT REMAINS OF YOU.'"],
+        quota:0, boss:{hp:6000,maxHp:6000,speed:12,color:'#80f',name:'THE DEVOURER',fireRate:10,spread:10,shape:'devourer'},
+        bossLore:["The Devourer collapses inward, consuming itself.", "A shockwave of freed energy tears the sector wide open.", "'We are the Mind Flayer. We are all minds. Prepare to merge.'"],
+        spawnRate:0.055, enemyMix:[{type:'nullifier',w:2},{type:'stealth',w:1},{type:'dreadnought',w:1}],
+        starColor:'#80f', bgTint:'rgba(4,0,16,0.54)'
+    }
+    ,    {
+        id:68, name:"DEAD STAR",
+        story:["A dead star's remnant pulls enemies in from every direction.", "Dreadnoughts and carriers fight for dominance in the debris.", "195 kills to escape the dead star's gravity well."],
+        quota:165, boss:null,
+        spawnRate:0.129, enemyMix:[{type:'pulsar',w:3},{type:'stealth',w:2},{type:'nullifier',w:2},{type:'carrier',w:2},{type:'wraith',w:1}],
+        starColor:'#4af', bgTint:'rgba(4,0,16,0.52)'
+    }
+    ,    {
+        id:69, name:"STORM FRONT",
+        story:["A massive storm front tears across three sectors simultaneously.", "Lancers and kamikazes ride the storm currents without mercy.", "195 kills. Weather the storm or be destroyed by it."],
+        quota:170, boss:null,
+        spawnRate:0.129, enemyMix:[{type:'lancer',w:5},{type:'interceptor',w:2},{type:'phantom',w:1},{type:'kamikaze',w:2}],
+        starColor:'#0ff', bgTint:'rgba(0,2,14,0.52)'
+    }
+    ,    {
+        id:70, name:"NEXUS POINT",
+        story:["The sector nexus collapses — every enemy converges on your position.", "No gaps, no breathing room, no quarter given or received.", "200 kills. Hold the nexus or lose everything."],
+        quota:170, boss:null,
+        spawnRate:0.129, enemyMix:[{type:'dreadnought',w:2},{type:'nullifier',w:3},{type:'berserker',w:3},{type:'pulsar',w:2}],
+        starColor:'#8af', bgTint:'rgba(2,2,16,0.52)'
+    }
+    ,    {
+        id:71, name:"VOID TIDE",
+        story:["A tide of void-entities rolls in from the infinite beyond.", "Nullifiers and wraiths lead the charge with surgical precision.", "200 kills before the void tide swallows the sector."],
+        quota:170, boss:null,
+        spawnRate:0.129, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:2},{type:'pulsar',w:2},{type:'stealth',w:2},{type:'berserker',w:1}],
+        starColor:'#6af', bgTint:'rgba(0,6,18,0.54)'
+    }
+    ,    {
+        id:72, name:"IRON RAIN",
+        story:["Dreadnoughts and titans rain down like iron from a dead sky.", "Carrier groups deploy drone swarms to fill every gap.", "205 kills. Iron does not yield — but neither do you."],
+        quota:175, boss:null,
+        spawnRate:0.130, enemyMix:[{type:'lancer',w:4},{type:'carrier',w:2},{type:'kamikaze',w:3},{type:'reflector',w:1}],
+        starColor:'#adf', bgTint:'rgba(4,2,16,0.52)'
+    }
+    ,    {
+        id:73, name:"MIND FLAYER",
+        story:["The Mind Flayer invades your targeting systems.", "Eleven homing tendrils, guided by pure psychic malice.", "'YOUR THOUGHTS ARE MINE. YOUR SHIP IS MINE. SURRENDER.'"],
+        quota:0, boss:{hp:6500,maxHp:6500,speed:12,color:'#3f0',name:'MIND FLAYER',fireRate:9,spread:11,shape:'voidemperor'},
+        bossLore:["The Mind Flayer's neural network detonates in emerald light.", "Static fills every frequency. Through the noise, a whisper:", "'The Abyss Walker comes from depths without a name. Endure.'"],
+        spawnRate:0.057, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:1},{type:'carrier',w:1}],
+        starColor:'#3f0', bgTint:'rgba(2,8,0,0.54)'
+    }
+    ,    {
+        id:74, name:"NEURAL COLLAPSE",
+        story:["The Mind Flayer's death sends psychic shockwaves through the sector.", "Stealth phantoms and nullifiers spiral into erratic attack patterns.", "205 kills to stabilise the neural collapse."],
+        quota:175, boss:null,
+        spawnRate:0.130, enemyMix:[{type:'stealth',w:3},{type:'wraith',w:2},{type:'phantom',w:2},{type:'nullifier',w:2},{type:'zigzag',w:1}],
+        starColor:'#68f', bgTint:'rgba(0,4,20,0.54)'
+    }
+    ,    {
+        id:75, name:"ENTROPY CASCADE",
+        story:["Cascading entropy tears apart every energy barrier in the sector.", "Pulsars and berserkers ride the chaos with lethal precision.", "210 kills. Chaos spreads — destroy it at its source."],
+        quota:175, boss:null,
+        spawnRate:0.131, enemyMix:[{type:'carrier',w:3},{type:'pulsar',w:3},{type:'drone',w:2},{type:'lancer',w:2}],
+        starColor:'#4ff', bgTint:'rgba(6,0,16,0.52)'
+    }
+    ,    {
+        id:76, name:"DEEP ORBIT",
+        story:["Carrier fleets lock into a deep orbit assault pattern around you.", "Drone waves deploy faster than any known counter can respond.", "210 kills to break out of the deep orbit trap."],
+        quota:180, boss:null,
+        spawnRate:0.131, enemyMix:[{type:'berserker',w:4},{type:'kamikaze',w:3},{type:'lancer',w:2},{type:'interceptor',w:1}],
+        starColor:'#88f', bgTint:'rgba(0,0,18,0.52)'
+    }
+    ,    {
+        id:77, name:"SECTOR COLLAPSE",
+        story:["The entire sector folds in on itself in a slow-motion collapse.", "Every available enemy type pours through the widening cracks.", "215 kills before the sector collapses entirely."],
+        quota:180, boss:null,
+        spawnRate:0.131, enemyMix:[{type:'titan',w:3},{type:'dreadnought',w:2},{type:'vanguard',w:2},{type:'reflector',w:2},{type:'sniper',w:1}],
+        starColor:'#6ff', bgTint:'rgba(2,4,16,0.52)'
+    }
+    ,    {
+        id:78, name:"ENDGAME APPROACH",
+        story:["The final approach to the ancient abyss — guarded by everything.", "Maximum-threat enemies in maximum density. No mercy shown.", "215 kills. The abyss is close. Don't stop now."],
+        quota:180, boss:null,
+        spawnRate:0.131, enemyMix:[{type:'pulsar',w:3},{type:'stealth',w:2},{type:'nullifier',w:2},{type:'carrier',w:2},{type:'wraith',w:1}],
+        starColor:'#4af', bgTint:'rgba(4,4,18,0.52)'
+    }
+    ,    {
+        id:79, name:"ABYSS WALKER",
+        story:["The Abyss Walker drifts up from infinite dimensional depth.", "Eleven void-beams and a hull impervious to reason.", "'THERE IS NO LIGHT HERE. THERE IS ONLY THE FALL.'"],
+        quota:0, boss:{hp:7000,maxHp:7000,speed:13,color:'#08c',name:'ABYSS WALKER',fireRate:9,spread:11,shape:'abysswalker'},
+        bossLore:["The Abyss Walker dissolves into the dark it came from.", "Light floods back. Your instruments scream at maximum output:", "'Chaos Incarnate assembles from every fragment of battle.'"],
+        spawnRate:0.059, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:1},{type:'carrier',w:1}],
+        starColor:'#08c', bgTint:'rgba(0,4,16,0.54)'
+    }
+    ,    {
+        id:80, name:"DEAD ZONES",
+        story:["Dead zones — regions where sensors fail and enemies multiply freely.", "Navigate blind through the heaviest concentration seen so far.", "220 kills to clear the dead zones."],
+        quota:185, boss:null,
+        spawnRate:0.132, enemyMix:[{type:'dreadnought',w:2},{type:'nullifier',w:3},{type:'berserker',w:3},{type:'pulsar',w:2}],
+        starColor:'#89f', bgTint:'rgba(2,2,20,0.54)'
+    }
+    ,    {
+        id:81, name:"SURGE PROTOCOL",
+        story:["Ancient enemies activate their surge protocol — maximum force output.", "Every unit attacks simultaneously in perfect coordinated fury.", "220 kills. Surge protocol will not stop for anything."],
+        quota:185, boss:null,
+        spawnRate:0.132, enemyMix:[{type:'dreadnought',w:3},{type:'titan',w:3},{type:'vanguard',w:2},{type:'berserker',w:2}],
+        starColor:'#f84', bgTint:'rgba(16,2,0,0.52)'
+    }
+    ,    {
+        id:82, name:"FINAL INCURSION",
+        story:["The final incursion of the ancient awakening reaches its peak.", "Every heavy unit type charges with absolute maximum ferocity.", "225 kills to repel the final incursion wave."],
+        quota:185, boss:null,
+        spawnRate:0.132, enemyMix:[{type:'nullifier',w:3},{type:'carrier',w:2},{type:'pulsar',w:3},{type:'stealth',w:2}],
+        starColor:'#f44', bgTint:'rgba(16,0,0,0.54)'
+    }
+    ,    {
+        id:83, name:"VOID STORM",
+        story:["A void storm rips through every sensor and shield simultaneously.", "The heaviest enemies advance under the cover of pure chaos.", "225 kills to outlast the void storm's fury."],
+        quota:190, boss:null,
+        spawnRate:0.133, enemyMix:[{type:'lancer',w:4},{type:'kamikaze',w:3},{type:'stealth',w:2},{type:'reflector',w:1}],
+        starColor:'#f60', bgTint:'rgba(14,4,0,0.52)'
+    }
+    ,    {
+        id:84, name:"LAST LIGHT",
+        story:["The last light in this sector flickers and dies.", "Everything charges at maximum speed in the total darkness.", "230 kills. Be the last light standing."],
+        quota:190, boss:null,
+        spawnRate:0.133, enemyMix:[{type:'titan',w:3},{type:'dreadnought',w:3},{type:'vanguard',w:2},{type:'wraith',w:2}],
+        starColor:'#fa4', bgTint:'rgba(16,4,0,0.52)'
+    }
+    ,    {
+        id:85, name:"CHAOS INCARNATE",
+        story:["Chaos Incarnate — born from every battle ever fought.", "Eleven spiked arms. A core of pure destructive entropy.", "'I AM EVERY WAR. I AM EVERY DEATH. I AM INEVITABLE.'"],
+        quota:0, boss:{hp:7500,maxHp:7500,speed:12,color:'#fa0',name:'CHAOS INCARNATE',fireRate:9,spread:11,shape:'harbinger'},
+        bossLore:["Chaos Incarnate is reduced to silence and drifting atoms.", "Peace lasts three seconds. Your scanner ignites with terror:", "'World Ender has locked on to your coordinates. RUN.'"],
+        spawnRate:0.060, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:1},{type:'carrier',w:1}],
+        starColor:'#fa0', bgTint:'rgba(4,2,0,0.54)'
+    }
+    ,    {
+        id:86, name:"FRACTURED DIMENSION",
+        story:["The dimension fractures after Chaos Incarnate's destruction.", "Enemy reinforcements pour through every crack and fissure.", "230 kills to seal the fractured dimension."],
+        quota:195, boss:null,
+        spawnRate:0.133, enemyMix:[{type:'stealth',w:3},{type:'nullifier',w:3},{type:'phantom',w:2},{type:'wraith',w:2}],
+        starColor:'#fc4', bgTint:'rgba(16,6,0,0.52)'
+    }
+    ,    {
+        id:87, name:"PHANTOM ARMADA",
+        story:["A phantom armada materialises across the entire combat zone.", "Stealth ships and wraiths supported by carrier drop groups.", "235 kills to disperse the phantom armada."],
+        quota:195, boss:null,
+        spawnRate:0.134, enemyMix:[{type:'carrier',w:3},{type:'dreadnought',w:2},{type:'titan',w:2},{type:'kamikaze',w:3}],
+        starColor:'#f66', bgTint:'rgba(14,0,2,0.52)'
+    }
+    ,    {
+        id:88, name:"THE LONG DARK",
+        story:["Total sensor blackout — enemies moving at maximum aggression.", "Nullifiers jam every system as dreadnoughts press the assault.", "235 kills to survive the long dark."],
+        quota:195, boss:null,
+        spawnRate:0.134, enemyMix:[{type:'lancer',w:4},{type:'sniper',w:3},{type:'interceptor',w:2},{type:'reflector',w:1}],
+        starColor:'#fc8', bgTint:'rgba(16,4,2,0.52)'
+    }
+    ,    {
+        id:89, name:"CRITICAL MASS",
+        story:["Enemy forces reach critical mass — an unstoppable pressure front.", "The heaviest formation ever assembled advances without pause.", "240 kills before critical mass consumes everything."],
+        quota:200, boss:null,
+        spawnRate:0.134, enemyMix:[{type:'pulsar',w:3},{type:'berserker',w:3},{type:'carrier',w:2},{type:'nullifier',w:2}],
+        starColor:'#f94', bgTint:'rgba(18,2,0,0.54)'
+    }
+    ,    {
+        id:90, name:"POINT OF NO RETURN",
+        story:["You have crossed the point of no return. There is no retreat.", "Maximum-speed, maximum-density enemies from every direction.", "240 kills. The World Ender lies just ahead."],
+        quota:200, boss:null,
+        spawnRate:0.134, enemyMix:[{type:'dreadnought',w:3},{type:'vanguard',w:2},{type:'titan',w:2},{type:'stealth',w:2},{type:'lancer',w:1}],
+        starColor:'#f76', bgTint:'rgba(16,0,2,0.52)'
+    }
+    ,    {
+        id:91, name:"WORLD ENDER",
+        story:["The World Ender destroys planets as a warm-up exercise.", "Twelve spread-cannons. Mass enough to warp nearby space.", "'YOU ARE A DUST MOTE. I WILL BLOW YOU AWAY.'"],
+        quota:0, boss:{hp:8000,maxHp:8000,speed:13,color:'#f22',name:'WORLD ENDER',fireRate:8,spread:12,shape:'worldender'},
+        bossLore:["The World Ender erupts in a nova larger than a solar system.", "Your hull rattles from the shockwave. Your sensors howl:", "'Void Colossus detected. Its gravity alone will crush you.'"],
+        spawnRate:0.062, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:1},{type:'carrier',w:1}],
+        starColor:'#f22', bgTint:'rgba(4,0,0,0.54)'
+    }
+    ,    {
+        id:92, name:"AFTERSHOCK",
+        story:["The World Ender's destruction sends shockwaves through reality.", "Unstable enemy formations pour from the destabilised breach.", "245 kills to survive the aftershock."],
+        quota:200, boss:null,
+        spawnRate:0.135, enemyMix:[{type:'nullifier',w:3},{type:'carrier',w:2},{type:'pulsar',w:3},{type:'stealth',w:2}],
+        starColor:'#f82', bgTint:'rgba(18,4,0,0.52)'
+    }
+    ,    {
+        id:93, name:"GRAVITY STORM",
+        story:["Collapsing gravity wells generate an impossible storm of enemies.", "Carrier groups and dreadnoughts fight through the gravitational chaos.", "245 kills to outlast the gravity storm."],
+        quota:205, boss:null,
+        spawnRate:0.135, enemyMix:[{type:'lancer',w:4},{type:'kamikaze',w:3},{type:'stealth',w:2},{type:'reflector',w:1}],
+        starColor:'#fa6', bgTint:'rgba(16,2,2,0.52)'
+    }
+    ,    {
+        id:94, name:"NULL FIELD",
+        story:["A null field erases every advantage you have built up.", "Nullifiers and pulsars advance through the field without mercy.", "250 kills to break through the null field."],
+        quota:205, boss:null,
+        spawnRate:0.135, enemyMix:[{type:'titan',w:3},{type:'dreadnought',w:3},{type:'vanguard',w:2},{type:'wraith',w:2}],
+        starColor:'#fc6', bgTint:'rgba(14,4,2,0.52)'
+    }
+    ,    {
+        id:95, name:"THE ENDLESS WAVE",
+        story:["The enemies are endless — reinforced from beyond the null field.", "Wave after wave of maximum-threat units charges your position.", "250 kills. Prove the wave is not endless."],
+        quota:205, boss:null,
+        spawnRate:0.136, enemyMix:[{type:'berserker',w:4},{type:'pulsar',w:3},{type:'carrier',w:2},{type:'lancer',w:1}],
+        starColor:'#f88', bgTint:'rgba(16,6,2,0.52)'
+    }
+    ,    {
+        id:96, name:"VOID GATE",
+        story:["A void gate opens — an infinite supply of enemies floods through.", "Every heavy type in the known universe uses this gate.", "255 kills to force the void gate closed."],
+        quota:210, boss:null,
+        spawnRate:0.136, enemyMix:[{type:'stealth',w:3},{type:'nullifier',w:3},{type:'phantom',w:2},{type:'wraith',w:2}],
+        starColor:'#f84', bgTint:'rgba(16,2,0,0.52)'
+    }
+    ,    {
+        id:97, name:"VOID COLOSSUS",
+        story:["The Void Colossus — a fortress the size of a dead moon.", "Its mass bends space. Its guns bend the laws of physics.", "'NOTHING HAS SURVIVED MY GAZE. NOTHING EVER WILL.'"],
+        quota:0, boss:{hp:8500,maxHp:8500,speed:11,color:'#0cf',name:'VOID COLOSSUS',fireRate:8,spread:12,shape:'overlord'},
+        bossLore:["The Void Colossus collapses into a screaming singularity.", "As it vanishes it whispers across all frequencies:", "'The Infinity Sovereign waits beyond. I was just its guard.'"],
+        spawnRate:0.064, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:1},{type:'carrier',w:1}],
+        starColor:'#0cf', bgTint:'rgba(0,4,16,0.54)'
+    }
+    ,    {
+        id:98, name:"TITAN SWARM",
+        story:["Titans swarm in numbers never before seen in any conflict.", "Carrier groups replenish losses faster than they can be inflicted.", "255 kills to break the titan swarm."],
+        quota:210, boss:null,
+        spawnRate:0.136, enemyMix:[{type:'lancer',w:4},{type:'sniper',w:3},{type:'interceptor',w:2},{type:'reflector',w:1}],
+        starColor:'#f60', bgTint:'rgba(14,4,0,0.52)'
+    }
+    ,    {
+        id:99, name:"NULLIFIER FIELD",
+        story:["A nullifier field stretches across the entire combat zone.", "Dreadnoughts and berserkers press forward through the null barrier.", "260 kills to collapse the nullifier field."],
+        quota:210, boss:null,
+        spawnRate:0.137, enemyMix:[{type:'pulsar',w:3},{type:'berserker',w:3},{type:'carrier',w:2},{type:'nullifier',w:2}],
+        starColor:'#fa4', bgTint:'rgba(16,4,0,0.52)'
+    }
+    ,    {
+        id:100, name:"CENTURY STAND",
+        story:["100 levels of combat. You are still standing. They cannot believe it.", "Every enemy type attacks at once in a salute to your endurance.", "260 kills. Make level 100 count."],
+        quota:215, boss:null,
+        spawnRate:0.137, enemyMix:[{type:'dreadnought',w:3},{type:'vanguard',w:2},{type:'titan',w:2},{type:'stealth',w:2},{type:'lancer',w:1}],
+        starColor:'#f86', bgTint:'rgba(14,2,0,0.52)'
+    }
+    ,    {
+        id:101, name:"OMEGA SURGE",
+        story:["Omega-class enemies surge forward in unstoppable formation.", "The density is beyond anything encountered in the previous hundred levels.", "265 kills to survive the omega surge."],
+        quota:215, boss:null,
+        spawnRate:0.137, enemyMix:[{type:'dreadnought',w:3},{type:'titan',w:3},{type:'vanguard',w:2},{type:'berserker',w:2}],
+        starColor:'#fc4', bgTint:'rgba(16,6,0,0.52)'
+    }
+    ,    {
+        id:102, name:"THE DEEP",
+        story:["Enemies from the deep void — ancient, powerful, relentless.", "No formation gaps. No safe corridors. No quarter given.", "265 kills to fight your way out of the deep."],
+        quota:215, boss:null,
+        spawnRate:0.138, enemyMix:[{type:'nullifier',w:3},{type:'carrier',w:2},{type:'pulsar',w:3},{type:'stealth',w:2}],
+        starColor:'#f66', bgTint:'rgba(14,0,2,0.52)'
+    }
+    ,    {
+        id:103, name:"INFINITY SOVEREIGN",
+        story:["The Infinity Sovereign rules an empire of dead universes.", "Twelve null-rings, each capable of erasing a fleet.", "'YOU HAVE COME FAR. YOU WILL GO NO FURTHER. NEVER.'"],
+        quota:0, boss:{hp:9000,maxHp:9000,speed:12,color:'#f44',name:'INFINITY SOVEREIGN',fireRate:7,spread:12,shape:'nullifierboss'},
+        bossLore:["The Infinity Sovereign's rings collapse in a cascade of red.", "A silence so total it hurts. Then something vast stirs:", "'Dark Eternal has waited since before your sun was born.'"],
+        spawnRate:0.066, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:2},{type:'lancer',w:1}],
+        starColor:'#f44', bgTint:'rgba(4,0,0,0.54)'
+    }
+    ,    {
+        id:104, name:"NULL BARRAGE",
+        story:["The Infinity Sovereign's death unlocks a null barrage protocol.", "Nullifiers and pulsars fire without pause in coordinated volleys.", "270 kills to survive the null barrage."],
+        quota:220, boss:null,
+        spawnRate:0.138, enemyMix:[{type:'titan',w:3},{type:'dreadnought',w:3},{type:'vanguard',w:2},{type:'wraith',w:2}],
+        starColor:'#f94', bgTint:'rgba(18,2,0,0.54)'
+    }
+    ,    {
+        id:105, name:"CARRIER SIEGE",
+        story:["Carrier groups establish siege formation across the entire zone.", "Drone densities reach levels that overload targeting systems.", "270 kills. Destroy the carriers first."],
+        quota:220, boss:null,
+        spawnRate:0.138, enemyMix:[{type:'berserker',w:4},{type:'pulsar',w:3},{type:'carrier',w:2},{type:'lancer',w:1}],
+        starColor:'#f76', bgTint:'rgba(16,0,2,0.52)'
+    }
+    ,    {
+        id:106, name:"IRON CURTAIN",
+        story:["An iron curtain of dreadnoughts blocks every escape vector.", "Lancer and kamikaze strike teams probe for any weakness.", "275 kills to tear down the iron curtain."],
+        quota:220, boss:null,
+        spawnRate:0.139, enemyMix:[{type:'stealth',w:3},{type:'nullifier',w:3},{type:'phantom',w:2},{type:'wraith',w:2}],
+        starColor:'#fca', bgTint:'rgba(14,6,0,0.52)'
+    }
+    ,    {
+        id:107, name:"SHADOW ARMADA",
+        story:["A shadow armada of stealth ships materialises simultaneously.", "Their combined fire is enough to tear apart any known vessel.", "275 kills to destroy the shadow armada."],
+        quota:225, boss:null,
+        spawnRate:0.139, enemyMix:[{type:'carrier',w:3},{type:'dreadnought',w:2},{type:'titan',w:2},{type:'kamikaze',w:3}],
+        starColor:'#f82', bgTint:'rgba(18,4,0,0.52)'
+    }
+    ,    {
+        id:108, name:"ENTROPY CORE",
+        story:["The entropy core destabilises — enemies multiply without limit.", "Every type pours from the core's destabilised event horizon.", "280 kills to shut down the entropy core."],
+        quota:225, boss:null,
+        spawnRate:0.139, enemyMix:[{type:'lancer',w:4},{type:'sniper',w:3},{type:'interceptor',w:2},{type:'reflector',w:1}],
+        starColor:'#fa6', bgTint:'rgba(16,2,2,0.52)'
+    }
+    ,    {
+        id:109, name:"THE FINAL SURGE",
+        story:["The final surge of ancient enemies before the Dark Eternal emerges.", "Maximum everything — density, speed, firepower, aggression.", "280 kills. The Dark Eternal lies beyond."],
+        quota:225, boss:null,
+        spawnRate:0.139, enemyMix:[{type:'pulsar',w:3},{type:'berserker',w:3},{type:'carrier',w:2},{type:'nullifier',w:2}],
+        starColor:'#fc6', bgTint:'rgba(14,4,2,0.52)'
+    }
+    ,    {
+        id:110, name:"DARK ETERNAL",
+        story:["Dark Eternal has existed since before the first star lit.", "Its twelve ancient cannons predate every civilization.", "'I WAS OLD BEFORE LIGHT. I WILL REMAIN WHEN LIGHT DIES.'"],
+        quota:0, boss:{hp:9500,maxHp:9500,speed:12,color:'#44f',name:'DARK ETERNAL',fireRate:7,spread:12,shape:'darketernal'},
+        bossLore:["Dark Eternal shatters in a burst of pure ancient energy.", "Reality rewrites itself around the debris field.", "'The Last Herald gathers the survivors. Its call echoes.'"],
+        spawnRate:0.068, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:2},{type:'lancer',w:1}],
+        starColor:'#44f', bgTint:'rgba(4,0,16,0.54)'
+    }
+    ,    {
+        id:111, name:"DARK TIDE",
+        story:["A tide of dark entities floods the sector after Dark Eternal falls.", "The oldest enemies known fight alongside newly-awakened horrors.", "285 kills to hold back the dark tide."],
+        quota:230, boss:null,
+        spawnRate:0.140, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'titan',w:2},{type:'lancer',w:2}],
+        starColor:'#ccc', bgTint:'rgba(10,10,12,0.54)'
+    }
+    ,    {
+        id:112, name:"VOID CASCADE",
+        story:["Void energy cascades through every system simultaneously.", "Nullifiers and stealth ships advance under its cover relentlessly.", "285 kills to survive the void cascade."],
+        quota:230, boss:null,
+        spawnRate:0.140, enemyMix:[{type:'carrier',w:3},{type:'pulsar',w:3},{type:'kamikaze',w:2},{type:'stealth',w:2}],
+        starColor:'#fff', bgTint:'rgba(12,12,14,0.54)'
+    }
+    ,    {
+        id:113, name:"LAST FORTRESS",
+        story:["The last fortress falls — unleashing its defenders into the sector.", "Every heavy unit type charges in an unrestricted assault wave.", "290 kills. The last fortress must not win."],
+        quota:230, boss:null,
+        spawnRate:0.140, enemyMix:[{type:'dreadnought',w:4},{type:'vanguard',w:2},{type:'berserker',w:2},{type:'reflector',w:2}],
+        starColor:'#ddf', bgTint:'rgba(8,8,14,0.54)'
+    }
+    ,    {
+        id:114, name:"STORM OF ETERNITY",
+        story:["An eternal storm rages — generating enemy formations endlessly.", "The storm does not weaken. It does not tire. It does not stop.", "290 kills to weather the storm of eternity."],
+        quota:235, boss:null,
+        spawnRate:0.141, enemyMix:[{type:'lancer',w:4},{type:'nullifier',w:3},{type:'stealth',w:2},{type:'wraith',w:1}],
+        starColor:'#ccf', bgTint:'rgba(10,12,14,0.54)'
+    }
+    ,    {
+        id:115, name:"ENDLESS VOID",
+        story:["The void itself presses in — there is no safe space remaining.", "Maximum-density attacks from every conceivable direction.", "295 kills before the void consumes everything."],
+        quota:235, boss:null,
+        spawnRate:0.141, enemyMix:[{type:'titan',w:3},{type:'dreadnought',w:3},{type:'pulsar',w:2},{type:'carrier',w:2}],
+        starColor:'#eee', bgTint:'rgba(12,10,12,0.54)'
+    }
+    ,    {
+        id:116, name:"APPROACH VECTOR",
+        story:["The approach vector to the Last Herald — guarded by everything.", "No mistakes. No hesitation. No quarter. No retreat. Not now.", "295 kills. The Last Herald waits."],
+        quota:235, boss:null,
+        spawnRate:0.141, enemyMix:[{type:'berserker',w:4},{type:'kamikaze',w:3},{type:'lancer',w:2},{type:'reflector',w:1}],
+        starColor:'#ddd', bgTint:'rgba(14,14,16,0.56)'
+    }
+    ,    {
+        id:117, name:"THE LAST HERALD",
+        story:["The Last Herald brings a message from the void's core.", "Twelve cannons. Infinite endurance. A single purpose.", "'THE MESSAGE IS THIS: THERE IS NO HOPE. ONLY OBLIVION.'"],
+        quota:0, boss:{hp:10000,maxHp:10000,speed:13,color:'#fff',name:'THE LAST HERALD',fireRate:6,spread:12,shape:'annihilator'},
+        bossLore:["The Last Herald detonates in a white shockwave of energy.", "Something shifts in the fabric of reality. Your scanner:", "'Chaos Prime detected. It is the source of all disorder.'"],
+        spawnRate:0.070, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:2},{type:'lancer',w:1}],
+        starColor:'#fff', bgTint:'rgba(4,0,0,0.54)'
+    }
+    ,    {
+        id:118, name:"FINAL ECHOES",
+        story:["The Last Herald's death sends echoes through every dimension.", "Enemy formations spiral into chaos — but remain dangerous.", "300 kills. The echoes cannot be allowed to continue."],
+        quota:240, boss:null,
+        spawnRate:0.142, enemyMix:[{type:'carrier',w:4},{type:'pulsar',w:3},{type:'lancer',w:2},{type:'berserker',w:1}],
+        starColor:'#cdf', bgTint:'rgba(12,12,16,0.54)'
+    }
+    ,    {
+        id:119, name:"CHAOS WAVE",
+        story:["Chaos energy floods the sector following the Last Herald's fall.", "Every enemy type rides the chaos wave with maximum aggression.", "300 kills to calm the chaos wave."],
+        quota:240, boss:null,
+        spawnRate:0.142, enemyMix:[{type:'nullifier',w:4},{type:'dreadnought',w:3},{type:'vanguard',w:2},{type:'stealth',w:1}],
+        starColor:'#bbb', bgTint:'rgba(8,10,14,0.54)'
+    }
+    ,    {
+        id:120, name:"THE LONG GRIND",
+        story:["No tricks. No events. Just enemies, forever, in every direction.", "Survive by skill alone. There are no shortcuts from here.", "305 kills. One hundred and twenty levels."],
+        quota:245, boss:null,
+        spawnRate:0.142, enemyMix:[{type:'titan',w:3},{type:'lancer',w:4},{type:'kamikaze',w:2},{type:'carrier',w:1}],
+        starColor:'#ddd', bgTint:'rgba(14,12,14,0.56)'
+    }
+    ,    {
+        id:121, name:"VOID SWARM",
+        story:["A void swarm of unprecedented density descends on the sector.", "Individually manageable — collectively catastrophic beyond measure.", "305 kills to break the void swarm."],
+        quota:245, boss:null,
+        spawnRate:0.142, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'titan',w:2},{type:'lancer',w:2}],
+        starColor:'#eef', bgTint:'rgba(10,8,14,0.54)'
+    }
+    ,    {
+        id:122, name:"FRACTURED REALITY",
+        story:["Reality fractures — enemies pour from every crack simultaneously.", "No safe angle. No breathing space. Just the battle itself.", "310 kills. Hold reality together."],
+        quota:245, boss:null,
+        spawnRate:0.143, enemyMix:[{type:'carrier',w:3},{type:'pulsar',w:3},{type:'kamikaze',w:2},{type:'stealth',w:2}],
+        starColor:'#cce', bgTint:'rgba(12,14,16,0.56)'
+    }
+    ,    {
+        id:123, name:"BEFORE THE PRIME",
+        story:["The approach to Chaos Prime — guarded by its most devoted units.", "If these are the guards, what awaits inside? Push through now.", "310 kills. Chaos Prime is close."],
+        quota:245, boss:null,
+        spawnRate:0.143, enemyMix:[{type:'dreadnought',w:4},{type:'vanguard',w:2},{type:'berserker',w:2},{type:'reflector',w:2}],
+        starColor:'#bbd', bgTint:'rgba(14,10,16,0.54)'
+    }
+    ,    {
+        id:124, name:"CHAOS PRIME",
+        story:["Chaos Prime — the root of all entropy in all universes.", "Twelve fractal cannons that multiply on every fire cycle.", "'I AM THE REASON ORDER CAN NEVER WIN. ENTROPY IS PRIME.'"],
+        quota:0, boss:{hp:11000,maxHp:11000,speed:13,color:'#f08',name:'CHAOS PRIME',fireRate:6,spread:12,shape:'chaosprime'},
+        bossLore:["Chaos Prime implodes in fractal silence — then nothing.", "The most profound stillness you have ever experienced.", "'The Final Avatar stirs. It carries the weight of eternity.'"],
+        spawnRate:0.072, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:2},{type:'lancer',w:1}],
+        starColor:'#f08', bgTint:'rgba(4,0,8,0.54)'
+    }
+    ,    {
+        id:125, name:"FRACTURED CHAOS",
+        story:["Chaos Prime's destruction fractures the sector's entropy field.", "Enemy formations multiply faster than they can be destroyed.", "315 kills. Do not let chaos win here."],
+        quota:250, boss:null,
+        spawnRate:0.143, enemyMix:[{type:'titan',w:3},{type:'dreadnought',w:3},{type:'pulsar',w:2},{type:'carrier',w:2}],
+        starColor:'#ccf', bgTint:'rgba(12,10,14,0.54)'
+    }
+    ,    {
+        id:126, name:"ABSOLUTE ZERO",
+        story:["Absolute zero — all energy drains as enemies converge from all sides.", "The coldest, darkest sector yet. The enemies don't seem to mind.", "315 kills to survive absolute zero."],
+        quota:250, boss:null,
+        spawnRate:0.144, enemyMix:[{type:'berserker',w:4},{type:'kamikaze',w:3},{type:'lancer',w:2},{type:'reflector',w:1}],
+        starColor:'#ccc', bgTint:'rgba(10,10,12,0.54)'
+    }
+    ,    {
+        id:127, name:"THE LAST HUNDRED",
+        story:["You are deep into the last hundred levels. The stakes have never been higher.", "Enemy density and speed continue to climb without any ceiling.", "320 kills. Don't stop now."],
+        quota:255, boss:null,
+        spawnRate:0.144, enemyMix:[{type:'stealth',w:3},{type:'nullifier',w:3},{type:'dreadnought',w:2},{type:'titan',w:2}],
+        starColor:'#fff', bgTint:'rgba(12,12,14,0.54)'
+    }
+    ,    {
+        id:128, name:"ENTROPY PRIME",
+        story:["A prime entropy field expands — enemies gain power from the chaos.", "The stronger the battle, the stronger they become. Fight anyway.", "320 kills to collapse entropy prime."],
+        quota:255, boss:null,
+        spawnRate:0.144, enemyMix:[{type:'carrier',w:4},{type:'pulsar',w:3},{type:'lancer',w:2},{type:'berserker',w:1}],
+        starColor:'#ddf', bgTint:'rgba(8,8,14,0.54)'
+    }
+    ,    {
+        id:129, name:"NULL STORM",
+        story:["A null storm tears through every system in the sector simultaneously.", "Maximum-density enemies advance through the null field without pause.", "325 kills to outlast the null storm."],
+        quota:255, boss:null,
+        spawnRate:0.145, enemyMix:[{type:'nullifier',w:4},{type:'dreadnought',w:3},{type:'vanguard',w:2},{type:'stealth',w:1}],
+        starColor:'#ccf', bgTint:'rgba(10,12,14,0.54)'
+    }
+    ,    {
+        id:130, name:"DEEP SILENCE",
+        story:["The deepest silence before the storm. Enemies advance without sound.", "You can feel the pressure long before the formation hits you.", "325 kills. Break the deep silence."],
+        quota:255, boss:null,
+        spawnRate:0.145, enemyMix:[{type:'titan',w:3},{type:'lancer',w:4},{type:'kamikaze',w:2},{type:'carrier',w:1}],
+        starColor:'#eee', bgTint:'rgba(12,10,12,0.54)'
+    }
+    ,    {
+        id:131, name:"FINAL STAND",
+        story:["One more final stand before the Final Avatar emerges from the void.", "Everything that remains attacks simultaneously without restraint.", "330 kills. Make this final stand count."],
+        quota:260, boss:null,
+        spawnRate:0.145, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'titan',w:2},{type:'lancer',w:2}],
+        starColor:'#ddd', bgTint:'rgba(14,14,16,0.56)'
+    }
+    ,    {
+        id:132, name:"FINAL AVATAR",
+        story:["The Final Avatar — the last warrior of a dead civilisation.", "Twelve weapon nodes. The fury of a billion lost souls.", "'WE DIED SO THIS MOMENT COULD EXIST. HONOUR OUR HATE.'"],
+        quota:0, boss:{hp:12000,maxHp:12000,speed:13,color:'#c80',name:'FINAL AVATAR',fireRate:5,spread:12,shape:'genesisprime'},
+        bossLore:["The Final Avatar falls. Its death-cry spans a thousand years.", "You hold the line alone. Your scanner confirms the worst:", "'Omega Prime detected. The final guardian. The last wall.'"],
+        spawnRate:0.075, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:2},{type:'lancer',w:1}],
+        starColor:'#c80', bgTint:'rgba(4,2,0,0.54)'
+    }
+    ,    {
+        id:133, name:"AVATAR'S SHADOW",
+        story:["The Final Avatar's shadow stretches across the entire sector.", "Its most devoted warriors charge in its honour relentlessly.", "330 kills to emerge from the avatar's shadow."],
+        quota:260, boss:null,
+        spawnRate:0.146, enemyMix:[{type:'dreadnought',w:4},{type:'vanguard',w:2},{type:'berserker',w:2},{type:'reflector',w:2}],
+        starColor:'#cdf', bgTint:'rgba(12,12,16,0.54)'
+    }
+    ,    {
+        id:134, name:"PERFECT STORM",
+        story:["Every hostile variable reaches maximum simultaneously — a perfect storm.", "Maximum density, maximum speed, maximum firepower. It's all here.", "335 kills to survive the perfect storm."],
+        quota:265, boss:null,
+        spawnRate:0.146, enemyMix:[{type:'lancer',w:4},{type:'nullifier',w:3},{type:'stealth',w:2},{type:'wraith',w:1}],
+        starColor:'#bbb', bgTint:'rgba(8,10,14,0.54)'
+    }
+    ,    {
+        id:135, name:"VOID INFINITY",
+        story:["The void stretches to infinity — and fills with enemies to match.", "There are no gaps in this formation. There never will be again.", "335 kills to pierce the void infinity."],
+        quota:265, boss:null,
+        spawnRate:0.146, enemyMix:[{type:'titan',w:3},{type:'dreadnought',w:3},{type:'pulsar',w:2},{type:'carrier',w:2}],
+        starColor:'#ddd', bgTint:'rgba(14,12,14,0.56)'
+    }
+    ,    {
+        id:136, name:"LAST HOPE",
+        story:["Last hope. Last stand. Last anything. The sector is falling.", "Hold it together through pure skill — there is nothing else left.", "340 kills. Be the last hope."],
+        quota:265, boss:null,
+        spawnRate:0.146, enemyMix:[{type:'berserker',w:4},{type:'kamikaze',w:3},{type:'lancer',w:2},{type:'reflector',w:1}],
+        starColor:'#eef', bgTint:'rgba(10,8,14,0.54)'
+    }
+    ,    {
+        id:137, name:"TOTAL ANNIHILATION",
+        story:["Total annihilation protocol activated — nothing is held in reserve.", "Every unit, every weapon, every ounce of force unleashed at once.", "340 kills. Annihilate the annihilators."],
+        quota:265, boss:null,
+        spawnRate:0.147, enemyMix:[{type:'stealth',w:3},{type:'nullifier',w:3},{type:'dreadnought',w:2},{type:'titan',w:2}],
+        starColor:'#cce', bgTint:'rgba(12,14,16,0.56)'
+    }
+    ,    {
+        id:138, name:"THE EDGE OF FOREVER",
+        story:["The edge of forever — where enemies cease to die permanently.", "Replace doubt with precision. Replace fear with fire. Push through.", "345 kills to cross the edge of forever."],
+        quota:270, boss:null,
+        spawnRate:0.147, enemyMix:[{type:'carrier',w:4},{type:'pulsar',w:3},{type:'lancer',w:2},{type:'berserker',w:1}],
+        starColor:'#bbd', bgTint:'rgba(14,10,16,0.54)'
+    }
+    ,    {
+        id:139, name:"THE LAST GATE",
+        story:["The last gate. The final approach. Everything converges here.", "Omega Prime lies beyond — and it has been watching everything.", "345 kills. Open the last gate."],
+        quota:270, boss:null,
+        spawnRate:0.147, enemyMix:[{type:'nullifier',w:4},{type:'dreadnought',w:3},{type:'vanguard',w:2},{type:'stealth',w:1}],
+        starColor:'#dde', bgTint:'rgba(10,12,16,0.54)'
+    }
+    ,    {
+        id:140, name:"OMEGA PRIME",
+        story:["Omega Prime — final guardian of the deepest void.", "Twelve golden void-cannons. Reality bends around its hull.", "'THIS IS THE END. NOT YOURS — MINE. NOTHING SURVIVES ME.'"],
+        quota:0, boss:{hp:13000,maxHp:13000,speed:13,color:'#ff8',name:'OMEGA PRIME',fireRate:5,spread:12,shape:'voidemperor'},
+        bossLore:["Omega Prime collapses in a final golden supernova.", "The void goes quiet. But your instruments cannot lie:", "'The Absolute approaches. It has no equal. No mercy either.'"],
+        spawnRate:0.077, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:2},{type:'lancer',w:1}],
+        starColor:'#ff8', bgTint:'rgba(4,4,0,0.54)'
+    }
+    ,    {
+        id:141, name:"OMEGA ECHO",
+        story:["Omega Prime's destruction echoes through every dimension at once.", "Its dying signal activates every remaining unit simultaneously.", "350 kills to silence the omega echo."],
+        quota:275, boss:null,
+        spawnRate:0.148, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'lancer',w:3},{type:'titan',w:2},{type:'carrier',w:2},{type:'berserker',w:1},{type:'stealth',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fff', bgTint:'rgba(16,16,18,0.58)'
+    }
+    ,    {
+        id:142, name:"THE FINAL PUSH",
+        story:["The final push to the absolute. Everything attacks. Everything.", "Precision, endurance, and skill — these are the only weapons left.", "350 kills. Push."],
+        quota:275, boss:null,
+        spawnRate:0.148, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'lancer',w:3},{type:'titan',w:2},{type:'carrier',w:2},{type:'berserker',w:1},{type:'stealth',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fff', bgTint:'rgba(16,16,18,0.58)'
+    }
+    ,    {
+        id:143, name:"VOID ABSOLUTE",
+        story:["The void achieves absolute density — there is no empty space left.", "Every known enemy type is present. They fill every pixel of space.", "355 kills to achieve void absolute."],
+        quota:275, boss:null,
+        spawnRate:0.148, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'lancer',w:3},{type:'titan',w:2},{type:'carrier',w:2},{type:'berserker',w:1},{type:'stealth',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fff', bgTint:'rgba(16,16,18,0.58)'
+    }
+    ,    {
+        id:144, name:"PURE CHAOS",
+        story:["Pure chaos — unstructured, maximal, total. Nothing holds back anymore.", "The enemies have abandoned all tactics. They simply charge and fire.", "355 kills. Impose order on pure chaos."],
+        quota:275, boss:null,
+        spawnRate:0.148, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'lancer',w:3},{type:'titan',w:2},{type:'carrier',w:2},{type:'berserker',w:1},{type:'stealth',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fff', bgTint:'rgba(16,16,18,0.58)'
+    }
+    ,    {
+        id:145, name:"THE BURNING",
+        story:["Everything burns. Stars, space, time, sense — everything burns.", "The enemies burn too. They don't care. Neither should you.", "360 kills to survive the burning."],
+        quota:280, boss:null,
+        spawnRate:0.149, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'lancer',w:3},{type:'titan',w:2},{type:'carrier',w:2},{type:'berserker',w:1},{type:'stealth',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fff', bgTint:'rgba(16,16,18,0.58)'
+    }
+    ,    {
+        id:146, name:"LAST SECONDS",
+        story:["Last seconds. Last breaths. Last kills before the Absolute emerges.", "Every ship in every dimension attacks your single vessel.", "360 kills. Make every second count."],
+        quota:280, boss:null,
+        spawnRate:0.149, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'lancer',w:3},{type:'titan',w:2},{type:'carrier',w:2},{type:'berserker',w:1},{type:'stealth',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fff', bgTint:'rgba(16,16,18,0.58)'
+    }
+    ,    {
+        id:147, name:"THE ABSOLUTE",
+        story:["The Absolute. Pure force. Pure destruction. Pure inevitability.", "Beyond reason, beyond physics, beyond any hope of survival.", "'YOU WERE SUPPOSED TO FAIL LONG AGO. WHY ARE YOU STILL HERE?'"],
+        quota:0, boss:{hp:14000,maxHp:14000,speed:14,color:'#aaf',name:'THE ABSOLUTE',fireRate:4,spread:12,shape:'absolute'},
+        bossLore:["The Absolute fractures in a display that defies description.", "Every sensor reads the same thing simultaneously:", "'The Eternal waits. The final battle. The end of everything.'"],
+        spawnRate:0.079, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:2},{type:'lancer',w:1}],
+        starColor:'#aaf', bgTint:'rgba(4,2,16,0.54)'
+    }
+    ,    {
+        id:148, name:"INFINITE DARK",
+        story:["Infinite dark — the Absolute's domain spreads through all reality.", "Maximum everything. The endgame. The last stands before THE ETERNAL.", "365 kills in the infinite dark."],
+        quota:285, boss:null,
+        spawnRate:0.149, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'lancer',w:3},{type:'titan',w:2},{type:'carrier',w:2},{type:'berserker',w:1},{type:'stealth',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fff', bgTint:'rgba(16,16,18,0.58)'
+    }
+    ,    {
+        id:149, name:"BEFORE ETERNITY",
+        story:["Before eternity — one last wave of everything that ever existed.", "If you can survive this, you can survive anything. Probably.", "365 kills. Eternity is next."],
+        quota:285, boss:null,
+        spawnRate:0.150, enemyMix:[{type:'nullifier',w:3},{type:'dreadnought',w:3},{type:'lancer',w:3},{type:'titan',w:2},{type:'carrier',w:2},{type:'berserker',w:1},{type:'stealth',w:1},{type:'kamikaze',w:1}],
+        starColor:'#fff', bgTint:'rgba(16,16,18,0.58)'
+    }
+    ,    {
+        id:150, name:"THE ETERNAL",
+        story:["THE ETERNAL. Born before time. It will outlast everything.", "Twelve infinite cannons. The destroyer of all existence.", "'I HAVE WATCHED YOU. I AM... IMPRESSED. DIE WELL, PILOT.'"],
+        quota:0, boss:{hp:15000,maxHp:15000,speed:14,color:'#fff',name:'THE ETERNAL',fireRate:3,spread:12,shape:'eternal'},
+        bossLore:["THE ETERNAL IS DESTROYED.", "Silence. Perfect, total, impossible silence across all dimensions.", "You have done the undoable. THE UNIVERSE IS YOURS. FOREVER."],
+        spawnRate:0.080, enemyMix:[{type:'nullifier',w:2},{type:'dreadnought',w:2},{type:'lancer',w:1}],
+        starColor:'#fff', bgTint:'rgba(4,0,0,0.54)'
+    }
 ];
 
 // ================================================================
@@ -402,6 +1122,12 @@ let comboCount = 0, comboTimer = 0;
 let nukeFlash = 0;
 let freezeTimer = 0, overdriveTimer = 0;
 let bossLoreLines = [], bossLoreHeadline = '';
+let highScore = parseInt(localStorage.getItem('neon_hs') || '0');
+let pausedFromState = null;
+let ownedHulls   = [true,true,true,true,true, false,false,false,false,false];
+let ownedColors  = [true,true,true,true,true,true,true, false,false,false,false,false,false,false];
+let ownedEngines = [true,true,true,true, false,false,false,false,false];
+let shopTab = 'upgrades', partsSubTab = 'hulls';
 
 const stars = Array.from({length:150}, () => ({
     x: Math.random()*W, y: Math.random()*H,
@@ -579,6 +1305,10 @@ canvas.addEventListener('wheel', e => {
     }
 }, {passive:false});
 window.addEventListener('keydown', e => {
+    if(e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+        if(gameState === 'playing') { pausedFromState = 'playing'; gameState = 'paused'; }
+        else if(gameState === 'paused') { gameState = pausedFromState || 'playing'; }
+    }
     if(gameState === 'guide') {
         if(e.key === 'ArrowDown') guideScrollY = Math.max(0, Math.min(guideMaxScroll, guideScrollY + 40));
         else if(e.key === 'ArrowUp') guideScrollY = Math.max(0, Math.min(guideMaxScroll, guideScrollY - 40));
@@ -586,6 +1316,7 @@ window.addEventListener('keydown', e => {
 });
 
 function handleTap() {
+    if(gameState === 'paused') { gameState = pausedFromState || 'playing'; return; }
     if(gameState === 'title') {
         if(lastClickY > H*0.78 && lastClickY < H*0.91) { gameState = 'guide'; guideScrollY = 0; }
         else { gameState = 'intro'; }
@@ -600,27 +1331,61 @@ function handleTap() {
         } else { nextLevel(); }
     }
     else if(gameState === 'shop') {
-        const rH = H*0.115, r0 = H*0.315;
-        if(lastClickY >= r0 && lastClickY < r0+rH) {
-            if(scraps >= 15 && player.hp < player.maxHp) { scraps -= 15; player.hp++; }
-        } else if(lastClickY >= r0+rH && lastClickY < r0+2*rH) {
-            if(scraps >= 30 && upgrades.fireRate < 2) { scraps -= 30; upgrades.fireRate++; }
-        } else if(lastClickY >= r0+2*rH && lastClickY < r0+3*rH) {
-            if(scraps >= 50 && upgrades.maxHpBonus < 2) { scraps -= 50; upgrades.maxHpBonus++; player.maxHp = 3 + upgrades.maxHpBonus; }
-        } else if(lastClickY >= r0+3*rH && lastClickY < r0+4*rH) {
-            if(scraps >= 20 && !upgrades.shieldOnStart) { scraps -= 20; upgrades.shieldOnStart = true; }
-        } else if(lastClickY > H*0.82) {
-            gameState = 'levelComplete';
+        // Tab bar click
+        if(lastClickY >= H*0.245 && lastClickY < H*0.31) {
+            shopTab = (lastClickX < W/2) ? 'upgrades' : 'parts';
+        } else if(shopTab === 'upgrades') {
+            const rH = H*0.108, r0 = H*0.365;
+            if(lastClickY >= r0 && lastClickY < r0+rH) {
+                if(scraps >= 15 && player.hp < player.maxHp) { scraps -= 15; player.hp++; }
+            } else if(lastClickY >= r0+rH && lastClickY < r0+2*rH) {
+                if(scraps >= 30 && upgrades.fireRate < 2) { scraps -= 30; upgrades.fireRate++; }
+            } else if(lastClickY >= r0+2*rH && lastClickY < r0+3*rH) {
+                if(scraps >= 50 && upgrades.maxHpBonus < 2) { scraps -= 50; upgrades.maxHpBonus++; player.maxHp = 3 + upgrades.maxHpBonus; }
+            } else if(lastClickY >= r0+3*rH && lastClickY < r0+4*rH) {
+                if(scraps >= 20 && !upgrades.shieldOnStart) { scraps -= 20; upgrades.shieldOnStart = true; }
+            } else if(lastClickY > H*0.89) { gameState = 'levelComplete'; }
+        } else {
+            // PARTS tab — sub-tab bar
+            if(lastClickY >= H*0.325 && lastClickY < H*0.385) {
+                if(lastClickX < W*0.38) partsSubTab = 'hulls';
+                else if(lastClickX < W*0.66) partsSubTab = 'colors';
+                else partsSubTab = 'engines';
+            } else {
+                const itemH = H*0.072, itemStart = H*0.395;
+                const idx = Math.floor((lastClickY - itemStart) / itemH);
+                if(idx >= 0 && lastClickY < H*0.89) {
+                    if(partsSubTab === 'hulls') {
+                        const shopIdxs = HULL_PRICES.map((_,i)=>i).filter(i=>HULL_PRICES[i]>0);
+                        if(idx < shopIdxs.length) {
+                            const hi = shopIdxs[idx];
+                            if(!ownedHulls[hi] && scraps >= HULL_PRICES[hi]) { scraps -= HULL_PRICES[hi]; ownedHulls[hi] = true; }
+                        }
+                    } else if(partsSubTab === 'colors') {
+                        const shopIdxs = COLOR_PRICES.map((_,i)=>i).filter(i=>COLOR_PRICES[i]>0);
+                        if(idx < shopIdxs.length) {
+                            const ci = shopIdxs[idx];
+                            if(!ownedColors[ci] && scraps >= COLOR_PRICES[ci]) { scraps -= COLOR_PRICES[ci]; ownedColors[ci] = true; }
+                        }
+                    } else {
+                        const shopIdxs = ENGINE_PRICES.map((_,i)=>i).filter(i=>ENGINE_PRICES[i]>0);
+                        if(idx < shopIdxs.length) {
+                            const ei = shopIdxs[idx];
+                            if(!ownedEngines[ei] && scraps >= ENGINE_PRICES[ei]) { scraps -= ENGINE_PRICES[ei]; ownedEngines[ei] = true; }
+                        }
+                    }
+                }
+            }
+            if(lastClickY > H*0.89) gameState = 'levelComplete';
         }
     }
     else if(gameState === 'customize') {
-        // Row centres: H*0.40 (hull), H*0.52 (color), H*0.64 (engine); rowH = H*0.09
         if(lastClickY >= H*0.34 && lastClickY < H*0.46) {
-            shipConfig.hull = (shipConfig.hull + 1) % HULL_NAMES.length;
+            shipConfig.hull = nextOwned(ownedHulls, shipConfig.hull);
         } else if(lastClickY >= H*0.46 && lastClickY < H*0.58) {
-            shipConfig.color = (shipConfig.color + 1) % SHIP_COLORS.length;
+            shipConfig.color = nextOwned(ownedColors, shipConfig.color);
         } else if(lastClickY >= H*0.58 && lastClickY < H*0.73) {
-            shipConfig.engine = (shipConfig.engine + 1) % ENGINE_NAMES.length;
+            shipConfig.engine = nextOwned(ownedEngines, shipConfig.engine);
         } else if(lastClickY >= H*0.73) {
             gameState = 'levelComplete';
         }
@@ -650,7 +1415,20 @@ function resetGame() {
     comboCount = 0; comboTimer = 0; nukeFlash = 0;
     upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
     levelStartedWithShield = false;
+    ownedHulls   = [true,true,true,true,true, false,false,false,false,false];
+    ownedColors  = [true,true,true,true,true,true,true, false,false,false,false,false,false,false];
+    ownedEngines = [true,true,true,true, false,false,false,false,false];
+    shopTab = 'upgrades'; partsSubTab = 'hulls';
     gameState = 'title';
+}
+
+function nextOwned(arr, current) {
+    const len = arr.length;
+    for(let i = 1; i <= len; i++) {
+        const next = (current + i) % len;
+        if(arr[next]) return next;
+    }
+    return current;
 }
 
 function startLevel(idx) {
@@ -664,7 +1442,7 @@ function startLevel(idx) {
     floatingTexts = [];
     randomEventTimer = 700; activeEventText = ''; activeEventDisplayTimer = 0;
     bonusScrapActive = false; bonusScrapTimer = 0;
-    comboCount = 0; comboTimer = 0; nukeFlash = 0;
+    comboCount = 0; comboTimer = 0; nukeFlash = 0; freezeTimer = 0; overdriveTimer = 0;
     const lvl = LEVELS[idx];
     stars.forEach(s => s.color = lvl.starColor || '#fff');
     if(lvl.boss) {
@@ -675,7 +1453,10 @@ function startLevel(idx) {
 
 function nextLevel() {
     currentLevelIdx++;
-    if(currentLevelIdx >= LEVELS.length) { gameState = 'victory'; }
+    if(currentLevelIdx >= LEVELS.length) {
+        if(score > highScore) { highScore = score; localStorage.setItem('neon_hs', highScore); }
+        gameState = 'victory';
+    }
     else { gameState = 'intro'; }
 }
 
@@ -685,7 +1466,7 @@ function retryLevel() {
     const rMaxHp = 3 + upgrades.maxHpBonus;
     player = { x:W/2-12, y:H*0.82, hp:rMaxHp, maxHp:rMaxHp, invincFrames:0, shieldActive:false, rapidTimer:0, laserTimer:0 };
     bots=[]; bullets=[]; particles=[]; powerups=[]; boss=null;
-    killCount=0; bossKilledThisLevel=false; fireTimer=0; floatingTexts=[];
+    killCount=0; bossKilledThisLevel=false; fireTimer=0; floatingTexts=[]; freezeTimer=0; overdriveTimer=0; comboCount=0; comboTimer=0; nukeFlash=0;
     gameState = 'intro';
 }
 
@@ -767,6 +1548,8 @@ function spawnEnemy() {
         bots.push({x:ex,y:-28,v:2.2+li*0.20,hp:2,maxHp:2,color:'#f40',size:24,type:'kamikaze',drift:(Math.random()-0.5)*0.8,shootTimer:0,flashTimer:0,rushing:false});
     else if(type === 'stealth')
         bots.push({x:ex,y:-32,v:2.6+li*0.22,hp:3,maxHp:3,color:'#8f8',size:28,type:'stealth',drift:(Math.random()-0.5)*1.2,shootTimer:Math.floor(Math.random()*80),flashTimer:0,stealthPhase:Math.random()*Math.PI*2});
+    else if(type === 'reflector')
+        bots.push({x:ex,y:-30,v:1.8+li*0.16,hp:3,maxHp:3,color:'#4ff',size:28,type:'reflector',drift:0,vx:(Math.random()>0.5?1:-1)*(2.0+li*0.15),shootTimer:Math.floor(Math.random()*60),flashTimer:0});
 }
 
 function maybeDropPowerup(ex, ey) {
@@ -819,7 +1602,7 @@ function playerHit() {
     player.hp--; player.invincFrames = 120;
     spawnParticles(player.x+12, player.y+12, '#f44', 15);
     playSound('hit');
-    if(player.hp <= 0) { gameState = 'gameover'; playSound('gameover'); }
+    if(player.hp <= 0) { if(score > highScore) { highScore = score; localStorage.setItem('neon_hs', highScore); } gameState = 'gameover'; playSound('gameover'); }
 }
 
 // ================================================================
@@ -847,6 +1630,39 @@ function drawPlayerShip(cx, cy, color) {
             ctx.moveTo(0,-sz*1.4); ctx.lineTo(sz*0.18,sz*0.0);
             ctx.lineTo(sz*0.42,sz*0.55); ctx.lineTo(0,sz*0.3);
             ctx.lineTo(-sz*0.42,sz*0.55); ctx.lineTo(-sz*0.18,sz*0.0);
+            break;
+        case 5: // PHANTOM — ghost needle with swept wing-tips
+            ctx.moveTo(0,-sz*1.5); ctx.lineTo(sz*0.15,sz*0.0);
+            ctx.lineTo(sz*0.55,sz*0.52); ctx.lineTo(sz*0.2,sz*0.38);
+            ctx.lineTo(0,sz*0.7);
+            ctx.lineTo(-sz*0.2,sz*0.38); ctx.lineTo(-sz*0.55,sz*0.52);
+            ctx.lineTo(-sz*0.15,sz*0.0);
+            break;
+        case 6: // TITAN — wide armoured battle-cruiser
+            ctx.moveTo(0,-sz*0.75); ctx.lineTo(sz*0.95,sz*0.1);
+            ctx.lineTo(sz*0.88,sz*0.75); ctx.lineTo(sz*0.28,sz*0.88);
+            ctx.lineTo(0,sz*0.6);
+            ctx.lineTo(-sz*0.28,sz*0.88); ctx.lineTo(-sz*0.88,sz*0.75);
+            ctx.lineTo(-sz*0.95,sz*0.1);
+            break;
+        case 7: // BLADE — pure scalpel shape
+            ctx.moveTo(0,-sz*1.6); ctx.lineTo(sz*0.12,sz*0.1);
+            ctx.lineTo(sz*0.62,sz*0.78); ctx.lineTo(0,sz*0.52);
+            ctx.lineTo(-sz*0.62,sz*0.78); ctx.lineTo(-sz*0.12,sz*0.1);
+            break;
+        case 8: // DIAMOND — perfect rhombus with cut corners
+            ctx.moveTo(0,-sz*1.1); ctx.lineTo(sz*0.5,-sz*0.18);
+            ctx.lineTo(sz*0.75,sz*0.2); ctx.lineTo(sz*0.38,sz*0.88);
+            ctx.lineTo(0,sz*0.65);
+            ctx.lineTo(-sz*0.38,sz*0.88); ctx.lineTo(-sz*0.75,sz*0.2);
+            ctx.lineTo(-sz*0.5,-sz*0.18);
+            break;
+        case 9: // VIPER — swept fangs with twin tail fins
+            ctx.moveTo(0,-sz*1.25); ctx.lineTo(sz*0.22,sz*0.05);
+            ctx.lineTo(sz*0.68,sz*0.28); ctx.lineTo(sz*0.48,sz*0.62);
+            ctx.lineTo(sz*0.18,sz*0.44); ctx.lineTo(0,sz*0.55);
+            ctx.lineTo(-sz*0.18,sz*0.44); ctx.lineTo(-sz*0.48,sz*0.62);
+            ctx.lineTo(-sz*0.68,sz*0.28); ctx.lineTo(-sz*0.22,sz*0.05);
             break;
         default: // STANDARD - original shape
             ctx.moveTo(0,-sz); ctx.lineTo(sz*0.55,sz*0.65); ctx.lineTo(0,sz*0.25); ctx.lineTo(-sz*0.55,sz*0.65);
@@ -1204,6 +2020,26 @@ function drawStealthShip(cx, cy, size, color, alpha) {
     ctx.restore();
 }
 
+function drawReflectorShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=14; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0, -size*0.28);
+    ctx.lineTo(size*0.48, 0);
+    ctx.lineTo(size*0.48, size*0.38);
+    ctx.lineTo(0, size*0.5);
+    ctx.lineTo(-size*0.48, size*0.38);
+    ctx.lineTo(-size*0.48, 0);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=20; ctx.shadowColor='#fff'; ctx.strokeStyle='#fff'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.arc(0, size*0.08, size*0.46, Math.PI*1.18, Math.PI*1.82); ctx.stroke();
+    ctx.fillStyle='rgba(0,0,0,0.6)';
+    ctx.beginPath(); ctx.arc(0, size*0.12, size*0.14, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur=12; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath(); ctx.arc(0, size*0.12, size*0.07, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
 function drawBossShip(bx, by, bw, bh, color, shape) {
     ctx.save(); ctx.translate(bx+bw*0.5, by+bh*0.5);
     ctx.shadowBlur=30; ctx.shadowColor=color; ctx.fillStyle=color;
@@ -1554,6 +2390,198 @@ function drawBossShip(bx, by, bw, bh, color, shape) {
             ctx.beginPath(); ctx.arc(Math.cos(a)*bh*0.46,Math.sin(a)*bh*0.46,9,0,Math.PI*2); ctx.fill();
         }
 
+
+    } else if(shape === 'heraldchaos') {
+        // Herald of Chaos — 9-spike jagged star with chaotic irregular spikes
+        for(let i=0; i<9; i++) {
+            const a=(i/9)*Math.PI*2, len=i%3===0?bh*0.58:i%3===1?bh*0.44:bh*0.52;
+            ctx.save(); ctx.rotate(a);
+            ctx.beginPath();
+            ctx.moveTo(-bw*0.065,0); ctx.lineTo(0,-len); ctx.lineTo(bw*0.065,0);
+            ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+        ctx.fillStyle='rgba(0,0,0,0.80)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.32,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=0.5; ctx.strokeStyle=color; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.44,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+        ctx.shadowBlur=48; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.14,0,Math.PI*2); ctx.fill();
+
+    } else if(shape === 'devourer') {
+        // The Devourer — massive crescent maw with rows of jagged teeth
+        ctx.shadowBlur=30;
+        // Outer crescent body
+        ctx.beginPath();
+        ctx.arc(0,0,bh*0.52,Math.PI*0.15,Math.PI*0.85,false);
+        ctx.arc(0,bh*0.15,bh*0.35,Math.PI*0.85+0.1,Math.PI*0.15-0.1,true);
+        ctx.closePath(); ctx.fill();
+        // Left horn
+        ctx.beginPath();
+        ctx.moveTo(-bw*0.4,bh*0.1); ctx.lineTo(-bw*0.55,-bh*0.38); ctx.lineTo(-bw*0.28,-bh*0.1);
+        ctx.closePath(); ctx.fill();
+        // Right horn
+        ctx.beginPath();
+        ctx.moveTo(bw*0.4,bh*0.1); ctx.lineTo(bw*0.55,-bh*0.38); ctx.lineTo(bw*0.28,-bh*0.1);
+        ctx.closePath(); ctx.fill();
+        // Void interior
+        ctx.fillStyle='rgba(0,0,0,0.88)';
+        ctx.beginPath(); ctx.arc(0,bh*0.08,bh*0.3,Math.PI*0.2,Math.PI*0.8,false);
+        ctx.arc(0,bh*0.18,bh*0.18,Math.PI*0.8,Math.PI*0.2,true);
+        ctx.closePath(); ctx.fill();
+        // Core eye
+        ctx.shadowBlur=44; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.ellipse(0,bh*0.08,bh*0.1,bh*0.07,0,0,Math.PI*2); ctx.fill();
+
+    } else if(shape === 'abysswalker') {
+        // Abyss Walker — tall sleek manta form with trailing wing fins
+        ctx.shadowBlur=28;
+        // Central spine hull
+        ctx.beginPath();
+        ctx.moveTo(0,-bh*0.55); ctx.lineTo(bw*0.14,-bh*0.25);
+        ctx.lineTo(bw*0.12,bh*0.5); ctx.lineTo(-bw*0.12,bh*0.5);
+        ctx.lineTo(-bw*0.14,-bh*0.25);
+        ctx.closePath(); ctx.fill();
+        // Left wing
+        ctx.beginPath();
+        ctx.moveTo(-bw*0.12,-bh*0.1); ctx.bezierCurveTo(-bw*0.55,-bh*0.4,-bw*0.62,-bh*0.1,-bw*0.5,bh*0.2);
+        ctx.lineTo(-bw*0.14,bh*0.28);
+        ctx.closePath(); ctx.fill();
+        // Right wing
+        ctx.beginPath();
+        ctx.moveTo(bw*0.12,-bh*0.1); ctx.bezierCurveTo(bw*0.55,-bh*0.4,bw*0.62,-bh*0.1,bw*0.5,bh*0.2);
+        ctx.lineTo(bw*0.14,bh*0.28);
+        ctx.closePath(); ctx.fill();
+        // Void core
+        ctx.fillStyle='rgba(0,0,0,0.82)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.22,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=42; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.1,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=0.4; ctx.strokeStyle=color; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.44,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+
+    } else if(shape === 'worldender') {
+        // World Ender — planetary sphere with four massive gun arms extending outward
+        // Central sphere
+        ctx.shadowBlur=30;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.36,0,Math.PI*2); ctx.fill();
+        // Four gun arm cannons at cardinal angles
+        for(let i=0;i<4;i++){
+            const a=(i/4)*Math.PI*2-Math.PI/4;
+            ctx.save(); ctx.rotate(a);
+            ctx.beginPath();
+            ctx.rect(-bw*0.07,bh*0.34,bw*0.14,bh*0.28);
+            ctx.closePath(); ctx.fill();
+            // Gun barrel tip
+            ctx.shadowBlur=18; ctx.shadowColor='#fff'; ctx.fillStyle='#fff';
+            ctx.beginPath(); ctx.arc(0,bh*0.65,bw*0.08,0,Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+        // Equatorial band
+        ctx.shadowBlur=16; ctx.shadowColor=color; ctx.strokeStyle=color; ctx.lineWidth=6;
+        ctx.globalAlpha=0.6; ctx.beginPath(); ctx.arc(0,0,bh*0.36,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+        // Core
+        ctx.fillStyle='rgba(0,0,0,0.85)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.22,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=50; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.12,0,Math.PI*2); ctx.fill();
+
+    } else if(shape === 'darketernal') {
+        // Dark Eternal — inverted cross with elongated arms and void chambers
+        // Four cross arms
+        ctx.beginPath();
+        ctx.rect(-bw*0.1,-bh*0.55,bw*0.2,bh*1.1); ctx.fill();
+        ctx.beginPath();
+        ctx.rect(-bw*0.55,-bh*0.1,bw*1.1,bh*0.2); ctx.fill();
+        // Arm tips glow
+        ctx.shadowBlur=22;
+        const tips=[{x:0,y:-bh*0.55},{x:0,y:bh*0.55},{x:-bw*0.55,y:0},{x:bw*0.55,y:0}];
+        tips.forEach(t=>{
+            ctx.beginPath(); ctx.arc(t.x,t.y,bh*0.1,0,Math.PI*2); ctx.fill();
+        });
+        // Dark central void
+        ctx.fillStyle='rgba(0,0,0,0.92)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.28,0,Math.PI*2); ctx.fill();
+        // Eye chambers in each arm quadrant
+        ctx.shadowBlur=14; ctx.shadowColor=color; ctx.fillStyle=color;
+        for(let i=0;i<4;i++){
+            const a=(i/4)*Math.PI*2;
+            ctx.beginPath(); ctx.arc(Math.cos(a)*bh*0.4,Math.sin(a)*bh*0.4,bh*0.07,0,Math.PI*2); ctx.fill();
+        }
+        ctx.shadowBlur=52; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.12,0,Math.PI*2); ctx.fill();
+
+    } else if(shape === 'chaosprime') {
+        // Chaos Prime — fractal overlapping diamond formation
+        const n=6;
+        for(let i=0;i<n;i++){
+            ctx.save();
+            ctx.rotate((i/n)*Math.PI*2);
+            const sc2=0.55+i*0.08;
+            ctx.globalAlpha=0.7;
+            ctx.beginPath();
+            ctx.moveTo(0,-bh*sc2); ctx.lineTo(bw*sc2*0.5,0);
+            ctx.lineTo(0,bh*sc2); ctx.lineTo(-bw*sc2*0.5,0);
+            ctx.closePath(); ctx.fill();
+            ctx.restore();
+        }
+        ctx.globalAlpha=1;
+        ctx.fillStyle='rgba(0,0,0,0.85)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.28,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=50; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.14,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=0.4; ctx.strokeStyle=color; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.44,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+
+    } else if(shape === 'absolute') {
+        // The Absolute — perfect geometric minimalism: square within circle within square
+        ctx.shadowBlur=24; ctx.lineWidth=8; ctx.strokeStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.5,0,Math.PI*2); ctx.stroke();
+        ctx.save(); ctx.rotate(Math.PI/4);
+        ctx.beginPath(); ctx.rect(-bh*0.36,-bh*0.36,bh*0.72,bh*0.72); ctx.stroke();
+        ctx.restore();
+        ctx.lineWidth=4;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.28,0,Math.PI*2); ctx.stroke();
+        // Corner weapon nodes
+        for(let i=0;i<4;i++){
+            const a=(i/4)*Math.PI*2+Math.PI/4;
+            ctx.shadowBlur=14; ctx.fillStyle=color;
+            ctx.beginPath(); ctx.arc(Math.cos(a)*bh*0.5,Math.sin(a)*bh*0.5,10,0,Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle='rgba(0,0,0,0.88)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.2,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=58; ctx.shadowColor=color; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(0,0,bh*0.1,0,Math.PI*2); ctx.fill();
+
+    } else if(shape === 'eternal') {
+        // The Eternal — 16-pronged ultimate entity with triple concentric rings
+        for(let i=0;i<16;i++){
+            ctx.save(); ctx.rotate((i/16)*Math.PI*2);
+            ctx.beginPath();
+            ctx.moveTo(-bw*0.04,0); ctx.lineTo(0,-bh*0.64); ctx.lineTo(bw*0.04,0);
+            ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+        ctx.fillStyle='rgba(0,0,0,0.88)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.42,0,Math.PI*2); ctx.fill();
+        // Three concentric rings
+        const ringAlphas=[0.6,0.4,0.25], ringR=[bh*0.54,bh*0.46,bh*0.36];
+        ringAlphas.forEach((a,ri)=>{
+            ctx.globalAlpha=a; ctx.strokeStyle=color; ctx.lineWidth=ri===0?4:2;
+            ctx.beginPath(); ctx.arc(0,0,ringR[ri],0,Math.PI*2); ctx.stroke();
+        });
+        ctx.globalAlpha=1;
+        ctx.fillStyle='rgba(0,0,0,0.72)';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.28,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=70; ctx.shadowColor='#fff'; ctx.fillStyle='#fff';
+        ctx.beginPath(); ctx.arc(0,0,bh*0.16,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=20; ctx.shadowColor=color; ctx.fillStyle=color;
+        for(let i=0;i<8;i++){
+            const a=(i/8)*Math.PI*2;
+            ctx.beginPath(); ctx.arc(Math.cos(a)*bh*0.48,Math.sin(a)*bh*0.48,8,0,Math.PI*2); ctx.fill();
+        }
     } else {
         // Fallback — original shape
         ctx.beginPath();
@@ -1670,7 +2698,6 @@ function drawBossLoreScreen() {
 function drawCustomizeScreen() {
     ctx.fillStyle='rgba(0,0,0,0.90)'; ctx.fillRect(0,0,W,H);
     ctx.textAlign='center';
-    // Title
     ctx.shadowBlur=22; ctx.shadowColor='#ff0'; ctx.fillStyle='#ff0';
     ctx.font='bold 28px Courier New';
     ctx.fillText('\u2605  CUSTOMIZE YOUR SHIP  \u2605', W/2, H*0.10);
@@ -1684,7 +2711,11 @@ function drawCustomizeScreen() {
     drawPlayerShip(0, 0, SHIP_COLORS[shipConfig.color]);
     ctx.restore();
 
-    // Section row helper
+    // Owned counts per category
+    const ownedHullCount   = ownedHulls.filter(Boolean).length;
+    const ownedColorCount  = ownedColors.filter(Boolean).length;
+    const ownedEngineCount = ownedEngines.filter(Boolean).length;
+
     const rowH = H*0.09;
     function drawRow(label, optName, rowY, col) {
         ctx.fillStyle = 'rgba(255,255,255,0.06)';
@@ -1694,16 +2725,26 @@ function drawCustomizeScreen() {
         ctx.fillText(label + ':  \u25C4  ' + optName + '  \u25BA', W/2, rowY + 6);
         ctx.shadowBlur=0;
     }
-    drawRow('HULL',   HULL_NAMES[shipConfig.hull],           H*0.40, '#0ff');
-    drawRow('COLOR',  SHIP_COLOR_NAMES[shipConfig.color],    H*0.52, SHIP_COLORS[shipConfig.color]);
-    drawRow('ENGINE', ENGINE_NAMES[shipConfig.engine],       H*0.64, ENGINE_COLORS[shipConfig.engine]);
+    drawRow('HULL ('+ownedHullCount+'/'+ownedHulls.length+')',
+            HULL_NAMES[shipConfig.hull],        H*0.40, '#0ff');
+    drawRow('COLOR ('+ownedColorCount+'/'+ownedColors.length+')',
+            SHIP_COLOR_NAMES[shipConfig.color], H*0.52, SHIP_COLORS[shipConfig.color]);
+    drawRow('ENGINE ('+ownedEngineCount+'/'+ownedEngines.length+')',
+            ENGINE_NAMES[shipConfig.engine],    H*0.64, ENGINE_COLORS[shipConfig.engine]);
 
-    // Confirm footer
+    // Shop hint when locked items remain
+    const hasLocked = ownedHullCount < ownedHulls.length ||
+                      ownedColorCount < ownedColors.length ||
+                      ownedEngineCount < ownedEngines.length;
+    if(hasLocked) {
+        ctx.fillStyle='#f80'; ctx.font='12px Courier New';
+        ctx.fillText('\u2B21  MORE PARTS AVAILABLE IN THE SHOP  \u2B21', W/2, H*0.74);
+    }
+
     ctx.fillStyle='#666'; ctx.font='15px Courier New';
     ctx.fillText('\u25B6  CONFIRM & CONTINUE  \u25C0', W/2, H*0.85);
     ctx.textAlign='left'; ctx.shadowBlur=0;
 }
-
 function drawGuideScreen() {
     ctx.fillStyle='rgba(0,0,0,0.96)'; ctx.fillRect(0,0,W,H);
 
@@ -1745,6 +2786,12 @@ function drawGuideScreen() {
         { name:'DREADNOUGHT', color:'#822', size:52, hp:12, draw:'dreadnought', desc:'Colossal. 5-way spread blasts. Massive HP.',      threat:'EXTREME' },
         { name:'ZIGZAG',      color:'#0f4', size:26, hp:3,  draw:'zigzag',      desc:'Weaves side-to-side. Fires aimed shots.',          threat:'MED' },
         { name:'BERSERKER',   color:'#f50', size:30, hp:5,  draw:'berserker',   desc:'Chases your ship. Speeds up when damaged.',        threat:'HIGH' },
+        { name:'PULSAR',      color:'#f8a', size:32, hp:4,  draw:'pulsar',      desc:'Fires 6-way radial bursts. No safe angle.',        threat:'HIGH' },
+        { name:'CARRIER',     color:'#28f', size:46, hp:8,  draw:'carrier',     desc:'Continuously spawns drones. Destroy it first.',    threat:'EXTREME' },
+        { name:'LANCER',      color:'#0fe', size:20, hp:2,  draw:'lancer',      desc:'Very fast. Fires rapid 3-shot column bursts.',     threat:'HIGH' },
+        { name:'KAMIKAZE',    color:'#f40', size:24, hp:2,  draw:'kamikaze',    desc:'Drops then dives straight at your ship.',          threat:'HIGH' },
+        { name:'STEALTH',     color:'#8f8', size:28, hp:3,  draw:'stealth',     desc:'Phases in/out of visibility. Fires when visible.', threat:'HIGH' },
+        { name:'REFLECTOR',   color:'#4ff', size:28, hp:3,  draw:'reflector',   desc:'Bounces off walls. Fires aimed shots from flanks.',threat:'MED' },
     ];
     const rowH = H * 0.075;
     enemies.forEach((e, i) => {
@@ -1767,6 +2814,12 @@ function drawGuideScreen() {
         else if(e.draw==='nullifier') drawNullifierShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         else if(e.draw==='zigzag')   drawZigzagShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         else if(e.draw==='berserker') drawBerserkerShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='pulsar')    drawPulsarShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='carrier')   drawCarrierShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='lancer')    drawLancerShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='kamikaze')  drawKamikazeShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='stealth')   drawStealthShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color, 1.0);
+        else if(e.draw==='reflector') drawReflectorShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         else                         drawEnemyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         ctx.shadowBlur=8; ctx.shadowColor=e.color; ctx.fillStyle=e.color;
         ctx.font='bold 13px Courier New'; ctx.textAlign='left';
@@ -1783,11 +2836,13 @@ function drawGuideScreen() {
     ctx.fillText('— POWERUPS —', W/2, divY);
     ctx.shadowBlur=0;
     const pups = [
-        { sym:'\u2665', col:'#0f0', label:'HEALTH', desc:'Restores 1 HP' },
-        { sym:'\u26A1', col:'#ff0', label:'RAPID',  desc:'Triple rapid fire (10s)' },
-        { sym:'\u25CE', col:'#0ff', label:'SHIELD',  desc:'Absorbs one hit' },
-        { sym:'\u2606', col:'#f8f', label:'LASER',   desc:'Piercing beam (6s)' },
-        { sym:'\u2739', col:'#f40', label:'NUKE',    desc:'Clears all enemies!' },
+        { sym:'\u2665', col:'#0f0', label:'HEALTH',    desc:'Restores 1 HP' },
+        { sym:'\u26A1', col:'#ff0', label:'RAPID',     desc:'Triple rapid fire (10s)' },
+        { sym:'\u25CE', col:'#0ff', label:'SHIELD',    desc:'Absorbs one hit' },
+        { sym:'\u2606', col:'#f8f', label:'LASER',     desc:'Piercing beam (6s)' },
+        { sym:'\u2739', col:'#f40', label:'NUKE',      desc:'Clears all enemies!' },
+        { sym:'\u26A1', col:'#f80', label:'OVERDRIVE', desc:'Max fire rate (8s)' },
+        { sym:'\u2744', col:'#8ff', label:'FREEZE',    desc:'Slows all enemies (3s)' },
     ];
     const pw = W / pups.length;
     pups.forEach((p, i) => {
@@ -1806,29 +2861,36 @@ function drawGuideScreen() {
     ctx.fillText('— BOSS ENCOUNTERS —', W/2, bossY);
     ctx.shadowBlur=0;
     const bossList = [
-        {name:'GATEKEEPER',     lvl:3,  color:'#f0f'},
-        {name:'IRON BASTION',   lvl:6,  color:'#f80'},
-        {name:'DARK HERALD',    lvl:9,  color:'#a0f'},
-        {name:'VOID HARBINGER', lvl:12, color:'#0af'},
-        {name:'THE OVERLORD',   lvl:13, color:'#f04'},
-        {name:'PHANTOM KING',   lvl:16, color:'#0cf'},
-        {name:'THE ANNIHILATOR',lvl:18, color:'#fff'},
-        {name:'OMEGA SENTINEL', lvl:21, color:'#5f0'},
-        {name:'TITAN KING',     lvl:25, color:'#e22'},
-        {name:'THE NULLIFIER',  lvl:29, color:'#08f'},
-        {name:'VOID EMPEROR',   lvl:30, color:'#c0f'},
+        {name:'GATEKEEPER',      lvl:3,  color:'#f0f'},
+        {name:'IRON BASTION',    lvl:6,  color:'#f80'},
+        {name:'DARK HERALD',     lvl:9,  color:'#a0f'},
+        {name:'VOID HARBINGER',  lvl:12, color:'#0af'},
+        {name:'THE OVERLORD',    lvl:13, color:'#f04'},
+        {name:'PHANTOM KING',    lvl:16, color:'#0cf'},
+        {name:'THE ANNIHILATOR', lvl:18, color:'#fff'},
+        {name:'OMEGA SENTINEL',  lvl:21, color:'#5f0'},
+        {name:'TITAN KING',      lvl:25, color:'#e22'},
+        {name:'THE NULLIFIER',   lvl:29, color:'#08f'},
+        {name:'VOID EMPEROR',    lvl:30, color:'#c0f'},
+        {name:'THE SPECTRE',     lvl:33, color:'#adf'},
+        {name:'THE UNDYING',     lvl:36, color:'#4fa'},
+        {name:'THE ARCHITECT',   lvl:40, color:'#fa4'},
+        {name:'THE REAPER',      lvl:44, color:'#f0a'},
+        {name:'GENESIS PRIME',   lvl:48, color:'#fa0'},
+        {name:'COSMIC DESTROYER',lvl:50, color:'#fff'},
     ];
     // Three-column layout so all bosses fit
     const colMid = W * 0.22, colMid2 = W * 0.55, colRight = W * 0.82;
+    const perCol = 6;
     bossList.forEach((b, i) => {
-        const col = i < 4 ? colMid : i < 8 ? colMid2 : colRight;
-        const row = i < 4 ? i : i < 8 ? i - 4 : i - 8;
+        const col = i < perCol ? colMid : i < perCol*2 ? colMid2 : colRight;
+        const row = i % perCol;
         ctx.shadowBlur=5; ctx.shadowColor=b.color; ctx.fillStyle=b.color;
         ctx.font='12px Courier New';
         ctx.fillText('LVL '+b.lvl+': '+b.name, col, bossY+16+row*17);
     });
 
-    const contentBottom = bossY + 16 + 4*17 + 20;
+    const contentBottom = bossY + 16 + perCol*17 + 20;
     ctx.restore();
 
     // Update max scroll based on content size
@@ -1860,53 +2922,195 @@ function drawShopScreen() {
     ctx.fillText('\u2B21  SCRAP SHOP  \u2B21', W/2, H*0.12);
     ctx.shadowBlur=0;
     ctx.fillStyle='#0ff'; ctx.font='20px Courier New';
-    ctx.fillText('SCRAPS: '+scraps, W/2, H*0.21);
-    ctx.fillStyle='#555'; ctx.font='13px Courier New';
-    ctx.fillText('Tap an item to purchase', W/2, H*0.27);
+    ctx.fillText('SCRAPS: '+scraps, W/2, H*0.20);
 
-    const items = [
-        { name:'REPAIR HULL',   desc:'Restore 1 HP',
-          cost:15, col:'#0f0',  canBuy: scraps>=15 && player.hp<player.maxHp,
-          note: player.hp>=player.maxHp ? '(FULL HP)' : '' },
-        { name:'RAPID BOOST',   desc:'Fire rate +1  ('+upgrades.fireRate+'/2)',
-          cost:30, col:'#ff0',  canBuy: scraps>=30 && upgrades.fireRate<2,
-          note: upgrades.fireRate>=2 ? '(MAXED)' : '' },
-        { name:'HULL PLATE',    desc:'+1 Max HP  ('+upgrades.maxHpBonus+'/2)',
-          cost:50, col:'#0ff',  canBuy: scraps>=50 && upgrades.maxHpBonus<2,
-          note: upgrades.maxHpBonus>=2 ? '(MAXED)' : '' },
-        { name:'SHIELD CHARGE', desc:'Start next level with shield',
-          cost:20, col:'#a0f',  canBuy: scraps>=20 && !upgrades.shieldOnStart,
-          note: upgrades.shieldOnStart ? '(READY)' : '' },
-    ];
-    const rowH = H*0.115;
-    items.forEach((item, i) => {
-        const rowY = H*0.315 + i*rowH;
-        ctx.fillStyle = item.canBuy ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)';
-        ctx.fillRect(W*0.07, rowY, W*0.86, rowH*0.88);
-        ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor = item.col;
-        ctx.fillStyle = item.canBuy ? item.col : '#444';
-        ctx.font='bold 15px Courier New'; ctx.textAlign='left';
-        ctx.fillText(item.name, W*0.12, rowY+rowH*0.42);
-        ctx.shadowBlur=0; ctx.fillStyle = item.canBuy ? '#aaa' : '#444';
-        ctx.font='12px Courier New';
-        ctx.fillText(item.desc, W*0.12, rowY+rowH*0.75);
-        ctx.textAlign='right';
-        ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor='#ff0';
-        ctx.fillStyle = item.canBuy ? '#ff0' : '#443300';
-        ctx.font='bold 16px Courier New';
-        ctx.fillText('\u2B21 '+item.cost, W*0.88, rowY+rowH*0.42);
-        if(item.note) {
-            ctx.shadowBlur=0; ctx.fillStyle='#777'; ctx.font='12px Courier New';
-            ctx.fillText(item.note, W*0.88, rowY+rowH*0.75);
+    // Tab bar: UPGRADES | SHIP PARTS
+    const tabY = H*0.245, tabH = H*0.065;
+    ctx.fillStyle = shopTab==='upgrades' ? 'rgba(0,255,255,0.15)' : 'rgba(255,255,255,0.04)';
+    ctx.fillRect(0, tabY, W/2, tabH);
+    ctx.shadowBlur = shopTab==='upgrades' ? 10 : 0; ctx.shadowColor='#0ff';
+    ctx.fillStyle = shopTab==='upgrades' ? '#0ff' : '#555';
+    ctx.font='bold 14px Courier New';
+    ctx.fillText('UPGRADES', W*0.25, tabY + tabH*0.65);
+    ctx.fillStyle = shopTab==='parts' ? 'rgba(255,160,0,0.15)' : 'rgba(255,255,255,0.04)';
+    ctx.fillRect(W/2, tabY, W/2, tabH);
+    ctx.shadowBlur = shopTab==='parts' ? 10 : 0; ctx.shadowColor='#fa0';
+    ctx.fillStyle = shopTab==='parts' ? '#fa0' : '#555';
+    ctx.fillText('SHIP PARTS', W*0.75, tabY + tabH*0.65);
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#333'; ctx.fillRect(0, tabY+tabH, W, 1);
+
+    if(shopTab === 'upgrades') {
+        const items = [
+            { name:'REPAIR HULL',   desc:'Restore 1 HP',
+              cost:15, col:'#0f0',  canBuy: scraps>=15 && player.hp<player.maxHp,
+              note: player.hp>=player.maxHp ? '(FULL HP)' : '' },
+            { name:'RAPID BOOST',   desc:'Fire rate +1  ('+upgrades.fireRate+'/2)',
+              cost:30, col:'#ff0',  canBuy: scraps>=30 && upgrades.fireRate<2,
+              note: upgrades.fireRate>=2 ? '(MAXED)' : '' },
+            { name:'HULL PLATE',    desc:'+1 Max HP  ('+upgrades.maxHpBonus+'/2)',
+              cost:50, col:'#0ff',  canBuy: scraps>=50 && upgrades.maxHpBonus<2,
+              note: upgrades.maxHpBonus>=2 ? '(MAXED)' : '' },
+            { name:'SHIELD CHARGE', desc:'Start next level with shield',
+              cost:20, col:'#a0f',  canBuy: scraps>=20 && !upgrades.shieldOnStart,
+              note: upgrades.shieldOnStart ? '(READY)' : '' },
+        ];
+        const rowH = H*0.108, r0 = H*0.365;
+        items.forEach((item, i) => {
+            const rowY = r0 + i*rowH;
+            ctx.fillStyle = item.canBuy ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)';
+            ctx.fillRect(W*0.07, rowY, W*0.86, rowH*0.88);
+            ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor = item.col;
+            ctx.fillStyle = item.canBuy ? item.col : '#444';
+            ctx.font='bold 15px Courier New'; ctx.textAlign='left';
+            ctx.fillText(item.name, W*0.12, rowY+rowH*0.42);
+            ctx.shadowBlur=0; ctx.fillStyle = item.canBuy ? '#aaa' : '#444';
+            ctx.font='12px Courier New';
+            ctx.fillText(item.desc, W*0.12, rowY+rowH*0.75);
+            ctx.textAlign='right';
+            ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor='#ff0';
+            ctx.fillStyle = item.canBuy ? '#ff0' : '#443300';
+            ctx.font='bold 16px Courier New';
+            ctx.fillText('\u2B21 '+item.cost, W*0.88, rowY+rowH*0.42);
+            if(item.note) {
+                ctx.shadowBlur=0; ctx.fillStyle='#777'; ctx.font='12px Courier New';
+                ctx.fillText(item.note, W*0.88, rowY+rowH*0.75);
+            }
+            ctx.textAlign='center';
+        });
+    } else {
+        // PARTS sub-tab bar: HULLS | COLORS | ENGINES
+        const stY = H*0.325, stH = H*0.06;
+        const stTabs = ['HULLS','COLORS','ENGINES'];
+        const tabW = W/3;
+        stTabs.forEach((t, i) => {
+            const active = partsSubTab === t.toLowerCase();
+            ctx.fillStyle = active ? 'rgba(255,200,0,0.18)' : 'rgba(255,255,255,0.04)';
+            ctx.fillRect(i*tabW, stY, tabW, stH);
+            ctx.shadowBlur = active ? 8 : 0; ctx.shadowColor='#ff8';
+            ctx.fillStyle = active ? '#ff8' : '#555';
+            ctx.font='bold 13px Courier New';
+            ctx.fillText(t, i*tabW + tabW/2, stY + stH*0.67);
+        });
+        ctx.shadowBlur=0;
+        ctx.fillStyle='#333'; ctx.fillRect(0, stY+stH, W, 1);
+
+        const itemH = H*0.072, itemStart = H*0.395;
+
+        if(partsSubTab === 'hulls') {
+            const shopIdxs = HULL_PRICES.map((_,i)=>i).filter(i=>HULL_PRICES[i]>0);
+            shopIdxs.forEach((hi, row) => {
+                const rowY = itemStart + row*itemH;
+                const owned = ownedHulls[hi];
+                const affordable = !owned && scraps >= HULL_PRICES[hi];
+                ctx.fillStyle = owned ? 'rgba(0,255,100,0.08)' : affordable ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)';
+                ctx.fillRect(W*0.05, rowY, W*0.9, itemH*0.9);
+                ctx.save();
+                ctx.translate(W*0.13, rowY + itemH*0.45);
+                ctx.scale(1.4, 1.4);
+                const savedHull = shipConfig.hull;
+                shipConfig.hull = hi;
+                drawPlayerShip(0, 0, owned ? SHIP_COLORS[shipConfig.color] : '#555');
+                shipConfig.hull = savedHull;
+                ctx.restore();
+                ctx.shadowBlur = owned ? 6 : affordable ? 4 : 0;
+                ctx.shadowColor = owned ? '#0f4' : '#0ff';
+                ctx.fillStyle = owned ? '#0f4' : affordable ? '#0ff' : '#444';
+                ctx.font='bold 13px Courier New'; ctx.textAlign='left';
+                ctx.fillText(HULL_NAMES[hi], W*0.22, rowY + itemH*0.55);
+                ctx.shadowBlur=0; ctx.textAlign='right';
+                if(owned) {
+                    ctx.fillStyle='#0f4'; ctx.font='bold 12px Courier New';
+                    ctx.fillText('OWNED', W*0.93, rowY + itemH*0.55);
+                } else {
+                    ctx.shadowBlur = affordable ? 8 : 0; ctx.shadowColor='#ff0';
+                    ctx.fillStyle = affordable ? '#ff0' : '#443300';
+                    ctx.font='bold 14px Courier New';
+                    ctx.fillText('\u2B21 '+HULL_PRICES[hi], W*0.93, rowY + itemH*0.55);
+                    ctx.shadowBlur=0;
+                    if(!affordable) {
+                        ctx.fillStyle='#444'; ctx.font='10px Courier New';
+                        ctx.fillText('NEED '+(HULL_PRICES[hi]-scraps)+' MORE', W*0.93, rowY + itemH*0.82);
+                    }
+                }
+                ctx.textAlign='center';
+            });
+        } else if(partsSubTab === 'colors') {
+            const shopIdxs = COLOR_PRICES.map((_,i)=>i).filter(i=>COLOR_PRICES[i]>0);
+            shopIdxs.forEach((ci, row) => {
+                const rowY = itemStart + row*itemH;
+                const owned = ownedColors[ci];
+                const affordable = !owned && scraps >= COLOR_PRICES[ci];
+                ctx.fillStyle = owned ? 'rgba(0,255,100,0.08)' : affordable ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)';
+                ctx.fillRect(W*0.05, rowY, W*0.9, itemH*0.9);
+                ctx.shadowBlur = 10; ctx.shadowColor = SHIP_COLORS[ci];
+                ctx.fillStyle = owned ? SHIP_COLORS[ci] : '#222';
+                ctx.fillRect(W*0.08, rowY + itemH*0.15, W*0.1, itemH*0.65);
+                ctx.strokeStyle = SHIP_COLORS[ci]; ctx.lineWidth=1.5;
+                ctx.strokeRect(W*0.08, rowY + itemH*0.15, W*0.1, itemH*0.65);
+                ctx.shadowBlur=0;
+                ctx.fillStyle = owned ? SHIP_COLORS[ci] : affordable ? '#aaa' : '#444';
+                ctx.font='bold 13px Courier New'; ctx.textAlign='left';
+                ctx.fillText(SHIP_COLOR_NAMES[ci], W*0.22, rowY + itemH*0.55);
+                ctx.textAlign='right';
+                if(owned) {
+                    ctx.fillStyle='#0f4'; ctx.font='bold 12px Courier New';
+                    ctx.fillText('OWNED', W*0.93, rowY + itemH*0.55);
+                } else {
+                    ctx.shadowBlur = affordable ? 8 : 0; ctx.shadowColor='#ff0';
+                    ctx.fillStyle = affordable ? '#ff0' : '#443300';
+                    ctx.font='bold 14px Courier New';
+                    ctx.fillText('\u2B21 '+COLOR_PRICES[ci], W*0.93, rowY + itemH*0.55);
+                    ctx.shadowBlur=0;
+                    if(!affordable) {
+                        ctx.fillStyle='#444'; ctx.font='10px Courier New';
+                        ctx.fillText('NEED '+(COLOR_PRICES[ci]-scraps)+' MORE', W*0.93, rowY + itemH*0.82);
+                    }
+                }
+                ctx.textAlign='center';
+            });
+        } else {
+            const shopIdxs = ENGINE_PRICES.map((_,i)=>i).filter(i=>ENGINE_PRICES[i]>0);
+            shopIdxs.forEach((ei, row) => {
+                const rowY = itemStart + row*itemH;
+                const owned = ownedEngines[ei];
+                const affordable = !owned && scraps >= ENGINE_PRICES[ei];
+                ctx.fillStyle = owned ? 'rgba(0,255,100,0.08)' : affordable ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)';
+                ctx.fillRect(W*0.05, rowY, W*0.9, itemH*0.9);
+                ctx.shadowBlur = 10; ctx.shadowColor = ENGINE_COLORS[ei];
+                ctx.fillStyle = owned ? ENGINE_COLORS[ei] : '#222';
+                ctx.beginPath(); ctx.arc(W*0.13, rowY + itemH*0.45, itemH*0.28, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = ENGINE_COLORS[ei]; ctx.lineWidth=1.5;
+                ctx.beginPath(); ctx.arc(W*0.13, rowY + itemH*0.45, itemH*0.28, 0, Math.PI*2); ctx.stroke();
+                ctx.shadowBlur=0;
+                ctx.fillStyle = owned ? ENGINE_COLORS[ei] : affordable ? '#aaa' : '#444';
+                ctx.font='bold 13px Courier New'; ctx.textAlign='left';
+                ctx.fillText(ENGINE_NAMES[ei], W*0.22, rowY + itemH*0.55);
+                ctx.textAlign='right';
+                if(owned) {
+                    ctx.fillStyle='#0f4'; ctx.font='bold 12px Courier New';
+                    ctx.fillText('OWNED', W*0.93, rowY + itemH*0.55);
+                } else {
+                    ctx.shadowBlur = affordable ? 8 : 0; ctx.shadowColor='#ff0';
+                    ctx.fillStyle = affordable ? '#ff0' : '#443300';
+                    ctx.font='bold 14px Courier New';
+                    ctx.fillText('\u2B21 '+ENGINE_PRICES[ei], W*0.93, rowY + itemH*0.55);
+                    ctx.shadowBlur=0;
+                    if(!affordable) {
+                        ctx.fillStyle='#444'; ctx.font='10px Courier New';
+                        ctx.fillText('NEED '+(ENGINE_PRICES[ei]-scraps)+' MORE', W*0.93, rowY + itemH*0.82);
+                    }
+                }
+                ctx.textAlign='center';
+            });
         }
-        ctx.textAlign='center';
-    });
+    }
+
     ctx.shadowBlur=12; ctx.shadowColor='#0ff'; ctx.fillStyle='#0ff';
     ctx.font='bold 16px Courier New';
     ctx.fillText('\u25B6  LEAVE SHOP  \u25C0', W/2, H*0.93);
     ctx.shadowBlur=0; ctx.textAlign='left';
 }
-
 // ================================================================
 // MAIN LOOP
 // ================================================================
@@ -1941,17 +3145,32 @@ function loop() {
 
     // --- NON-PLAYING SCREENS ---
     if(gameState === 'title') {
+        const hsLine = highScore > 0 ? 'BEST SCORE: '+highScore : '';
         drawOverlay('NEON SHOOTER', '#0ff',
             ['— A SPACE ADVENTURE —', '',
-             '30 LEVELS  \u00B7  19 ENEMY TYPES  \u00B7  11 BOSSES',
+             '150 LEVELS  \u00B7  25 ENEMY TYPES  \u00B7  34 BOSSES',
              'TRAVERSE NEBULAE, ASTEROID FIELDS',
-             'AND FACE THE VOID EMPEROR'],
+             'AND FACE THE ETERNAL',
+             '', hsLine],
             '\u25B6  TOUCH OR CLICK TO START  \u25C0');
         ctx.textAlign='center';
         ctx.shadowBlur=14; ctx.shadowColor='#ff8'; ctx.fillStyle='#ff8';
         ctx.font='bold 16px Courier New';
         ctx.fillText('\u2139  ENEMY GUIDE  \u2139', W/2, H*0.84);
         ctx.shadowBlur=0; ctx.textAlign='left';
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'paused') {
+        ctx.fillStyle='rgba(0,0,0,0.70)'; ctx.fillRect(0,0,W,H);
+        ctx.textAlign='center';
+        ctx.shadowBlur=22; ctx.shadowColor='#0ff'; ctx.fillStyle='#0ff';
+        ctx.font='bold 40px Courier New';
+        ctx.fillText('PAUSED', W/2, H*0.38);
+        ctx.shadowBlur=0; ctx.fillStyle='#888'; ctx.font='16px Courier New';
+        ctx.fillText('PRESS ESC / P  OR  CLICK TO RESUME', W/2, H*0.52);
+        ctx.fillStyle='#444'; ctx.font='13px Courier New';
+        ctx.fillText('SCORE: '+score+'   \u2B21 SCRAPS: '+scraps, W/2, H*0.62);
+        ctx.textAlign='left';
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'guide') {
@@ -2002,8 +3221,8 @@ function loop() {
     }
     if(gameState === 'victory') {
         drawOverlay('MISSION COMPLETE', '#ff0',
-            ['THE VOID EMPEROR IS DESTROYED.', 'THE GALAXY IS SAVED. YOUR LEGEND IS ETERNAL.', '',
-             'FINAL SCORE: '+score, 'ALL 30 LEVELS CLEARED!'],
+            ['THE COSMIC DESTROYER IS ANNIHILATED.', 'THE GALAXY IS SAVED. YOUR LEGEND IS ETERNAL.', '',
+             'FINAL SCORE: '+score, 'ALL 150 LEVELS CLEARED!'],
             '\u25B6  TOUCH OR CLICK TO PLAY AGAIN  \u25C0');
         requestAnimationFrame(loop); return;
     }
@@ -2368,6 +3587,17 @@ function loop() {
                 const a=Math.atan2(player.y+12-b.y,player.x+12-b.x);
                 bullets.push({x:b.x+b.size/2,y:b.y+b.size*0.8,v:Math.sin(a)*5,vx:Math.cos(a)*5,enemy:true,width:4});
             }
+        } else if(b.type==='reflector') {
+            if(freezeTimer <= 0) {
+                b.x += b.vx;
+                if(b.x < 5 || b.x > W - b.size - 5) { b.vx *= -1; b.x = Math.max(5, Math.min(W - b.size - 5, b.x)); }
+            }
+            b.shootTimer++;
+            if(b.shootTimer >= Math.max(30, 72-currentLevelIdx*2)) {
+                b.shootTimer=0;
+                const a=Math.atan2(player.y+12-b.y, player.x+12-b.x);
+                bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.8, v:Math.sin(a)*4.5, vx:Math.cos(a)*4.5, enemy:true, width:4});
+            }
         }
         if(b.type==='asteroid')      drawAsteroid(b.x,b.y,b.size,b.color);
         else if(b.type==='heavy')    drawHeavyShip(b.x,b.y,b.size,b.color);
@@ -2391,6 +3621,7 @@ function loop() {
         else if(b.type==='lancer')    drawLancerShip(b.x,b.y,b.size,b.color);
         else if(b.type==='kamikaze')  drawKamikazeShip(b.x,b.y,b.size,b.color);
         else if(b.type==='stealth')   drawStealthShip(b.x,b.y,b.size,b.color,0.18+Math.abs(Math.sin(b.stealthPhase||0))*0.82);
+        else if(b.type==='reflector') drawReflectorShip(b.x,b.y,b.size,b.color);
         else                         drawEnemyShip(b.x,b.y,b.size,b.color);
         if(b.flashTimer > 0) {
             b.flashTimer--;
