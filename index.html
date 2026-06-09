@@ -215,7 +215,7 @@ const LEVELS = [
         id:26, name:"VANGUARD ARMADA",
         story:["Vanguards march in crushing formation.", "Dreadnoughts absorb everything you fire.", "Destroy 85 heavy units to halt their advance."],
         quota:85, boss:null,
-        spawnRate:0.082, enemyMix:[{type:'vanguard',w:3},{type:'dreadnought',w:2},{type:'wraith',w:3},{type:'gunship',w:2},{type:'berserker',w:2}],
+        spawnRate:0.082, enemyMix:[{type:'vanguard',w:3},{type:'dreadnought',w:2},{type:'wraith',w:2},{type:'gunship',w:2},{type:'berserker',w:1},{type:'reflector',w:2}],
         starColor:'#0f8', bgTint:'rgba(0,8,4,0.42)'
     },
     {
@@ -271,7 +271,7 @@ const LEVELS = [
         id:34, name:"LANCER BLITZ",
         story:["Lancer strike craft tear through your defences.", "Their triple column fire is nearly undodgeable.", "Destroy 90 lancers to end the blitz."],
         quota:90, boss:null,
-        spawnRate:0.088, enemyMix:[{type:'lancer',w:5},{type:'interceptor',w:3},{type:'phantom',w:2}],
+        spawnRate:0.088, enemyMix:[{type:'lancer',w:5},{type:'interceptor',w:2},{type:'phantom',w:1},{type:'reflector',w:2}],
         starColor:'#0fe', bgTint:'rgba(0,10,8,0.44)'
     },{
         id:35, name:"KAMIKAZE STORM",
@@ -315,7 +315,7 @@ const LEVELS = [
         id:41, name:"PULSAR INFERNO",
         story:["Pulsars ignite in every direction — no safe zone.", "Titan armour guards the flanks without mercy.", "100 kills. Weave through the inferno and survive."],
         quota:100, boss:null,
-        spawnRate:0.100, enemyMix:[{type:'pulsar',w:4},{type:'titan',w:3},{type:'bomber',w:2},{type:'drone',w:1}],
+        spawnRate:0.100, enemyMix:[{type:'pulsar',w:4},{type:'titan',w:3},{type:'bomber',w:1},{type:'drone',w:1},{type:'reflector',w:1}],
         starColor:'#f8a', bgTint:'rgba(14,5,2,0.48)'
     },{
         id:42, name:"VOID SURGE",
@@ -327,7 +327,7 @@ const LEVELS = [
         id:43, name:"LANCER ARMADA",
         story:["Lancer destroyers spread in impossible formation.", "Snipers target from extreme range — no escape.", "Destroy 95 enemies — every shot must count."],
         quota:95, boss:null,
-        spawnRate:0.098, enemyMix:[{type:'lancer',w:4},{type:'sniper',w:3},{type:'interceptor',w:2},{type:'phantom',w:1}],
+        spawnRate:0.098, enemyMix:[{type:'lancer',w:4},{type:'sniper',w:3},{type:'interceptor',w:2},{type:'reflector',w:2}],
         starColor:'#0fe', bgTint:'rgba(0,10,8,0.48)'
     },{
         id:44, name:"THE REAPER",
@@ -402,6 +402,8 @@ let comboCount = 0, comboTimer = 0;
 let nukeFlash = 0;
 let freezeTimer = 0, overdriveTimer = 0;
 let bossLoreLines = [], bossLoreHeadline = '';
+let highScore = parseInt(localStorage.getItem('neon_hs') || '0');
+let pausedFromState = null;
 
 const stars = Array.from({length:150}, () => ({
     x: Math.random()*W, y: Math.random()*H,
@@ -579,6 +581,10 @@ canvas.addEventListener('wheel', e => {
     }
 }, {passive:false});
 window.addEventListener('keydown', e => {
+    if(e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+        if(gameState === 'playing') { pausedFromState = 'playing'; gameState = 'paused'; }
+        else if(gameState === 'paused') { gameState = pausedFromState || 'playing'; }
+    }
     if(gameState === 'guide') {
         if(e.key === 'ArrowDown') guideScrollY = Math.max(0, Math.min(guideMaxScroll, guideScrollY + 40));
         else if(e.key === 'ArrowUp') guideScrollY = Math.max(0, Math.min(guideMaxScroll, guideScrollY - 40));
@@ -586,6 +592,7 @@ window.addEventListener('keydown', e => {
 });
 
 function handleTap() {
+    if(gameState === 'paused') { gameState = pausedFromState || 'playing'; return; }
     if(gameState === 'title') {
         if(lastClickY > H*0.78 && lastClickY < H*0.91) { gameState = 'guide'; guideScrollY = 0; }
         else { gameState = 'intro'; }
@@ -664,7 +671,7 @@ function startLevel(idx) {
     floatingTexts = [];
     randomEventTimer = 700; activeEventText = ''; activeEventDisplayTimer = 0;
     bonusScrapActive = false; bonusScrapTimer = 0;
-    comboCount = 0; comboTimer = 0; nukeFlash = 0;
+    comboCount = 0; comboTimer = 0; nukeFlash = 0; freezeTimer = 0; overdriveTimer = 0;
     const lvl = LEVELS[idx];
     stars.forEach(s => s.color = lvl.starColor || '#fff');
     if(lvl.boss) {
@@ -675,7 +682,10 @@ function startLevel(idx) {
 
 function nextLevel() {
     currentLevelIdx++;
-    if(currentLevelIdx >= LEVELS.length) { gameState = 'victory'; }
+    if(currentLevelIdx >= LEVELS.length) {
+        if(score > highScore) { highScore = score; localStorage.setItem('neon_hs', highScore); }
+        gameState = 'victory';
+    }
     else { gameState = 'intro'; }
 }
 
@@ -685,7 +695,7 @@ function retryLevel() {
     const rMaxHp = 3 + upgrades.maxHpBonus;
     player = { x:W/2-12, y:H*0.82, hp:rMaxHp, maxHp:rMaxHp, invincFrames:0, shieldActive:false, rapidTimer:0, laserTimer:0 };
     bots=[]; bullets=[]; particles=[]; powerups=[]; boss=null;
-    killCount=0; bossKilledThisLevel=false; fireTimer=0; floatingTexts=[];
+    killCount=0; bossKilledThisLevel=false; fireTimer=0; floatingTexts=[]; freezeTimer=0; overdriveTimer=0; comboCount=0; comboTimer=0; nukeFlash=0;
     gameState = 'intro';
 }
 
@@ -767,6 +777,8 @@ function spawnEnemy() {
         bots.push({x:ex,y:-28,v:2.2+li*0.20,hp:2,maxHp:2,color:'#f40',size:24,type:'kamikaze',drift:(Math.random()-0.5)*0.8,shootTimer:0,flashTimer:0,rushing:false});
     else if(type === 'stealth')
         bots.push({x:ex,y:-32,v:2.6+li*0.22,hp:3,maxHp:3,color:'#8f8',size:28,type:'stealth',drift:(Math.random()-0.5)*1.2,shootTimer:Math.floor(Math.random()*80),flashTimer:0,stealthPhase:Math.random()*Math.PI*2});
+    else if(type === 'reflector')
+        bots.push({x:ex,y:-30,v:1.8+li*0.16,hp:3,maxHp:3,color:'#4ff',size:28,type:'reflector',drift:0,vx:(Math.random()>0.5?1:-1)*(2.0+li*0.15),shootTimer:Math.floor(Math.random()*60),flashTimer:0});
 }
 
 function maybeDropPowerup(ex, ey) {
@@ -819,7 +831,7 @@ function playerHit() {
     player.hp--; player.invincFrames = 120;
     spawnParticles(player.x+12, player.y+12, '#f44', 15);
     playSound('hit');
-    if(player.hp <= 0) { gameState = 'gameover'; playSound('gameover'); }
+    if(player.hp <= 0) { if(score > highScore) { highScore = score; localStorage.setItem('neon_hs', highScore); } gameState = 'gameover'; playSound('gameover'); }
 }
 
 // ================================================================
@@ -1201,6 +1213,26 @@ function drawStealthShip(cx, cy, size, color, alpha) {
     ctx.closePath(); ctx.fill();
     ctx.shadowBlur=16; ctx.shadowColor='#fff'; ctx.fillStyle='rgba(255,255,255,0.75)';
     ctx.beginPath(); ctx.arc(0,-size*0.08,size*0.1,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+}
+
+function drawReflectorShip(cx, cy, size, color) {
+    ctx.save(); ctx.translate(cx+size*0.5, cy+size*0.5);
+    ctx.shadowBlur=14; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0, -size*0.28);
+    ctx.lineTo(size*0.48, 0);
+    ctx.lineTo(size*0.48, size*0.38);
+    ctx.lineTo(0, size*0.5);
+    ctx.lineTo(-size*0.48, size*0.38);
+    ctx.lineTo(-size*0.48, 0);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=20; ctx.shadowColor='#fff'; ctx.strokeStyle='#fff'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.arc(0, size*0.08, size*0.46, Math.PI*1.18, Math.PI*1.82); ctx.stroke();
+    ctx.fillStyle='rgba(0,0,0,0.6)';
+    ctx.beginPath(); ctx.arc(0, size*0.12, size*0.14, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur=12; ctx.shadowColor=color; ctx.fillStyle=color;
+    ctx.beginPath(); ctx.arc(0, size*0.12, size*0.07, 0, Math.PI*2); ctx.fill();
     ctx.restore();
 }
 
@@ -1745,6 +1777,12 @@ function drawGuideScreen() {
         { name:'DREADNOUGHT', color:'#822', size:52, hp:12, draw:'dreadnought', desc:'Colossal. 5-way spread blasts. Massive HP.',      threat:'EXTREME' },
         { name:'ZIGZAG',      color:'#0f4', size:26, hp:3,  draw:'zigzag',      desc:'Weaves side-to-side. Fires aimed shots.',          threat:'MED' },
         { name:'BERSERKER',   color:'#f50', size:30, hp:5,  draw:'berserker',   desc:'Chases your ship. Speeds up when damaged.',        threat:'HIGH' },
+        { name:'PULSAR',      color:'#f8a', size:32, hp:4,  draw:'pulsar',      desc:'Fires 6-way radial bursts. No safe angle.',        threat:'HIGH' },
+        { name:'CARRIER',     color:'#28f', size:46, hp:8,  draw:'carrier',     desc:'Continuously spawns drones. Destroy it first.',    threat:'EXTREME' },
+        { name:'LANCER',      color:'#0fe', size:20, hp:2,  draw:'lancer',      desc:'Very fast. Fires rapid 3-shot column bursts.',     threat:'HIGH' },
+        { name:'KAMIKAZE',    color:'#f40', size:24, hp:2,  draw:'kamikaze',    desc:'Drops then dives straight at your ship.',          threat:'HIGH' },
+        { name:'STEALTH',     color:'#8f8', size:28, hp:3,  draw:'stealth',     desc:'Phases in/out of visibility. Fires when visible.', threat:'HIGH' },
+        { name:'REFLECTOR',   color:'#4ff', size:28, hp:3,  draw:'reflector',   desc:'Bounces off walls. Fires aimed shots from flanks.',threat:'MED' },
     ];
     const rowH = H * 0.075;
     enemies.forEach((e, i) => {
@@ -1767,6 +1805,12 @@ function drawGuideScreen() {
         else if(e.draw==='nullifier') drawNullifierShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         else if(e.draw==='zigzag')   drawZigzagShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         else if(e.draw==='berserker') drawBerserkerShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='pulsar')    drawPulsarShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='carrier')   drawCarrierShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='lancer')    drawLancerShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='kamikaze')  drawKamikazeShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
+        else if(e.draw==='stealth')   drawStealthShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color, 1.0);
+        else if(e.draw==='reflector') drawReflectorShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         else                         drawEnemyShip(previewCX-e.size/2, previewCY-e.size/2, e.size, e.color);
         ctx.shadowBlur=8; ctx.shadowColor=e.color; ctx.fillStyle=e.color;
         ctx.font='bold 13px Courier New'; ctx.textAlign='left';
@@ -1783,11 +1827,13 @@ function drawGuideScreen() {
     ctx.fillText('— POWERUPS —', W/2, divY);
     ctx.shadowBlur=0;
     const pups = [
-        { sym:'\u2665', col:'#0f0', label:'HEALTH', desc:'Restores 1 HP' },
-        { sym:'\u26A1', col:'#ff0', label:'RAPID',  desc:'Triple rapid fire (10s)' },
-        { sym:'\u25CE', col:'#0ff', label:'SHIELD',  desc:'Absorbs one hit' },
-        { sym:'\u2606', col:'#f8f', label:'LASER',   desc:'Piercing beam (6s)' },
-        { sym:'\u2739', col:'#f40', label:'NUKE',    desc:'Clears all enemies!' },
+        { sym:'\u2665', col:'#0f0', label:'HEALTH',    desc:'Restores 1 HP' },
+        { sym:'\u26A1', col:'#ff0', label:'RAPID',     desc:'Triple rapid fire (10s)' },
+        { sym:'\u25CE', col:'#0ff', label:'SHIELD',    desc:'Absorbs one hit' },
+        { sym:'\u2606', col:'#f8f', label:'LASER',     desc:'Piercing beam (6s)' },
+        { sym:'\u2739', col:'#f40', label:'NUKE',      desc:'Clears all enemies!' },
+        { sym:'\u26A1', col:'#f80', label:'OVERDRIVE', desc:'Max fire rate (8s)' },
+        { sym:'\u2744', col:'#8ff', label:'FREEZE',    desc:'Slows all enemies (3s)' },
     ];
     const pw = W / pups.length;
     pups.forEach((p, i) => {
@@ -1806,29 +1852,36 @@ function drawGuideScreen() {
     ctx.fillText('— BOSS ENCOUNTERS —', W/2, bossY);
     ctx.shadowBlur=0;
     const bossList = [
-        {name:'GATEKEEPER',     lvl:3,  color:'#f0f'},
-        {name:'IRON BASTION',   lvl:6,  color:'#f80'},
-        {name:'DARK HERALD',    lvl:9,  color:'#a0f'},
-        {name:'VOID HARBINGER', lvl:12, color:'#0af'},
-        {name:'THE OVERLORD',   lvl:13, color:'#f04'},
-        {name:'PHANTOM KING',   lvl:16, color:'#0cf'},
-        {name:'THE ANNIHILATOR',lvl:18, color:'#fff'},
-        {name:'OMEGA SENTINEL', lvl:21, color:'#5f0'},
-        {name:'TITAN KING',     lvl:25, color:'#e22'},
-        {name:'THE NULLIFIER',  lvl:29, color:'#08f'},
-        {name:'VOID EMPEROR',   lvl:30, color:'#c0f'},
+        {name:'GATEKEEPER',      lvl:3,  color:'#f0f'},
+        {name:'IRON BASTION',    lvl:6,  color:'#f80'},
+        {name:'DARK HERALD',     lvl:9,  color:'#a0f'},
+        {name:'VOID HARBINGER',  lvl:12, color:'#0af'},
+        {name:'THE OVERLORD',    lvl:13, color:'#f04'},
+        {name:'PHANTOM KING',    lvl:16, color:'#0cf'},
+        {name:'THE ANNIHILATOR', lvl:18, color:'#fff'},
+        {name:'OMEGA SENTINEL',  lvl:21, color:'#5f0'},
+        {name:'TITAN KING',      lvl:25, color:'#e22'},
+        {name:'THE NULLIFIER',   lvl:29, color:'#08f'},
+        {name:'VOID EMPEROR',    lvl:30, color:'#c0f'},
+        {name:'THE SPECTRE',     lvl:33, color:'#adf'},
+        {name:'THE UNDYING',     lvl:36, color:'#4fa'},
+        {name:'THE ARCHITECT',   lvl:40, color:'#fa4'},
+        {name:'THE REAPER',      lvl:44, color:'#f0a'},
+        {name:'GENESIS PRIME',   lvl:48, color:'#fa0'},
+        {name:'COSMIC DESTROYER',lvl:50, color:'#fff'},
     ];
     // Three-column layout so all bosses fit
     const colMid = W * 0.22, colMid2 = W * 0.55, colRight = W * 0.82;
+    const perCol = 6;
     bossList.forEach((b, i) => {
-        const col = i < 4 ? colMid : i < 8 ? colMid2 : colRight;
-        const row = i < 4 ? i : i < 8 ? i - 4 : i - 8;
+        const col = i < perCol ? colMid : i < perCol*2 ? colMid2 : colRight;
+        const row = i % perCol;
         ctx.shadowBlur=5; ctx.shadowColor=b.color; ctx.fillStyle=b.color;
         ctx.font='12px Courier New';
         ctx.fillText('LVL '+b.lvl+': '+b.name, col, bossY+16+row*17);
     });
 
-    const contentBottom = bossY + 16 + 4*17 + 20;
+    const contentBottom = bossY + 16 + perCol*17 + 20;
     ctx.restore();
 
     // Update max scroll based on content size
@@ -1941,17 +1994,32 @@ function loop() {
 
     // --- NON-PLAYING SCREENS ---
     if(gameState === 'title') {
+        const hsLine = highScore > 0 ? 'BEST SCORE: '+highScore : '';
         drawOverlay('NEON SHOOTER', '#0ff',
             ['— A SPACE ADVENTURE —', '',
-             '30 LEVELS  \u00B7  19 ENEMY TYPES  \u00B7  11 BOSSES',
+             '50 LEVELS  \u00B7  25 ENEMY TYPES  \u00B7  17 BOSSES',
              'TRAVERSE NEBULAE, ASTEROID FIELDS',
-             'AND FACE THE VOID EMPEROR'],
+             'AND FACE THE COSMIC DESTROYER',
+             '', hsLine],
             '\u25B6  TOUCH OR CLICK TO START  \u25C0');
         ctx.textAlign='center';
         ctx.shadowBlur=14; ctx.shadowColor='#ff8'; ctx.fillStyle='#ff8';
         ctx.font='bold 16px Courier New';
         ctx.fillText('\u2139  ENEMY GUIDE  \u2139', W/2, H*0.84);
         ctx.shadowBlur=0; ctx.textAlign='left';
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'paused') {
+        ctx.fillStyle='rgba(0,0,0,0.70)'; ctx.fillRect(0,0,W,H);
+        ctx.textAlign='center';
+        ctx.shadowBlur=22; ctx.shadowColor='#0ff'; ctx.fillStyle='#0ff';
+        ctx.font='bold 40px Courier New';
+        ctx.fillText('PAUSED', W/2, H*0.38);
+        ctx.shadowBlur=0; ctx.fillStyle='#888'; ctx.font='16px Courier New';
+        ctx.fillText('PRESS ESC / P  OR  CLICK TO RESUME', W/2, H*0.52);
+        ctx.fillStyle='#444'; ctx.font='13px Courier New';
+        ctx.fillText('SCORE: '+score+'   \u2B21 SCRAPS: '+scraps, W/2, H*0.62);
+        ctx.textAlign='left';
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'guide') {
@@ -2002,8 +2070,8 @@ function loop() {
     }
     if(gameState === 'victory') {
         drawOverlay('MISSION COMPLETE', '#ff0',
-            ['THE VOID EMPEROR IS DESTROYED.', 'THE GALAXY IS SAVED. YOUR LEGEND IS ETERNAL.', '',
-             'FINAL SCORE: '+score, 'ALL 30 LEVELS CLEARED!'],
+            ['THE COSMIC DESTROYER IS ANNIHILATED.', 'THE GALAXY IS SAVED. YOUR LEGEND IS ETERNAL.', '',
+             'FINAL SCORE: '+score, 'ALL 50 LEVELS CLEARED!'],
             '\u25B6  TOUCH OR CLICK TO PLAY AGAIN  \u25C0');
         requestAnimationFrame(loop); return;
     }
@@ -2368,6 +2436,17 @@ function loop() {
                 const a=Math.atan2(player.y+12-b.y,player.x+12-b.x);
                 bullets.push({x:b.x+b.size/2,y:b.y+b.size*0.8,v:Math.sin(a)*5,vx:Math.cos(a)*5,enemy:true,width:4});
             }
+        } else if(b.type==='reflector') {
+            if(freezeTimer <= 0) {
+                b.x += b.vx;
+                if(b.x < 5 || b.x > W - b.size - 5) { b.vx *= -1; b.x = Math.max(5, Math.min(W - b.size - 5, b.x)); }
+            }
+            b.shootTimer++;
+            if(b.shootTimer >= Math.max(30, 72-currentLevelIdx*2)) {
+                b.shootTimer=0;
+                const a=Math.atan2(player.y+12-b.y, player.x+12-b.x);
+                bullets.push({x:b.x+b.size/2, y:b.y+b.size*0.8, v:Math.sin(a)*4.5, vx:Math.cos(a)*4.5, enemy:true, width:4});
+            }
         }
         if(b.type==='asteroid')      drawAsteroid(b.x,b.y,b.size,b.color);
         else if(b.type==='heavy')    drawHeavyShip(b.x,b.y,b.size,b.color);
@@ -2391,6 +2470,7 @@ function loop() {
         else if(b.type==='lancer')    drawLancerShip(b.x,b.y,b.size,b.color);
         else if(b.type==='kamikaze')  drawKamikazeShip(b.x,b.y,b.size,b.color);
         else if(b.type==='stealth')   drawStealthShip(b.x,b.y,b.size,b.color,0.18+Math.abs(Math.sin(b.stealthPhase||0))*0.82);
+        else if(b.type==='reflector') drawReflectorShip(b.x,b.y,b.size,b.color);
         else                         drawEnemyShip(b.x,b.y,b.size,b.color);
         if(b.flashTimer > 0) {
             b.flashTimer--;
