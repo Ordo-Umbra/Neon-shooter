@@ -17,11 +17,14 @@ const W = canvas.width, H = canvas.height;
 // ================================================================
 // SHIP CUSTOMISATION OPTIONS
 // ================================================================
-const HULL_NAMES  = ['STANDARD','ANGULAR','WIDE','SLEEK','RAZOR'];
-const SHIP_COLORS = ['#0ff','#0f8','#ff8','#f0f','#f80','#fff','#80f'];
-const SHIP_COLOR_NAMES = ['CYAN','EMERALD','GOLD','MAGENTA','AMBER','WHITE','VIOLET'];
-const ENGINE_COLORS = ['#08f','#f80','#0f8','#a0f'];
-const ENGINE_NAMES  = ['BLUE','AMBER','GREEN','PURPLE'];
+const HULL_NAMES  = ['STANDARD','ANGULAR','WIDE','SLEEK','RAZOR','PHANTOM','TITAN','BLADE','DIAMOND','VIPER'];
+const HULL_PRICES = [0,0,0,0,0, 40,60,80,100,120];
+const SHIP_COLORS = ['#0ff','#0f8','#ff8','#f0f','#f80','#fff','#80f','#f00','#f4c','#0df','#f40','#4f4','#88f','#fa0'];
+const SHIP_COLOR_NAMES = ['CYAN','EMERALD','GOLD','MAGENTA','AMBER','WHITE','VIOLET','SCARLET','ROSE','ICE','BLAZE','LIME','INDIGO','SOLAR'];
+const COLOR_PRICES = [0,0,0,0,0,0,0, 25,25,30,25,30,35,35];
+const ENGINE_COLORS = ['#08f','#f80','#0f8','#a0f','#f00','#0ff','#fff','#ff0','#f0a'];
+const ENGINE_NAMES  = ['BLUE','AMBER','GREEN','PURPLE','RED','CYAN','WHITE','GOLD','PINK'];
+const ENGINE_PRICES = [0,0,0,0, 20,20,20,20,20];
 
 // ================================================================
 // LEVEL DEFINITIONS  (50 levels, 14 boss fights)
@@ -1121,6 +1124,10 @@ let freezeTimer = 0, overdriveTimer = 0;
 let bossLoreLines = [], bossLoreHeadline = '';
 let highScore = parseInt(localStorage.getItem('neon_hs') || '0');
 let pausedFromState = null;
+let ownedHulls   = [true,true,true,true,true, false,false,false,false,false];
+let ownedColors  = [true,true,true,true,true,true,true, false,false,false,false,false,false,false];
+let ownedEngines = [true,true,true,true, false,false,false,false,false];
+let shopTab = 'upgrades', partsSubTab = 'hulls';
 
 const stars = Array.from({length:150}, () => ({
     x: Math.random()*W, y: Math.random()*H,
@@ -1324,27 +1331,61 @@ function handleTap() {
         } else { nextLevel(); }
     }
     else if(gameState === 'shop') {
-        const rH = H*0.115, r0 = H*0.315;
-        if(lastClickY >= r0 && lastClickY < r0+rH) {
-            if(scraps >= 15 && player.hp < player.maxHp) { scraps -= 15; player.hp++; }
-        } else if(lastClickY >= r0+rH && lastClickY < r0+2*rH) {
-            if(scraps >= 30 && upgrades.fireRate < 2) { scraps -= 30; upgrades.fireRate++; }
-        } else if(lastClickY >= r0+2*rH && lastClickY < r0+3*rH) {
-            if(scraps >= 50 && upgrades.maxHpBonus < 2) { scraps -= 50; upgrades.maxHpBonus++; player.maxHp = 3 + upgrades.maxHpBonus; }
-        } else if(lastClickY >= r0+3*rH && lastClickY < r0+4*rH) {
-            if(scraps >= 20 && !upgrades.shieldOnStart) { scraps -= 20; upgrades.shieldOnStart = true; }
-        } else if(lastClickY > H*0.82) {
-            gameState = 'levelComplete';
+        // Tab bar click
+        if(lastClickY >= H*0.245 && lastClickY < H*0.31) {
+            shopTab = (lastClickX < W/2) ? 'upgrades' : 'parts';
+        } else if(shopTab === 'upgrades') {
+            const rH = H*0.108, r0 = H*0.365;
+            if(lastClickY >= r0 && lastClickY < r0+rH) {
+                if(scraps >= 15 && player.hp < player.maxHp) { scraps -= 15; player.hp++; }
+            } else if(lastClickY >= r0+rH && lastClickY < r0+2*rH) {
+                if(scraps >= 30 && upgrades.fireRate < 2) { scraps -= 30; upgrades.fireRate++; }
+            } else if(lastClickY >= r0+2*rH && lastClickY < r0+3*rH) {
+                if(scraps >= 50 && upgrades.maxHpBonus < 2) { scraps -= 50; upgrades.maxHpBonus++; player.maxHp = 3 + upgrades.maxHpBonus; }
+            } else if(lastClickY >= r0+3*rH && lastClickY < r0+4*rH) {
+                if(scraps >= 20 && !upgrades.shieldOnStart) { scraps -= 20; upgrades.shieldOnStart = true; }
+            } else if(lastClickY > H*0.89) { gameState = 'levelComplete'; }
+        } else {
+            // PARTS tab — sub-tab bar
+            if(lastClickY >= H*0.325 && lastClickY < H*0.385) {
+                if(lastClickX < W*0.38) partsSubTab = 'hulls';
+                else if(lastClickX < W*0.66) partsSubTab = 'colors';
+                else partsSubTab = 'engines';
+            } else {
+                const itemH = H*0.072, itemStart = H*0.395;
+                const idx = Math.floor((lastClickY - itemStart) / itemH);
+                if(idx >= 0 && lastClickY < H*0.89) {
+                    if(partsSubTab === 'hulls') {
+                        const shopIdxs = HULL_PRICES.map((_,i)=>i).filter(i=>HULL_PRICES[i]>0);
+                        if(idx < shopIdxs.length) {
+                            const hi = shopIdxs[idx];
+                            if(!ownedHulls[hi] && scraps >= HULL_PRICES[hi]) { scraps -= HULL_PRICES[hi]; ownedHulls[hi] = true; }
+                        }
+                    } else if(partsSubTab === 'colors') {
+                        const shopIdxs = COLOR_PRICES.map((_,i)=>i).filter(i=>COLOR_PRICES[i]>0);
+                        if(idx < shopIdxs.length) {
+                            const ci = shopIdxs[idx];
+                            if(!ownedColors[ci] && scraps >= COLOR_PRICES[ci]) { scraps -= COLOR_PRICES[ci]; ownedColors[ci] = true; }
+                        }
+                    } else {
+                        const shopIdxs = ENGINE_PRICES.map((_,i)=>i).filter(i=>ENGINE_PRICES[i]>0);
+                        if(idx < shopIdxs.length) {
+                            const ei = shopIdxs[idx];
+                            if(!ownedEngines[ei] && scraps >= ENGINE_PRICES[ei]) { scraps -= ENGINE_PRICES[ei]; ownedEngines[ei] = true; }
+                        }
+                    }
+                }
+            }
+            if(lastClickY > H*0.89) gameState = 'levelComplete';
         }
     }
     else if(gameState === 'customize') {
-        // Row centres: H*0.40 (hull), H*0.52 (color), H*0.64 (engine); rowH = H*0.09
         if(lastClickY >= H*0.34 && lastClickY < H*0.46) {
-            shipConfig.hull = (shipConfig.hull + 1) % HULL_NAMES.length;
+            shipConfig.hull = nextOwned(ownedHulls, shipConfig.hull);
         } else if(lastClickY >= H*0.46 && lastClickY < H*0.58) {
-            shipConfig.color = (shipConfig.color + 1) % SHIP_COLORS.length;
+            shipConfig.color = nextOwned(ownedColors, shipConfig.color);
         } else if(lastClickY >= H*0.58 && lastClickY < H*0.73) {
-            shipConfig.engine = (shipConfig.engine + 1) % ENGINE_NAMES.length;
+            shipConfig.engine = nextOwned(ownedEngines, shipConfig.engine);
         } else if(lastClickY >= H*0.73) {
             gameState = 'levelComplete';
         }
@@ -1374,7 +1415,20 @@ function resetGame() {
     comboCount = 0; comboTimer = 0; nukeFlash = 0;
     upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
     levelStartedWithShield = false;
+    ownedHulls   = [true,true,true,true,true, false,false,false,false,false];
+    ownedColors  = [true,true,true,true,true,true,true, false,false,false,false,false,false,false];
+    ownedEngines = [true,true,true,true, false,false,false,false,false];
+    shopTab = 'upgrades'; partsSubTab = 'hulls';
     gameState = 'title';
+}
+
+function nextOwned(arr, current) {
+    const len = arr.length;
+    for(let i = 1; i <= len; i++) {
+        const next = (current + i) % len;
+        if(arr[next]) return next;
+    }
+    return current;
 }
 
 function startLevel(idx) {
@@ -1576,6 +1630,39 @@ function drawPlayerShip(cx, cy, color) {
             ctx.moveTo(0,-sz*1.4); ctx.lineTo(sz*0.18,sz*0.0);
             ctx.lineTo(sz*0.42,sz*0.55); ctx.lineTo(0,sz*0.3);
             ctx.lineTo(-sz*0.42,sz*0.55); ctx.lineTo(-sz*0.18,sz*0.0);
+            break;
+        case 5: // PHANTOM — ghost needle with swept wing-tips
+            ctx.moveTo(0,-sz*1.5); ctx.lineTo(sz*0.15,sz*0.0);
+            ctx.lineTo(sz*0.55,sz*0.52); ctx.lineTo(sz*0.2,sz*0.38);
+            ctx.lineTo(0,sz*0.7);
+            ctx.lineTo(-sz*0.2,sz*0.38); ctx.lineTo(-sz*0.55,sz*0.52);
+            ctx.lineTo(-sz*0.15,sz*0.0);
+            break;
+        case 6: // TITAN — wide armoured battle-cruiser
+            ctx.moveTo(0,-sz*0.75); ctx.lineTo(sz*0.95,sz*0.1);
+            ctx.lineTo(sz*0.88,sz*0.75); ctx.lineTo(sz*0.28,sz*0.88);
+            ctx.lineTo(0,sz*0.6);
+            ctx.lineTo(-sz*0.28,sz*0.88); ctx.lineTo(-sz*0.88,sz*0.75);
+            ctx.lineTo(-sz*0.95,sz*0.1);
+            break;
+        case 7: // BLADE — pure scalpel shape
+            ctx.moveTo(0,-sz*1.6); ctx.lineTo(sz*0.12,sz*0.1);
+            ctx.lineTo(sz*0.62,sz*0.78); ctx.lineTo(0,sz*0.52);
+            ctx.lineTo(-sz*0.62,sz*0.78); ctx.lineTo(-sz*0.12,sz*0.1);
+            break;
+        case 8: // DIAMOND — perfect rhombus with cut corners
+            ctx.moveTo(0,-sz*1.1); ctx.lineTo(sz*0.5,-sz*0.18);
+            ctx.lineTo(sz*0.75,sz*0.2); ctx.lineTo(sz*0.38,sz*0.88);
+            ctx.lineTo(0,sz*0.65);
+            ctx.lineTo(-sz*0.38,sz*0.88); ctx.lineTo(-sz*0.75,sz*0.2);
+            ctx.lineTo(-sz*0.5,-sz*0.18);
+            break;
+        case 9: // VIPER — swept fangs with twin tail fins
+            ctx.moveTo(0,-sz*1.25); ctx.lineTo(sz*0.22,sz*0.05);
+            ctx.lineTo(sz*0.68,sz*0.28); ctx.lineTo(sz*0.48,sz*0.62);
+            ctx.lineTo(sz*0.18,sz*0.44); ctx.lineTo(0,sz*0.55);
+            ctx.lineTo(-sz*0.18,sz*0.44); ctx.lineTo(-sz*0.48,sz*0.62);
+            ctx.lineTo(-sz*0.68,sz*0.28); ctx.lineTo(-sz*0.22,sz*0.05);
             break;
         default: // STANDARD - original shape
             ctx.moveTo(0,-sz); ctx.lineTo(sz*0.55,sz*0.65); ctx.lineTo(0,sz*0.25); ctx.lineTo(-sz*0.55,sz*0.65);
@@ -2611,7 +2698,6 @@ function drawBossLoreScreen() {
 function drawCustomizeScreen() {
     ctx.fillStyle='rgba(0,0,0,0.90)'; ctx.fillRect(0,0,W,H);
     ctx.textAlign='center';
-    // Title
     ctx.shadowBlur=22; ctx.shadowColor='#ff0'; ctx.fillStyle='#ff0';
     ctx.font='bold 28px Courier New';
     ctx.fillText('\u2605  CUSTOMIZE YOUR SHIP  \u2605', W/2, H*0.10);
@@ -2625,7 +2711,11 @@ function drawCustomizeScreen() {
     drawPlayerShip(0, 0, SHIP_COLORS[shipConfig.color]);
     ctx.restore();
 
-    // Section row helper
+    // Owned counts per category
+    const ownedHullCount   = ownedHulls.filter(Boolean).length;
+    const ownedColorCount  = ownedColors.filter(Boolean).length;
+    const ownedEngineCount = ownedEngines.filter(Boolean).length;
+
     const rowH = H*0.09;
     function drawRow(label, optName, rowY, col) {
         ctx.fillStyle = 'rgba(255,255,255,0.06)';
@@ -2635,16 +2725,26 @@ function drawCustomizeScreen() {
         ctx.fillText(label + ':  \u25C4  ' + optName + '  \u25BA', W/2, rowY + 6);
         ctx.shadowBlur=0;
     }
-    drawRow('HULL',   HULL_NAMES[shipConfig.hull],           H*0.40, '#0ff');
-    drawRow('COLOR',  SHIP_COLOR_NAMES[shipConfig.color],    H*0.52, SHIP_COLORS[shipConfig.color]);
-    drawRow('ENGINE', ENGINE_NAMES[shipConfig.engine],       H*0.64, ENGINE_COLORS[shipConfig.engine]);
+    drawRow('HULL ('+ownedHullCount+'/'+ownedHulls.length+')',
+            HULL_NAMES[shipConfig.hull],        H*0.40, '#0ff');
+    drawRow('COLOR ('+ownedColorCount+'/'+ownedColors.length+')',
+            SHIP_COLOR_NAMES[shipConfig.color], H*0.52, SHIP_COLORS[shipConfig.color]);
+    drawRow('ENGINE ('+ownedEngineCount+'/'+ownedEngines.length+')',
+            ENGINE_NAMES[shipConfig.engine],    H*0.64, ENGINE_COLORS[shipConfig.engine]);
 
-    // Confirm footer
+    // Shop hint when locked items remain
+    const hasLocked = ownedHullCount < ownedHulls.length ||
+                      ownedColorCount < ownedColors.length ||
+                      ownedEngineCount < ownedEngines.length;
+    if(hasLocked) {
+        ctx.fillStyle='#f80'; ctx.font='12px Courier New';
+        ctx.fillText('\u2B21  MORE PARTS AVAILABLE IN THE SHOP  \u2B21', W/2, H*0.74);
+    }
+
     ctx.fillStyle='#666'; ctx.font='15px Courier New';
     ctx.fillText('\u25B6  CONFIRM & CONTINUE  \u25C0', W/2, H*0.85);
     ctx.textAlign='left'; ctx.shadowBlur=0;
 }
-
 function drawGuideScreen() {
     ctx.fillStyle='rgba(0,0,0,0.96)'; ctx.fillRect(0,0,W,H);
 
@@ -2822,53 +2922,195 @@ function drawShopScreen() {
     ctx.fillText('\u2B21  SCRAP SHOP  \u2B21', W/2, H*0.12);
     ctx.shadowBlur=0;
     ctx.fillStyle='#0ff'; ctx.font='20px Courier New';
-    ctx.fillText('SCRAPS: '+scraps, W/2, H*0.21);
-    ctx.fillStyle='#555'; ctx.font='13px Courier New';
-    ctx.fillText('Tap an item to purchase', W/2, H*0.27);
+    ctx.fillText('SCRAPS: '+scraps, W/2, H*0.20);
 
-    const items = [
-        { name:'REPAIR HULL',   desc:'Restore 1 HP',
-          cost:15, col:'#0f0',  canBuy: scraps>=15 && player.hp<player.maxHp,
-          note: player.hp>=player.maxHp ? '(FULL HP)' : '' },
-        { name:'RAPID BOOST',   desc:'Fire rate +1  ('+upgrades.fireRate+'/2)',
-          cost:30, col:'#ff0',  canBuy: scraps>=30 && upgrades.fireRate<2,
-          note: upgrades.fireRate>=2 ? '(MAXED)' : '' },
-        { name:'HULL PLATE',    desc:'+1 Max HP  ('+upgrades.maxHpBonus+'/2)',
-          cost:50, col:'#0ff',  canBuy: scraps>=50 && upgrades.maxHpBonus<2,
-          note: upgrades.maxHpBonus>=2 ? '(MAXED)' : '' },
-        { name:'SHIELD CHARGE', desc:'Start next level with shield',
-          cost:20, col:'#a0f',  canBuy: scraps>=20 && !upgrades.shieldOnStart,
-          note: upgrades.shieldOnStart ? '(READY)' : '' },
-    ];
-    const rowH = H*0.115;
-    items.forEach((item, i) => {
-        const rowY = H*0.315 + i*rowH;
-        ctx.fillStyle = item.canBuy ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)';
-        ctx.fillRect(W*0.07, rowY, W*0.86, rowH*0.88);
-        ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor = item.col;
-        ctx.fillStyle = item.canBuy ? item.col : '#444';
-        ctx.font='bold 15px Courier New'; ctx.textAlign='left';
-        ctx.fillText(item.name, W*0.12, rowY+rowH*0.42);
-        ctx.shadowBlur=0; ctx.fillStyle = item.canBuy ? '#aaa' : '#444';
-        ctx.font='12px Courier New';
-        ctx.fillText(item.desc, W*0.12, rowY+rowH*0.75);
-        ctx.textAlign='right';
-        ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor='#ff0';
-        ctx.fillStyle = item.canBuy ? '#ff0' : '#443300';
-        ctx.font='bold 16px Courier New';
-        ctx.fillText('\u2B21 '+item.cost, W*0.88, rowY+rowH*0.42);
-        if(item.note) {
-            ctx.shadowBlur=0; ctx.fillStyle='#777'; ctx.font='12px Courier New';
-            ctx.fillText(item.note, W*0.88, rowY+rowH*0.75);
+    // Tab bar: UPGRADES | SHIP PARTS
+    const tabY = H*0.245, tabH = H*0.065;
+    ctx.fillStyle = shopTab==='upgrades' ? 'rgba(0,255,255,0.15)' : 'rgba(255,255,255,0.04)';
+    ctx.fillRect(0, tabY, W/2, tabH);
+    ctx.shadowBlur = shopTab==='upgrades' ? 10 : 0; ctx.shadowColor='#0ff';
+    ctx.fillStyle = shopTab==='upgrades' ? '#0ff' : '#555';
+    ctx.font='bold 14px Courier New';
+    ctx.fillText('UPGRADES', W*0.25, tabY + tabH*0.65);
+    ctx.fillStyle = shopTab==='parts' ? 'rgba(255,160,0,0.15)' : 'rgba(255,255,255,0.04)';
+    ctx.fillRect(W/2, tabY, W/2, tabH);
+    ctx.shadowBlur = shopTab==='parts' ? 10 : 0; ctx.shadowColor='#fa0';
+    ctx.fillStyle = shopTab==='parts' ? '#fa0' : '#555';
+    ctx.fillText('SHIP PARTS', W*0.75, tabY + tabH*0.65);
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#333'; ctx.fillRect(0, tabY+tabH, W, 1);
+
+    if(shopTab === 'upgrades') {
+        const items = [
+            { name:'REPAIR HULL',   desc:'Restore 1 HP',
+              cost:15, col:'#0f0',  canBuy: scraps>=15 && player.hp<player.maxHp,
+              note: player.hp>=player.maxHp ? '(FULL HP)' : '' },
+            { name:'RAPID BOOST',   desc:'Fire rate +1  ('+upgrades.fireRate+'/2)',
+              cost:30, col:'#ff0',  canBuy: scraps>=30 && upgrades.fireRate<2,
+              note: upgrades.fireRate>=2 ? '(MAXED)' : '' },
+            { name:'HULL PLATE',    desc:'+1 Max HP  ('+upgrades.maxHpBonus+'/2)',
+              cost:50, col:'#0ff',  canBuy: scraps>=50 && upgrades.maxHpBonus<2,
+              note: upgrades.maxHpBonus>=2 ? '(MAXED)' : '' },
+            { name:'SHIELD CHARGE', desc:'Start next level with shield',
+              cost:20, col:'#a0f',  canBuy: scraps>=20 && !upgrades.shieldOnStart,
+              note: upgrades.shieldOnStart ? '(READY)' : '' },
+        ];
+        const rowH = H*0.108, r0 = H*0.365;
+        items.forEach((item, i) => {
+            const rowY = r0 + i*rowH;
+            ctx.fillStyle = item.canBuy ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)';
+            ctx.fillRect(W*0.07, rowY, W*0.86, rowH*0.88);
+            ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor = item.col;
+            ctx.fillStyle = item.canBuy ? item.col : '#444';
+            ctx.font='bold 15px Courier New'; ctx.textAlign='left';
+            ctx.fillText(item.name, W*0.12, rowY+rowH*0.42);
+            ctx.shadowBlur=0; ctx.fillStyle = item.canBuy ? '#aaa' : '#444';
+            ctx.font='12px Courier New';
+            ctx.fillText(item.desc, W*0.12, rowY+rowH*0.75);
+            ctx.textAlign='right';
+            ctx.shadowBlur = item.canBuy ? 8 : 0; ctx.shadowColor='#ff0';
+            ctx.fillStyle = item.canBuy ? '#ff0' : '#443300';
+            ctx.font='bold 16px Courier New';
+            ctx.fillText('\u2B21 '+item.cost, W*0.88, rowY+rowH*0.42);
+            if(item.note) {
+                ctx.shadowBlur=0; ctx.fillStyle='#777'; ctx.font='12px Courier New';
+                ctx.fillText(item.note, W*0.88, rowY+rowH*0.75);
+            }
+            ctx.textAlign='center';
+        });
+    } else {
+        // PARTS sub-tab bar: HULLS | COLORS | ENGINES
+        const stY = H*0.325, stH = H*0.06;
+        const stTabs = ['HULLS','COLORS','ENGINES'];
+        const tabW = W/3;
+        stTabs.forEach((t, i) => {
+            const active = partsSubTab === t.toLowerCase();
+            ctx.fillStyle = active ? 'rgba(255,200,0,0.18)' : 'rgba(255,255,255,0.04)';
+            ctx.fillRect(i*tabW, stY, tabW, stH);
+            ctx.shadowBlur = active ? 8 : 0; ctx.shadowColor='#ff8';
+            ctx.fillStyle = active ? '#ff8' : '#555';
+            ctx.font='bold 13px Courier New';
+            ctx.fillText(t, i*tabW + tabW/2, stY + stH*0.67);
+        });
+        ctx.shadowBlur=0;
+        ctx.fillStyle='#333'; ctx.fillRect(0, stY+stH, W, 1);
+
+        const itemH = H*0.072, itemStart = H*0.395;
+
+        if(partsSubTab === 'hulls') {
+            const shopIdxs = HULL_PRICES.map((_,i)=>i).filter(i=>HULL_PRICES[i]>0);
+            shopIdxs.forEach((hi, row) => {
+                const rowY = itemStart + row*itemH;
+                const owned = ownedHulls[hi];
+                const affordable = !owned && scraps >= HULL_PRICES[hi];
+                ctx.fillStyle = owned ? 'rgba(0,255,100,0.08)' : affordable ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)';
+                ctx.fillRect(W*0.05, rowY, W*0.9, itemH*0.9);
+                ctx.save();
+                ctx.translate(W*0.13, rowY + itemH*0.45);
+                ctx.scale(1.4, 1.4);
+                const savedHull = shipConfig.hull;
+                shipConfig.hull = hi;
+                drawPlayerShip(0, 0, owned ? SHIP_COLORS[shipConfig.color] : '#555');
+                shipConfig.hull = savedHull;
+                ctx.restore();
+                ctx.shadowBlur = owned ? 6 : affordable ? 4 : 0;
+                ctx.shadowColor = owned ? '#0f4' : '#0ff';
+                ctx.fillStyle = owned ? '#0f4' : affordable ? '#0ff' : '#444';
+                ctx.font='bold 13px Courier New'; ctx.textAlign='left';
+                ctx.fillText(HULL_NAMES[hi], W*0.22, rowY + itemH*0.55);
+                ctx.shadowBlur=0; ctx.textAlign='right';
+                if(owned) {
+                    ctx.fillStyle='#0f4'; ctx.font='bold 12px Courier New';
+                    ctx.fillText('OWNED', W*0.93, rowY + itemH*0.55);
+                } else {
+                    ctx.shadowBlur = affordable ? 8 : 0; ctx.shadowColor='#ff0';
+                    ctx.fillStyle = affordable ? '#ff0' : '#443300';
+                    ctx.font='bold 14px Courier New';
+                    ctx.fillText('\u2B21 '+HULL_PRICES[hi], W*0.93, rowY + itemH*0.55);
+                    ctx.shadowBlur=0;
+                    if(!affordable) {
+                        ctx.fillStyle='#444'; ctx.font='10px Courier New';
+                        ctx.fillText('NEED '+(HULL_PRICES[hi]-scraps)+' MORE', W*0.93, rowY + itemH*0.82);
+                    }
+                }
+                ctx.textAlign='center';
+            });
+        } else if(partsSubTab === 'colors') {
+            const shopIdxs = COLOR_PRICES.map((_,i)=>i).filter(i=>COLOR_PRICES[i]>0);
+            shopIdxs.forEach((ci, row) => {
+                const rowY = itemStart + row*itemH;
+                const owned = ownedColors[ci];
+                const affordable = !owned && scraps >= COLOR_PRICES[ci];
+                ctx.fillStyle = owned ? 'rgba(0,255,100,0.08)' : affordable ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)';
+                ctx.fillRect(W*0.05, rowY, W*0.9, itemH*0.9);
+                ctx.shadowBlur = 10; ctx.shadowColor = SHIP_COLORS[ci];
+                ctx.fillStyle = owned ? SHIP_COLORS[ci] : '#222';
+                ctx.fillRect(W*0.08, rowY + itemH*0.15, W*0.1, itemH*0.65);
+                ctx.strokeStyle = SHIP_COLORS[ci]; ctx.lineWidth=1.5;
+                ctx.strokeRect(W*0.08, rowY + itemH*0.15, W*0.1, itemH*0.65);
+                ctx.shadowBlur=0;
+                ctx.fillStyle = owned ? SHIP_COLORS[ci] : affordable ? '#aaa' : '#444';
+                ctx.font='bold 13px Courier New'; ctx.textAlign='left';
+                ctx.fillText(SHIP_COLOR_NAMES[ci], W*0.22, rowY + itemH*0.55);
+                ctx.textAlign='right';
+                if(owned) {
+                    ctx.fillStyle='#0f4'; ctx.font='bold 12px Courier New';
+                    ctx.fillText('OWNED', W*0.93, rowY + itemH*0.55);
+                } else {
+                    ctx.shadowBlur = affordable ? 8 : 0; ctx.shadowColor='#ff0';
+                    ctx.fillStyle = affordable ? '#ff0' : '#443300';
+                    ctx.font='bold 14px Courier New';
+                    ctx.fillText('\u2B21 '+COLOR_PRICES[ci], W*0.93, rowY + itemH*0.55);
+                    ctx.shadowBlur=0;
+                    if(!affordable) {
+                        ctx.fillStyle='#444'; ctx.font='10px Courier New';
+                        ctx.fillText('NEED '+(COLOR_PRICES[ci]-scraps)+' MORE', W*0.93, rowY + itemH*0.82);
+                    }
+                }
+                ctx.textAlign='center';
+            });
+        } else {
+            const shopIdxs = ENGINE_PRICES.map((_,i)=>i).filter(i=>ENGINE_PRICES[i]>0);
+            shopIdxs.forEach((ei, row) => {
+                const rowY = itemStart + row*itemH;
+                const owned = ownedEngines[ei];
+                const affordable = !owned && scraps >= ENGINE_PRICES[ei];
+                ctx.fillStyle = owned ? 'rgba(0,255,100,0.08)' : affordable ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)';
+                ctx.fillRect(W*0.05, rowY, W*0.9, itemH*0.9);
+                ctx.shadowBlur = 10; ctx.shadowColor = ENGINE_COLORS[ei];
+                ctx.fillStyle = owned ? ENGINE_COLORS[ei] : '#222';
+                ctx.beginPath(); ctx.arc(W*0.13, rowY + itemH*0.45, itemH*0.28, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = ENGINE_COLORS[ei]; ctx.lineWidth=1.5;
+                ctx.beginPath(); ctx.arc(W*0.13, rowY + itemH*0.45, itemH*0.28, 0, Math.PI*2); ctx.stroke();
+                ctx.shadowBlur=0;
+                ctx.fillStyle = owned ? ENGINE_COLORS[ei] : affordable ? '#aaa' : '#444';
+                ctx.font='bold 13px Courier New'; ctx.textAlign='left';
+                ctx.fillText(ENGINE_NAMES[ei], W*0.22, rowY + itemH*0.55);
+                ctx.textAlign='right';
+                if(owned) {
+                    ctx.fillStyle='#0f4'; ctx.font='bold 12px Courier New';
+                    ctx.fillText('OWNED', W*0.93, rowY + itemH*0.55);
+                } else {
+                    ctx.shadowBlur = affordable ? 8 : 0; ctx.shadowColor='#ff0';
+                    ctx.fillStyle = affordable ? '#ff0' : '#443300';
+                    ctx.font='bold 14px Courier New';
+                    ctx.fillText('\u2B21 '+ENGINE_PRICES[ei], W*0.93, rowY + itemH*0.55);
+                    ctx.shadowBlur=0;
+                    if(!affordable) {
+                        ctx.fillStyle='#444'; ctx.font='10px Courier New';
+                        ctx.fillText('NEED '+(ENGINE_PRICES[ei]-scraps)+' MORE', W*0.93, rowY + itemH*0.82);
+                    }
+                }
+                ctx.textAlign='center';
+            });
         }
-        ctx.textAlign='center';
-    });
+    }
+
     ctx.shadowBlur=12; ctx.shadowColor='#0ff'; ctx.fillStyle='#0ff';
     ctx.font='bold 16px Courier New';
     ctx.fillText('\u25B6  LEAVE SHOP  \u25C0', W/2, H*0.93);
     ctx.shadowBlur=0; ctx.textAlign='left';
 }
-
 // ================================================================
 // MAIN LOOP
 // ================================================================
