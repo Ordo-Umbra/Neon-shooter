@@ -1128,6 +1128,13 @@ let ownedHulls   = [true,true,true,true,true, false,false,false,false,false];
 let ownedColors  = [true,true,true,true,true,true,true, false,false,false,false,false,false,false];
 let ownedEngines = [true,true,true,true, false,false,false,false,false];
 let shopTab = 'upgrades', partsSubTab = 'hulls';
+let endlessMode = false, endlessWave = 0, endlessNextBoss = 50;
+let bossHullShapes = [], bossHullNames = [], bossHullColors = [];
+let konamiIdx = 0, neonBuf = '', rainbowMode = false, rainbowTimer = 0;
+let easter42shown = false, easter1337shown = false;
+let titleTapCount = 0, titleTapTimer = 0;
+let cornerSeq = 0, cornerTimer = 0, cornerInvincTimer = 0;
+let devModeUnlocked = false;
 
 const stars = Array.from({length:150}, () => ({
     x: Math.random()*W, y: Math.random()*H,
@@ -1305,6 +1312,30 @@ canvas.addEventListener('wheel', e => {
     }
 }, {passive:false});
 window.addEventListener('keydown', e => {
+    // Easter egg: Konami code
+    const KONAMI=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    const kk = e.key;
+    if(kk === KONAMI[konamiIdx]) {
+        konamiIdx++;
+        if(konamiIdx >= KONAMI.length) {
+            konamiIdx=0;
+            ownedHulls = ownedHulls.map(()=>true);
+            ownedColors = ownedColors.map(()=>true);
+            ownedEngines = ownedEngines.map(()=>true);
+            scraps += 500; devModeUnlocked = true;
+            floatingTexts.push({x:W/2,y:H*0.4,text:'\u2605 KONAMI CODE: +500 SCRAPS \u2605',color:'#ff0',life:3,decay:0.005,vy:-0.3});
+            floatingTexts.push({x:W/2,y:H*0.48,text:'ALL PARTS UNLOCKED!',color:'#0ff',life:3,decay:0.005,vy:-0.3});
+            playSound('powerup');
+        }
+    } else { konamiIdx = (kk===KONAMI[0]) ? 1 : 0; }
+    // Easter egg: type NEON during play for rainbow mode
+    if(gameState==='playing' && kk && kk.length===1) {
+        neonBuf=(neonBuf+kk.toLowerCase()).slice(-4);
+        if(neonBuf==='neon') { rainbowMode=true; rainbowTimer=900; neonBuf='';
+            floatingTexts.push({x:W/2,y:H*0.35,text:'\u25C6 RAINBOW MODE \u25C6',color:'#f0f',life:2.5,decay:0.006,vy:-0.4});
+            playSound('powerup');
+        }
+    }
     if(e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
         if(gameState === 'playing') { pausedFromState = 'playing'; gameState = 'paused'; }
         else if(gameState === 'paused') { gameState = pausedFromState || 'playing'; }
@@ -1316,9 +1347,36 @@ window.addEventListener('keydown', e => {
 });
 
 function handleTap() {
+    // Easter egg: tap corners in sequence TL>TR>BR>BL for temp invincibility
+    if(gameState === 'playing') {
+        const _cx=lastClickX, _cy=lastClickY, _cz=W*0.15, _cz2=H*0.15;
+        const isTL=_cx<_cz&&_cy<_cz2, isTR=_cx>W-_cz&&_cy<_cz2;
+        const isBR=_cx>W-_cz&&_cy>H-_cz2, isBL=_cx<_cz&&_cy>H-_cz2;
+        const cornerOrder=[isTL,isTR,isBR,isBL];
+        if(cornerOrder[cornerSeq]) {
+            cornerSeq++; cornerTimer=300;
+            if(cornerSeq>=4) {
+                cornerSeq=0; cornerTimer=0; cornerInvincTimer=600;
+                floatingTexts.push({x:W/2,y:H*0.5,text:'\u25CE INVINCIBILITY! (10s)',color:'#0ff',life:2.5,decay:0.006,vy:-0.4});
+                playSound('powerup');
+            }
+        } else if(!cornerOrder.some(Boolean)) { cornerSeq=0; }
+    }
     if(gameState === 'paused') { gameState = pausedFromState || 'playing'; return; }
     if(gameState === 'title') {
+        // Easter egg: tap title 7 times fast
+        titleTapCount++; titleTapTimer = 180;
+        if(titleTapCount >= 7) {
+            titleTapCount = 0;
+            ownedHulls = ownedHulls.map(()=>true);
+            ownedColors = ownedColors.map(()=>true);
+            ownedEngines = ownedEngines.map(()=>true);
+            scraps += 500; devModeUnlocked = true;
+            for(let i=0;i<40;i++) spawnParticles(Math.random()*W, Math.random()*H, ['#f0f','#0ff','#ff0','#0f0'][i%4], 5);
+            floatingTexts.push({x:W/2,y:H*0.5,text:'\u2605 DEV MODE UNLOCKED \u2605',color:'#ff0',life:3,decay:0.005,vy:-0.3});
+        }
         if(lastClickY > H*0.78 && lastClickY < H*0.91) { gameState = 'guide'; guideScrollY = 0; }
+        else if(lastClickY > H*0.67 && lastClickY < H*0.78) { startEndless(); }
         else { gameState = 'intro'; }
     }
     else if(gameState === 'guide')         { gameState = 'title'; }
@@ -1396,7 +1454,10 @@ function handleTap() {
         if(currentLevelIdx >= 2) customizationUnlocked = true;
         gameState = 'levelComplete';
     }
-    else if(gameState === 'gameover')      { retryLevel(); }
+    else if(gameState === 'gameover') {
+        if(lastClickY > H*0.77) { endlessMode=false; resetGame(); }
+        else { if(endlessMode) startEndless(); else retryLevel(); }
+    }
     else if(gameState === 'victory')       { resetGame(); }
 }
 
@@ -1419,6 +1480,10 @@ function resetGame() {
     ownedColors  = [true,true,true,true,true,true,true, false,false,false,false,false,false,false];
     ownedEngines = [true,true,true,true, false,false,false,false,false];
     shopTab = 'upgrades'; partsSubTab = 'hulls';
+    endlessMode = false; endlessWave = 0; endlessNextBoss = 50;
+    bossHullShapes = []; bossHullNames = []; bossHullColors = [];
+    easter42shown = false; easter1337shown = false;
+    titleTapCount = 0; cornerSeq = 0;
     gameState = 'title';
 }
 
@@ -1429,6 +1494,36 @@ function nextOwned(arr, current) {
         if(arr[next]) return next;
     }
     return current;
+}
+
+function getHullName(idx) {
+    return idx < 10 ? HULL_NAMES[idx] : (bossHullNames[idx-10] || 'BOSS');
+}
+
+function startEndless() {
+    endlessMode = true; endlessWave = 0; endlessNextBoss = 50;
+    score = 0; levelStartScore = 0; currentLevelIdx = 0;
+    player = { x:W/2-12, y:H*0.82, hp:3, maxHp:3, invincFrames:0, shieldActive:false, rapidTimer:0, laserTimer:0 };
+    bots=[]; bullets=[]; particles=[]; powerups=[]; boss=null;
+    killCount=0; bossKilledThisLevel=false; fireTimer=0; floatingTexts=[];
+    scraps=0; screenShake=0; comboCount=0; comboTimer=0; nukeFlash=0; freezeTimer=0; overdriveTimer=0;
+    randomEventTimer=700; activeEventText=''; activeEventDisplayTimer=0;
+    bonusScrapActive=false; bonusScrapTimer=0;
+    upgrades={ fireRate:0, maxHpBonus:0, shieldOnStart:false };
+    levelStartedWithShield=false; customizationUnlocked=true;
+    easter42shown=false; easter1337shown=false;
+    stars.forEach(s => s.color='#adf');
+    gameState='playing';
+}
+
+function getEndlessEnemyMix(wave) {
+    const w = wave + 1;
+    if(w < 3)  return [{type:'scout',w:8},{type:'raider',w:2}];
+    if(w < 6)  return [{type:'scout',w:6},{type:'raider',w:4},{type:'phantom',w:2}];
+    if(w < 10) return [{type:'raider',w:5},{type:'heavy',w:3},{type:'phantom',w:4},{type:'drone',w:3}];
+    if(w < 15) return [{type:'heavy',w:4},{type:'titan',w:2},{type:'marauder',w:3},{type:'gunship',w:3},{type:'interceptor',w:2}];
+    if(w < 20) return [{type:'titan',w:4},{type:'marauder',w:3},{type:'bomber',w:3},{type:'sniper',w:2},{type:'vanguard',w:2},{type:'splitter',w:2}];
+    return [{type:'titan',w:3},{type:'vanguard',w:3},{type:'bomber',w:3},{type:'sniper',w:3},{type:'berserker',w:2},{type:'carrier',w:1},{type:'lancer',w:3},{type:'stealth',w:2}];
 }
 
 function startLevel(idx) {
@@ -1472,6 +1567,7 @@ function retryLevel() {
 
 function checkLevelComplete() {
     if(gameState !== 'playing') return;
+    if(endlessMode) return;
     const lvl = LEVELS[currentLevelIdx];
     const done = lvl.boss ? bossKilledThisLevel : (killCount >= lvl.quota);
     if(done) {
@@ -1495,10 +1591,10 @@ function spawnParticles(cx, cy, color, count) {
 }
 
 function spawnEnemy() {
-    const lvl = LEVELS[currentLevelIdx];
-    if(!lvl.enemyMix || lvl.enemyMix.length === 0) return;
-    let total = lvl.enemyMix.reduce((s,e) => s+e.w, 0), r = Math.random()*total, type = lvl.enemyMix[0].type;
-    for(let em of lvl.enemyMix) { r -= em.w; if(r <= 0) { type = em.type; break; } }
+    const mix = endlessMode ? getEndlessEnemyMix(endlessWave) : LEVELS[currentLevelIdx].enemyMix;
+    if(!mix || mix.length === 0) return;
+    let total = mix.reduce((s,e) => s+e.w, 0), r = Math.random()*total, type = mix[0].type;
+    for(let em of mix) { r -= em.w; if(r <= 0) { type = em.type; break; } }
     const ex = Math.random()*(W-50)+10, li = currentLevelIdx;
     if(type === 'scout')
         bots.push({x:ex,y:-30,v:3.5+li*0.35,hp:1,maxHp:1,color:'#f44',size:22,type:'scout',drift:(Math.random()-0.5)*1.4,shootTimer:0,flashTimer:0});
@@ -1612,6 +1708,13 @@ function drawPlayerShip(cx, cy, color) {
     const sz = 14;
     ctx.save(); ctx.translate(cx, cy);
     ctx.shadowBlur=18; ctx.shadowColor=color; ctx.fillStyle=color;
+    if(shipConfig.hull >= 10) {
+        const _bi = shipConfig.hull - 10;
+        if(_bi < bossHullShapes.length) {
+            const _bw = sz*1.8, _bh = sz*1.3;
+            drawBossShip(-_bw*0.5, -_bh*0.5, _bw, _bh, color, bossHullShapes[_bi]);
+        }
+    } else {
     ctx.beginPath();
     switch(shipConfig.hull) {
         case 1: // ANGULAR - bladed swept wings
@@ -1668,6 +1771,7 @@ function drawPlayerShip(cx, cy, color) {
             ctx.moveTo(0,-sz); ctx.lineTo(sz*0.55,sz*0.65); ctx.lineTo(0,sz*0.25); ctx.lineTo(-sz*0.55,sz*0.65);
     }
     ctx.closePath(); ctx.fill();
+    } // end boss hull else
     const engCol = ENGINE_COLORS[shipConfig.engine];
     ctx.shadowBlur=12; ctx.shadowColor=engCol; ctx.fillStyle=engCol;
     ctx.beginPath(); ctx.ellipse(0,sz*0.55,sz*0.18,sz*0.12,0,0,Math.PI*2); ctx.fill();
@@ -2647,12 +2751,30 @@ function drawHUD() {
     ctx.fillStyle='#0ff'; ctx.font='18px Courier New'; ctx.textAlign='center';
     ctx.fillText('SCORE: '+score, W/2, 30);
     ctx.fillStyle='#888'; ctx.font='13px Courier New';
-    ctx.fillText('LVL '+(currentLevelIdx+1)+' — '+LEVELS[currentLevelIdx].name, W/2, 48);
+    if(endlessMode) {
+        ctx.fillText('ENDLESS \u2014 WAVE '+(endlessWave+1), W/2, 48);
+    } else {
+        ctx.fillText('LVL '+(currentLevelIdx+1)+' \u2014 '+LEVELS[currentLevelIdx].name, W/2, 48);
+    }
     ctx.textAlign='left';
     ctx.fillStyle='#ff0'; ctx.font='16px Courier New'; ctx.textAlign='right';
     ctx.fillText('\u2B21 '+scraps, W-15, 58);
     ctx.textAlign='left';
-    if(LEVELS[currentLevelIdx].quota > 0) {
+    if(rainbowMode && rainbowTimer > 0) {
+        ctx.fillStyle='#f0f'; ctx.font='bold 12px Courier New'; ctx.textAlign='center';
+        ctx.fillText('RAINBOW MODE: '+Math.ceil(rainbowTimer/60)+'s', W/2, 64);
+        ctx.textAlign='left';
+    }
+    if(cornerInvincTimer > 0) {
+        ctx.fillStyle='#0ff'; ctx.font='bold 12px Courier New'; ctx.textAlign='center';
+        ctx.fillText('\u25CE INVINCIBLE: '+Math.ceil(cornerInvincTimer/60)+'s', W/2, 64);
+        ctx.textAlign='left';
+    }
+    if(endlessMode) {
+        ctx.fillStyle='#f0f'; ctx.font='16px Courier New'; ctx.textAlign='right';
+        ctx.fillText('KILLS: '+killCount, W-15, 36);
+        ctx.textAlign='left';
+    } else if(LEVELS[currentLevelIdx].quota > 0) {
         ctx.fillStyle='#0f0'; ctx.font='16px Courier New'; ctx.textAlign='right';
         ctx.fillText('KILLS: '+killCount+'/'+LEVELS[currentLevelIdx].quota, W-15, 36);
         ctx.textAlign='left';
@@ -3157,6 +3279,9 @@ function loop() {
         ctx.shadowBlur=14; ctx.shadowColor='#ff8'; ctx.fillStyle='#ff8';
         ctx.font='bold 16px Courier New';
         ctx.fillText('\u2139  ENEMY GUIDE  \u2139', W/2, H*0.84);
+        ctx.shadowBlur=14; ctx.shadowColor='#f0f'; ctx.fillStyle='#f0f';
+        ctx.font='bold 16px Courier New';
+        ctx.fillText('\u221e  ENDLESS MODE  \u221e', W/2, H*0.74);
         ctx.shadowBlur=0; ctx.textAlign='left';
         requestAnimationFrame(loop); return;
     }
@@ -3212,11 +3337,17 @@ function loop() {
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'gameover') {
-        drawOverlay('SHIP DESTROYED', '#f44',
-            ['LEVEL '+(currentLevelIdx+1)+': '+lvl.name, '',
-             'SCORE: '+score,  'KILLS THIS RUN: '+killCount, '',
-             'Score resets to start of this level.'],
-            '\u25B6  TOUCH OR CLICK TO RETRY  \u25C0');
+        const goTitle = endlessMode ? 'SHIP DESTROYED' : 'SHIP DESTROYED';
+        const goLines = endlessMode
+            ? ['ENDLESS WAVE: '+(endlessWave+1), '', 'SCORE: '+score, 'TOTAL KILLS: '+killCount, '']
+            : ['LEVEL '+(currentLevelIdx+1)+': '+lvl.name, '', 'SCORE: '+score, 'KILLS THIS RUN: '+killCount, '', 'Score resets to start of this level.'];
+        const goBtn = endlessMode ? '\u25B6  RETRY ENDLESS  \u25C0' : '\u25B6  TOUCH OR CLICK TO RETRY  \u25C0';
+        drawOverlay('SHIP DESTROYED', '#f44', goLines, goBtn);
+        ctx.textAlign='center';
+        ctx.shadowBlur=14; ctx.shadowColor='#888'; ctx.fillStyle='#888';
+        ctx.font='bold 16px Courier New';
+        ctx.fillText('\u25B6  MAIN MENU  \u25C0', W/2, H*0.84);
+        ctx.shadowBlur=0; ctx.textAlign='left';
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'victory') {
@@ -3315,11 +3446,20 @@ function loop() {
                 const bsc=20+currentLevelIdx*3; scraps+=bsc;
                 floatingTexts.push({x:boss.x+60,y:boss.y+45,text:'+'+bsc+'\u2B21',color:'#ff0',life:1.2,decay:0.016,vy:-1.5});
                 score+=100+currentLevelIdx*20;
-                const lvlDef=LEVELS[currentLevelIdx];
-                bossLoreHeadline=lvlDef.boss.name+' DESTROYED';
-                bossLoreLines=lvlDef.bossLore||['The enemy falls. Move forward.'];
-                boss=null; bossKilledThisLevel=true;
-                gameState='bossLore';
+                if(boss.shape && !bossHullShapes.includes(boss.shape)) {
+                    bossHullShapes.push(boss.shape); bossHullNames.push(boss.name||'BOSS'); bossHullColors.push(boss.color);
+                    ownedHulls.push(true);
+                    floatingTexts.push({x:W/2,y:H*0.42,text:'\u2605 HULL UNLOCKED: '+(boss.name||'BOSS'),color:'#f0f',life:2.5,decay:0.006,vy:-0.4});
+                }
+                if(endlessMode) {
+                    boss=null; bossKilledThisLevel=true;
+                } else {
+                    const lvlDef=LEVELS[currentLevelIdx];
+                    bossLoreHeadline=lvlDef.boss.name+' DESTROYED';
+                    bossLoreLines=lvlDef.bossLore||['The enemy falls. Move forward.'];
+                    boss=null; bossKilledThisLevel=true;
+                    gameState='bossLore';
+                }
             } else {
                 spawnParticles(boss.x+60, boss.y+45, boss.color, 2);
             }
@@ -3372,10 +3512,44 @@ function loop() {
     // Random events (non-boss levels only)
     if(!boss && !lvl.boss) {
         if(bonusScrapActive) { bonusScrapTimer--; if(bonusScrapTimer<=0) bonusScrapActive=false; }
+        // Endless mode: boss spawn + wave counter
+        if(endlessMode) {
+            if(killCount >= endlessNextBoss) {
+                endlessNextBoss += 50;
+                const bossLvl = LEVELS[Math.floor(Math.random()*LEVELS.length)];
+                if(bossLvl.boss && !boss) {
+                    boss = Object.assign({}, bossLvl.boss,
+                        {x:W/2-60, y:-120, phase:0, shootTimer:120, hp:bossLvl.boss.maxHp, flashTimer:0, pattern:0, patternTimer:0});
+                }
+            }
+            if(bossKilledThisLevel) { endlessWave++; bossKilledThisLevel=false; }
+        }
+        // Easter eggs: title tap decay, rainbow timer, corner invinc timer
+        if(titleTapTimer > 0) { titleTapTimer--; if(!titleTapTimer) titleTapCount=0; }
+        if(rainbowMode) { rainbowTimer--; if(rainbowTimer<=0) { rainbowMode=false; } }
+        if(cornerTimer > 0) { cornerTimer--; if(!cornerTimer) cornerSeq=0; }
+        if(cornerInvincTimer > 0) {
+            cornerInvincTimer--;
+            player.invincFrames = Math.max(player.invincFrames, 2);
+        }
+        if(!easter42shown && killCount===42) {
+            easter42shown=true;
+            floatingTexts.push({x:W/2,y:H*0.45,text:'THE ANSWER IS 42 \u2665',color:'#f0f',life:3,decay:0.005,vy:-0.3});
+        }
+        if(!easter1337shown && score>=1337) {
+            easter1337shown=true;
+            floatingTexts.push({x:W/2,y:H*0.4,text:'L33T SC0RE!',color:'#0ff',life:3,decay:0.005,vy:-0.3});
+        }
+        // Rainbow mode: tint all enemies
+        if(rainbowMode) {
+            const rc=['#f00','#f80','#ff0','#0f0','#0ff','#00f','#f0f'];
+            const rt=Math.floor(Date.now()/100)%rc.length;
+            bots.forEach(b=>{ b._rainbowColor=rc[(bots.indexOf(b)+rt)%rc.length]; });
+        }
         randomEventTimer--;
         if(randomEventTimer <= 0) {
             randomEventTimer = 600 + Math.floor(Math.random()*400);
-            const li = currentLevelIdx;
+            const li = endlessMode ? Math.min(currentLevelIdx + endlessWave * 5, 149) : currentLevelIdx;
             const evts = ['scout_rush','asteroid_shower','bonus_scrap','enemy_surge','phantom_strike','drone_swarm','berserker_charge','kamikaze_wave','carrier_drop','powerup_storm','lancer_blitz','stealth_ambush'];
             const evt = evts[Math.floor(Math.random()*evts.length)];
             if(evt === 'scout_rush') {
@@ -3690,11 +3864,20 @@ function loop() {
                 scraps += bsc;
                 floatingTexts.push({x:boss.x+60,y:boss.y+45,text:'+'+bsc+'\u2B21',color:'#ff0',life:1.2,decay:0.016,vy:-1.5});
                 score += 100+currentLevelIdx*20;
-                const lvlDef = LEVELS[currentLevelIdx];
-                bossLoreHeadline = lvlDef.boss.name + ' DESTROYED';
-                bossLoreLines = lvlDef.bossLore || ['The enemy falls. Move forward.'];
-                boss=null; bossKilledThisLevel=true;
-                gameState = 'bossLore';
+                if(boss.shape && !bossHullShapes.includes(boss.shape)) {
+                    bossHullShapes.push(boss.shape); bossHullNames.push(boss.name||'BOSS'); bossHullColors.push(boss.color);
+                    ownedHulls.push(true);
+                    floatingTexts.push({x:W/2,y:H*0.42,text:'\u2605 HULL UNLOCKED: '+(boss.name||'BOSS'),color:'#f0f',life:2.5,decay:0.006,vy:-0.4});
+                }
+                if(endlessMode) {
+                    boss=null; bossKilledThisLevel=true;
+                } else {
+                    const lvlDef = LEVELS[currentLevelIdx];
+                    bossLoreHeadline = lvlDef.boss.name + ' DESTROYED';
+                    bossLoreLines = lvlDef.bossLore || ['The enemy falls. Move forward.'];
+                    boss=null; bossKilledThisLevel=true;
+                    gameState = 'bossLore';
+                }
             } else {
                 spawnParticles(b.x, b.y, boss.color, 4);
                 playSound('bossHit');
