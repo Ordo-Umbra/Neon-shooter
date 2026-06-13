@@ -2311,6 +2311,9 @@ function spawnEnemy() {
     else if(type==='phan_haunter')   bots.push({x:ex,y:-32,v:1.5,hp:5,maxHp:5,color:'#0f8',size:30,type:'phan_haunter',  drift:0,shootTimer:Math.random()*65|0,flashTimer:0,dlcDlc:5,dlcVariant:1,dlcPhase:70,phasing:false,dlcSplit:true,dlcShootRate:65,dlcSpread:1,dlcBulletV:4});
     else if(type==='phan_revenant')  bots.push({x:ex,y:-36,v:1.2,hp:7,maxHp:7,color:'#0f8',size:34,type:'phan_revenant', drift:0,shootTimer:Math.random()*70|0,flashTimer:0,dlcDlc:5,dlcVariant:2,dlcPhase:85,phasing:false,dlcRegen:125,dlcRadialOnDie:true,dlcShootRate:70,dlcBulletV:3.8});
     else if(type==='phan_titan4')    bots.push({x:ex,y:-54,v:0.4,hp:20,maxHp:20,color:'#0f8',size:50,type:'phan_titan4',  drift:0,shootTimer:Math.random()*60|0,flashTimer:0,dlcDlc:5,dlcVariant:3,dlcPhase:100,phasing:false,dlcRegen:165,dlcShootRate:60,dlcSpread:2,dlcBulletV:3.2});
+    // Recolor all enemies to the active DLC's signature color
+    if(dlcMode && activeDlc !== null && bots.length > 0)
+        bots[bots.length-1].color = DLC_DATA[activeDlc].color;
 }
 
 function maybeDropPowerup(ex, ey) {
