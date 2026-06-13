@@ -1181,12 +1181,14 @@ const nebulae = Array.from({length:5}, () => ({
 // ================================================================
 // AUDIO  (Web Audio API — procedurally synthesised, no external files)
 // ================================================================
+let soundMuted = localStorage.getItem('neon_muted') === '1';
 let audioCtx = null;
 function getAudioCtx() {
     if (!audioCtx) audioCtx = new AudioContext();
     return audioCtx;
 }
 function playSound(type) {
+    if(soundMuted) return;
     try {
         const ac = getAudioCtx();
         const osc = ac.createOscillator();
@@ -1392,6 +1394,12 @@ window.addEventListener('blur', () => {
 });
 
 function handleTap() {
+    // Mute button: top-right corner 40x40 area
+    if(lastClickX > W-48 && lastClickX < W-8 && lastClickY > 8 && lastClickY < 48) {
+        soundMuted = !soundMuted;
+        localStorage.setItem('neon_muted', soundMuted ? '1' : '0');
+        return;
+    }
     // Easter egg: tap corners in sequence TL>TR>BR>BL for temp invincibility
     if(gameState === 'playing') {
         const _cx=lastClickX, _cy=lastClickY, _cz=W*0.15, _cz2=H*0.15;
@@ -2830,8 +2838,19 @@ function drawPowerup(pu) {
     ctx.restore();
 }
 
+function drawMuteButton() {
+    ctx.save();
+    ctx.shadowBlur = 8; ctx.shadowColor = soundMuted ? '#f44' : '#0ff';
+    ctx.fillStyle = soundMuted ? '#f44' : '#0ff';
+    ctx.font = '22px Courier New';
+    ctx.textAlign = 'right';
+    ctx.fillText(soundMuted ? '🔇' : '🔊', W-10, 40);
+    ctx.restore();
+}
+
 function drawHUD() {
     ctx.shadowBlur=0; ctx.globalAlpha=1;
+    drawMuteButton();
     if(player.hp === 1) {
         const pulse = 0.12 + 0.08*Math.sin(Date.now()*0.008);
         ctx.save(); ctx.globalAlpha=pulse; ctx.fillStyle='#f00';
@@ -3396,6 +3415,7 @@ function loop() {
              'AND FACE THE ETERNAL',
              '', hsLine],
             '\u25B6  TOUCH OR CLICK TO START  \u25C0');
+        drawMuteButton();
         ctx.textAlign='center';
         ctx.shadowBlur=14; ctx.shadowColor='#ff8'; ctx.fillStyle='#ff8';
         ctx.font='bold 16px Courier New';
