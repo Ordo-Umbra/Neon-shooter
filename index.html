@@ -25,6 +25,135 @@ const COLOR_PRICES = [0,0,0,0,0,0,0, 25,25,30,25,30,35,35];
 const ENGINE_COLORS = ['#08f','#f80','#0f8','#a0f','#f00','#0ff','#fff','#ff0','#f0a'];
 const ENGINE_NAMES  = ['BLUE','AMBER','GREEN','PURPLE','RED','CYAN','WHITE','GOLD','PINK'];
 const ENGINE_PRICES = [0,0,0,0, 20,20,20,20,20];
+const DLC_DATA = [
+  { name:'VOID', color:'#80f', allyColor:'#80f', allyName:'SHADOW WING',
+    tagline:'Ancient shadows rise from the void.',
+    levels: [
+      { id:1000, name:'VOID SECTOR I', quota:20, boss:null, bossLore:[], enemyMix:[{type:'scout',w:8},{type:'phantom',w:4}], starColor:'#80f' },
+      { id:1001, name:'VOID SECTOR II', quota:28, boss:null, bossLore:[], enemyMix:[{type:'phantom',w:6},{type:'heavy',w:4},{type:'scout',w:4}], starColor:'#80f' },
+      { id:1002, name:'VOID SECTOR III', quota:35, boss:null, bossLore:[], enemyMix:[{type:'heavy',w:6},{type:'phantom',w:6},{type:'titan',w:2}], starColor:'#80f' },
+      { id:1003, name:'VOID SECTOR IV', quota:42, boss:null, bossLore:[], enemyMix:[{type:'titan',w:4},{type:'heavy',w:6},{type:'phantom',w:4}], starColor:'#80f' },
+      { id:1004, name:'VOID WARDEN', quota:0,
+        boss:{name:'VOID WARDEN',hp:80,maxHp:80,speed:1.2,shootRate:55,size:120,color:'#80f',shape:'voidemperor',maxBullets:6,pattern:'spread',patternTimer:0},
+        bossLore:['The Void Warden crumbles.','Shadows retreat... for now.','Deeper darkness awaits.'],
+        enemyMix:[{type:'phantom',w:8},{type:'heavy',w:6}], starColor:'#80f' },
+      { id:1005, name:'VOID SECTOR V', quota:50, boss:null, bossLore:[], enemyMix:[{type:'titan',w:6},{type:'heavy',w:6},{type:'phantom',w:6}], starColor:'#80f' },
+      { id:1006, name:'VOID SECTOR VI', quota:55, boss:null, bossLore:[], enemyMix:[{type:'titan',w:6},{type:'phantom',w:8},{type:'heavy',w:4},{type:'wraith',w:4}], starColor:'#80f' },
+      { id:1007, name:'VOID SECTOR VII', quota:60, boss:null, bossLore:[], enemyMix:[{type:'titan',w:8},{type:'wraith',w:6},{type:'nullifier',w:4}], starColor:'#80f' },
+      { id:1008, name:'VOID SECTOR VIII', quota:65, boss:null, bossLore:[], enemyMix:[{type:'titan',w:8},{type:'nullifier',w:6},{type:'wraith',w:6},{type:'heavy',w:4}], starColor:'#80f' },
+      { id:1009, name:'VOID EMPEROR', quota:0,
+        boss:{name:'VOID EMPEROR',hp:150,maxHp:150,speed:1.5,shootRate:45,size:120,color:'#60a',shape:'nullifierboss',maxBullets:10,pattern:'spread',patternTimer:0},
+        bossLore:['The Void Emperor is no more.','Light fractures the eternal dark.','The shadows bow to you, champion.'],
+        enemyMix:[{type:'titan',w:6},{type:'nullifier',w:6},{type:'wraith',w:4}], starColor:'#80f' }
+    ]
+  },
+  { name:'SOLAR', color:'#f80', allyColor:'#f80', allyName:'FLARE WING',
+    tagline:'Harness the power of dying stars.',
+    levels: [
+      { id:1010, name:'SOLAR FLARE I', quota:20, boss:null, bossLore:[], enemyMix:[{type:'raider',w:8},{type:'scout',w:6}], starColor:'#f80' },
+      { id:1011, name:'SOLAR FLARE II', quota:28, boss:null, bossLore:[], enemyMix:[{type:'raider',w:8},{type:'marauder',w:4},{type:'scout',w:4}], starColor:'#f80' },
+      { id:1012, name:'SOLAR FLARE III', quota:35, boss:null, bossLore:[], enemyMix:[{type:'marauder',w:8},{type:'raider',w:6},{type:'bomber',w:2}], starColor:'#f80' },
+      { id:1013, name:'SOLAR FLARE IV', quota:42, boss:null, bossLore:[], enemyMix:[{type:'bomber',w:6},{type:'marauder',w:6},{type:'raider',w:4}], starColor:'#f80' },
+      { id:1014, name:'SOLAR TITAN', quota:0,
+        boss:{name:'SOLAR TITAN',hp:85,maxHp:85,speed:1.3,shootRate:50,size:120,color:'#f80',shape:'titanking',maxBullets:7,pattern:'spread',patternTimer:0},
+        bossLore:['The Solar Titan burns out.','Star-fire dims without its master.','The cosmos trembles at your victory.'],
+        enemyMix:[{type:'bomber',w:8},{type:'marauder',w:6}], starColor:'#f80' },
+      { id:1015, name:'SOLAR FLARE V', quota:50, boss:null, bossLore:[], enemyMix:[{type:'bomber',w:6},{type:'marauder',w:8},{type:'raider',w:4}], starColor:'#f80' },
+      { id:1016, name:'SOLAR FLARE VI', quota:55, boss:null, bossLore:[], enemyMix:[{type:'bomber',w:8},{type:'marauder',w:8},{type:'pulsar',w:4}], starColor:'#f80' },
+      { id:1017, name:'SOLAR FLARE VII', quota:60, boss:null, bossLore:[], enemyMix:[{type:'pulsar',w:6},{type:'bomber',w:8},{type:'marauder',w:6}], starColor:'#f80' },
+      { id:1018, name:'SOLAR FLARE VIII', quota:65, boss:null, bossLore:[], enemyMix:[{type:'pulsar',w:8},{type:'bomber',w:6},{type:'marauder',w:6},{type:'dreadnought',w:2}], starColor:'#f80' },
+      { id:1019, name:'SOLAR ANNIHILATOR', quota:0,
+        boss:{name:'SOLAR ANNIHILATOR',hp:160,maxHp:160,speed:1.6,shootRate:42,size:120,color:'#f40',shape:'cosmicdestroyer',maxBullets:12,pattern:'spread',patternTimer:0},
+        bossLore:['The Solar Annihilator collapses into ash.','You have extinguished a dying star.','The galaxy breathes again.'],
+        enemyMix:[{type:'bomber',w:8},{type:'pulsar',w:6},{type:'dreadnought',w:3}], starColor:'#f80' }
+    ]
+  },
+  { name:'NEBULA', color:'#0ff', allyColor:'#0ff', allyName:'DRIFT WING',
+    tagline:'Navigate the infinite cosmic clouds.',
+    levels: [
+      { id:1020, name:'NEBULA DRIFT I', quota:20, boss:null, bossLore:[], enemyMix:[{type:'drone',w:8},{type:'interceptor',w:4}], starColor:'#0ff' },
+      { id:1021, name:'NEBULA DRIFT II', quota:28, boss:null, bossLore:[], enemyMix:[{type:'drone',w:8},{type:'interceptor',w:6},{type:'lancer',w:2}], starColor:'#0ff' },
+      { id:1022, name:'NEBULA DRIFT III', quota:35, boss:null, bossLore:[], enemyMix:[{type:'lancer',w:6},{type:'interceptor',w:6},{type:'drone',w:4},{type:'stealth',w:2}], starColor:'#0ff' },
+      { id:1023, name:'NEBULA DRIFT IV', quota:42, boss:null, bossLore:[], enemyMix:[{type:'stealth',w:6},{type:'lancer',w:6},{type:'interceptor',w:4}], starColor:'#0ff' },
+      { id:1024, name:'NEBULA SPECTRE', quota:0,
+        boss:{name:'NEBULA SPECTRE',hp:80,maxHp:80,speed:1.4,shootRate:52,size:120,color:'#0cf',shape:'spectre',maxBullets:7,pattern:'spread',patternTimer:0},
+        bossLore:['The Nebula Spectre dissolves into cloud.','Stardust marks where it fell.','Push deeper into the nebula.'],
+        enemyMix:[{type:'stealth',w:8},{type:'lancer',w:4}], starColor:'#0ff' },
+      { id:1025, name:'NEBULA DRIFT V', quota:50, boss:null, bossLore:[], enemyMix:[{type:'stealth',w:8},{type:'lancer',w:6},{type:'interceptor',w:4}], starColor:'#0ff' },
+      { id:1026, name:'NEBULA DRIFT VI', quota:55, boss:null, bossLore:[], enemyMix:[{type:'stealth',w:8},{type:'lancer',w:6},{type:'drone',w:6},{type:'nullifier',w:2}], starColor:'#0ff' },
+      { id:1027, name:'NEBULA DRIFT VII', quota:60, boss:null, bossLore:[], enemyMix:[{type:'nullifier',w:6},{type:'stealth',w:8},{type:'lancer',w:6}], starColor:'#0ff' },
+      { id:1028, name:'NEBULA DRIFT VIII', quota:65, boss:null, bossLore:[], enemyMix:[{type:'nullifier',w:8},{type:'stealth',w:6},{type:'lancer',w:6},{type:'carrier',w:2}], starColor:'#0ff' },
+      { id:1029, name:'NEBULA WARDEN', quota:0,
+        boss:{name:'NEBULA WARDEN',hp:155,maxHp:155,speed:1.5,shootRate:44,size:120,color:'#0af',shape:'nullifierboss',maxBullets:11,pattern:'spread',patternTimer:0},
+        bossLore:['The Nebula Warden scatters like mist.','Cosmic clouds remember your passage.','You are the master of the nebula.'],
+        enemyMix:[{type:'nullifier',w:8},{type:'stealth',w:6},{type:'carrier',w:3}], starColor:'#0ff' }
+    ]
+  },
+  { name:'CRIMSON', color:'#f44', allyColor:'#f44', allyName:'BLADE WING',
+    tagline:'Hunt or be hunted in the red wastes.',
+    levels: [
+      { id:1030, name:'RED WASTE I', quota:22, boss:null, bossLore:[], enemyMix:[{type:'scout',w:10},{type:'interceptor',w:4}], starColor:'#f44' },
+      { id:1031, name:'RED WASTE II', quota:30, boss:null, bossLore:[], enemyMix:[{type:'interceptor',w:8},{type:'scout',w:6},{type:'kamikaze',w:4}], starColor:'#f44' },
+      { id:1032, name:'RED WASTE III', quota:38, boss:null, bossLore:[], enemyMix:[{type:'kamikaze',w:8},{type:'interceptor',w:6},{type:'berserker',w:4}], starColor:'#f44' },
+      { id:1033, name:'RED WASTE IV', quota:45, boss:null, bossLore:[], enemyMix:[{type:'berserker',w:8},{type:'kamikaze',w:6},{type:'interceptor',w:4}], starColor:'#f44' },
+      { id:1034, name:'CRIMSON REAPER', quota:0,
+        boss:{name:'CRIMSON REAPER',hp:85,maxHp:85,speed:1.8,shootRate:48,size:120,color:'#f22',shape:'reaper',maxBullets:8,pattern:'spread',patternTimer:0},
+        bossLore:['The Crimson Reaper bleeds out.','Red stains the void with its memory.','The hunt continues deeper.'],
+        enemyMix:[{type:'berserker',w:8},{type:'kamikaze',w:6}], starColor:'#f44' },
+      { id:1035, name:'RED WASTE V', quota:52, boss:null, bossLore:[], enemyMix:[{type:'berserker',w:8},{type:'kamikaze',w:6},{type:'interceptor',w:4},{type:'wraith',w:2}], starColor:'#f44' },
+      { id:1036, name:'RED WASTE VI', quota:58, boss:null, bossLore:[], enemyMix:[{type:'berserker',w:10},{type:'kamikaze',w:6},{type:'wraith',w:4}], starColor:'#f44' },
+      { id:1037, name:'RED WASTE VII', quota:64, boss:null, bossLore:[], enemyMix:[{type:'berserker',w:10},{type:'wraith',w:6},{type:'kamikaze',w:4},{type:'zigzag',w:4}], starColor:'#f44' },
+      { id:1038, name:'RED WASTE VIII', quota:70, boss:null, bossLore:[], enemyMix:[{type:'berserker',w:10},{type:'wraith',w:6},{type:'zigzag',w:6},{type:'titan',w:2}], starColor:'#f44' },
+      { id:1039, name:'CRIMSON EMPEROR', quota:0,
+        boss:{name:'CRIMSON EMPEROR',hp:165,maxHp:165,speed:2.0,shootRate:40,size:120,color:'#c00',shape:'darketernal',maxBullets:14,pattern:'spread',patternTimer:0},
+        bossLore:['The Crimson Emperor falls in silence.','Red dust is all that remains.','You are the apex predator of the wastes.'],
+        enemyMix:[{type:'berserker',w:10},{type:'wraith',w:6},{type:'titan',w:4}], starColor:'#f44' }
+    ]
+  },
+  { name:'FROST', color:'#8ff', allyColor:'#8ff', allyName:'ICE WING',
+    tagline:'The frozen void has teeth.',
+    levels: [
+      { id:1040, name:'FROST ZONE I', quota:18, boss:null, bossLore:[], enemyMix:[{type:'vanguard',w:6},{type:'asteroid',w:6}], starColor:'#8ff' },
+      { id:1041, name:'FROST ZONE II', quota:25, boss:null, bossLore:[], enemyMix:[{type:'vanguard',w:8},{type:'asteroid',w:6},{type:'heavy',w:2}], starColor:'#8ff' },
+      { id:1042, name:'FROST ZONE III', quota:32, boss:null, bossLore:[], enemyMix:[{type:'heavy',w:8},{type:'vanguard',w:6},{type:'asteroid',w:4}], starColor:'#8ff' },
+      { id:1043, name:'FROST ZONE IV', quota:38, boss:null, bossLore:[], enemyMix:[{type:'titan',w:6},{type:'heavy',w:6},{type:'vanguard',w:4}], starColor:'#8ff' },
+      { id:1044, name:'FROST SENTINEL', quota:0,
+        boss:{name:'FROST SENTINEL',hp:90,maxHp:90,speed:1.0,shootRate:60,size:120,color:'#8ff',shape:'sentinel',maxBullets:6,pattern:'spread',patternTimer:0},
+        bossLore:['The Frost Sentinel shatters.','Ice shards fill the void.','Cold comfort: you live. Push on.'],
+        enemyMix:[{type:'titan',w:8},{type:'heavy',w:6}], starColor:'#8ff' },
+      { id:1045, name:'FROST ZONE V', quota:45, boss:null, bossLore:[], enemyMix:[{type:'titan',w:8},{type:'heavy',w:6},{type:'vanguard',w:4}], starColor:'#8ff' },
+      { id:1046, name:'FROST ZONE VI', quota:52, boss:null, bossLore:[], enemyMix:[{type:'titan',w:8},{type:'vanguard',w:6},{type:'heavy',w:6},{type:'asteroid',w:2}], starColor:'#8ff' },
+      { id:1047, name:'FROST ZONE VII', quota:58, boss:null, bossLore:[], enemyMix:[{type:'titan',w:10},{type:'vanguard',w:6},{type:'dreadnought',w:2}], starColor:'#8ff' },
+      { id:1048, name:'FROST ZONE VIII', quota:64, boss:null, bossLore:[], enemyMix:[{type:'dreadnought',w:4},{type:'titan',w:8},{type:'vanguard',w:6}], starColor:'#8ff' },
+      { id:1049, name:'FROST OVERLORD', quota:0,
+        boss:{name:'FROST OVERLORD',hp:170,maxHp:170,speed:1.2,shootRate:50,size:120,color:'#6dd',shape:'overlord',maxBullets:12,pattern:'spread',patternTimer:0},
+        bossLore:['The Frost Overlord melts at last.','Eternal winter ends with your victory.','The frozen void bows to your warmth.'],
+        enemyMix:[{type:'dreadnought',w:4},{type:'titan',w:8},{type:'vanguard',w:6}], starColor:'#8ff' }
+    ]
+  },
+  { name:'PHANTOM', color:'#0f8', allyColor:'#0f8', allyName:'GHOST WING',
+    tagline:'Become the ghost in the machine.',
+    levels: [
+      { id:1050, name:'PHANTOM OPS I', quota:20, boss:null, bossLore:[], enemyMix:[{type:'stealth',w:8},{type:'phantom',w:4}], starColor:'#0f8' },
+      { id:1051, name:'PHANTOM OPS II', quota:28, boss:null, bossLore:[], enemyMix:[{type:'phantom',w:8},{type:'stealth',w:6},{type:'sniper',w:2}], starColor:'#0f8' },
+      { id:1052, name:'PHANTOM OPS III', quota:35, boss:null, bossLore:[], enemyMix:[{type:'sniper',w:6},{type:'phantom',w:6},{type:'stealth',w:4},{type:'gunship',w:2}], starColor:'#0f8' },
+      { id:1053, name:'PHANTOM OPS IV', quota:42, boss:null, bossLore:[], enemyMix:[{type:'gunship',w:6},{type:'sniper',w:6},{type:'phantom',w:4}], starColor:'#0f8' },
+      { id:1054, name:'PHANTOM KING', quota:0,
+        boss:{name:'PHANTOM KING',hp:88,maxHp:88,speed:1.6,shootRate:50,size:120,color:'#0f8',shape:'phantomking',maxBullets:8,pattern:'spread',patternTimer:0},
+        bossLore:['The Phantom King fades from existence.','Ghosts whisper of your power.','The machine has found its master.'],
+        enemyMix:[{type:'phantom',w:8},{type:'stealth',w:6}], starColor:'#0f8' },
+      { id:1055, name:'PHANTOM OPS V', quota:50, boss:null, bossLore:[], enemyMix:[{type:'gunship',w:8},{type:'sniper',w:6},{type:'phantom',w:4}], starColor:'#0f8' },
+      { id:1056, name:'PHANTOM OPS VI', quota:55, boss:null, bossLore:[], enemyMix:[{type:'gunship',w:8},{type:'sniper',w:6},{type:'stealth',w:6},{type:'wraith',w:2}], starColor:'#0f8' },
+      { id:1057, name:'PHANTOM OPS VII', quota:62, boss:null, bossLore:[], enemyMix:[{type:'wraith',w:6},{type:'gunship',w:8},{type:'sniper',w:6}], starColor:'#0f8' },
+      { id:1058, name:'PHANTOM OPS VIII', quota:68, boss:null, bossLore:[], enemyMix:[{type:'wraith',w:8},{type:'gunship',w:6},{type:'sniper',w:6},{type:'nullifier',w:2}], starColor:'#0f8' },
+      { id:1059, name:'PHANTOM ETERNAL', quota:0,
+        boss:{name:'PHANTOM ETERNAL',hp:160,maxHp:160,speed:1.8,shootRate:42,size:120,color:'#0b6',shape:'undying',maxBullets:13,pattern:'spread',patternTimer:0},
+        bossLore:['The Phantom Eternal vanishes forever.','You have become more ghost than machine.','The void itself fears your name.'],
+        enemyMix:[{type:'wraith',w:8},{type:'gunship',w:6},{type:'nullifier',w:4}], starColor:'#0f8' }
+    ]
+  }
+];
+
 
 // ================================================================
 // LEVEL DEFINITIONS  (50 levels, 14 boss fights)
@@ -1135,6 +1264,7 @@ let easter42shown = false, easter1337shown = false;
 let titleTapCount = 0, titleTapTimer = 0;
 let cornerSeq = 0, cornerTimer = 0, cornerInvincTimer = 0;
 let devModeUnlocked = false;
+let allies = [], activeDlc = null, dlcLevelIdx = 0, dlcMode = false;
 let critChance = 0.10;
 let droneActive = false, droneX = 0, droneY = 0, droneAngle = 0, droneFireTimer = 0;
 let armorUpgrade = 0;
@@ -1430,11 +1560,13 @@ function handleTap() {
         }
         if(lastClickY > H*0.78 && lastClickY < H*0.91) { gameState = 'guide'; guideScrollY = 0; }
         else if(lastClickY > H*0.67 && lastClickY < H*0.78) { startEndless(); }
+        else if(lastClickY > H*0.55 && lastClickY < H*0.67) { gameState = 'dlcSelect'; }
         else { gameState = 'intro'; }
     }
     else if(gameState === 'guide')         { gameState = 'title'; }
     else if(gameState === 'intro')         { startLevel(currentLevelIdx); }
     else if(gameState === 'levelComplete') {
+        if(dlcMode) { advanceDlcLevel(); return; }
         if(lastClickY > H*0.78 && lastClickY < H*0.91) {
             gameState = 'shop';
         } else if(customizationUnlocked && lastClickY > H*0.62 && lastClickY < H*0.78) {
@@ -1512,9 +1644,9 @@ function handleTap() {
         }
     }
     else if(gameState === 'bossLore') {
-        levelBonus = killCount * 3 + 150 + currentLevelIdx * 15;
+        levelBonus = killCount * 3 + 150 + (dlcMode ? dlcLevelIdx : currentLevelIdx) * 15;
         score += levelBonus;
-        if(currentLevelIdx >= 2) customizationUnlocked = true;
+        if(!dlcMode && currentLevelIdx >= 2) customizationUnlocked = true;
         gameState = 'levelComplete';
     }
     else if(gameState === 'gameover') {
@@ -1522,6 +1654,20 @@ function handleTap() {
         else { if(endlessMode) startEndless(); else retryLevel(); }
     }
     else if(gameState === 'victory')       { resetGame(); }
+    else if(gameState === 'dlcVictory')    { dlcMode=false; activeDlc=null; allies=[]; resetGame(); }
+    else if(gameState === 'dlcSelect') {
+        if(lastClickY > H*0.92) { gameState = 'title'; return; }
+        const cols2 = 2, cardW2 = W * 0.42, cardH2 = H * 0.22;
+        const startX2 = W * 0.05, startY2 = H * 0.2;
+        const padX2 = W * 0.08, padY2 = H * 0.03;
+        for(let i=0;i<DLC_DATA.length;i++) {
+            const col2=i%cols2, row2=Math.floor(i/cols2);
+            const cx2=startX2+col2*(cardW2+padX2), cy2=startY2+row2*(cardH2+padY2);
+            if(lastClickX>=cx2 && lastClickX<=cx2+cardW2 && lastClickY>=cy2 && lastClickY<=cy2+cardH2) {
+                startDlc(i); return;
+            }
+        }
+    }
 }
 
 // ================================================================
@@ -1544,6 +1690,7 @@ function resetGame() {
     ownedEngines = [true,true,true,true, false,false,false,false,false];
     shopTab = 'upgrades'; partsSubTab = 'hulls';
     endlessMode = false; endlessWave = 0; endlessNextBoss = 50;
+    dlcMode = false; activeDlc = null; dlcLevelIdx = 0; allies = [];
     bossHullShapes = []; bossHullNames = []; bossHullColors = [];
     easter42shown = false; easter1337shown = false;
     titleTapCount = 0; cornerSeq = 0;
@@ -1589,6 +1736,48 @@ function getEndlessEnemyMix(wave) {
     return [{type:'titan',w:3},{type:'vanguard',w:3},{type:'bomber',w:3},{type:'sniper',w:3},{type:'berserker',w:2},{type:'carrier',w:1},{type:'lancer',w:3},{type:'stealth',w:2}];
 }
 
+
+function updateAllies() {
+    for(let ai = allies.length-1; ai >= 0; ai--) {
+        const ally = allies[ai];
+        const side = (ai % 2 === 0) ? -65 : 65;
+        const row = Math.floor(ai / 2);
+        const tx = player.x + side;
+        const ty = player.y + 35 + row * 45;
+        ally.x += (tx - ally.x) * 0.07;
+        ally.y += (ty - ally.y) * 0.07;
+        ally.fireTimer++;
+        if(ally.fireTimer >= 35) {
+            ally.fireTimer = 0;
+            let bvx = 0, bvy = -8;
+            let minD = 99999;
+            bots.forEach(b => {
+                const d = Math.hypot(b.x+b.size/2-ally.x, b.y+b.size/2-ally.y);
+                if(d < minD) { minD=d; const dx2=b.x+b.size/2-ally.x, dy2=b.y+b.size/2-ally.y, dist2=Math.hypot(dx2,dy2)||1; bvx=dx2/dist2*8; bvy=dy2/dist2*8; }
+            });
+            if(boss) { const dx2=boss.x+60-ally.x, dy2=boss.y+45-ally.y, dist2=Math.hypot(dx2,dy2)||1; if(dist2<minD){bvx=dx2/dist2*8; bvy=dy2/dist2*8;} }
+            bullets.push({x:ally.x+6, y:ally.y, vx:bvx, vy:bvy, v:bvy, enemy:false, ally:true, width:3, bColor:ally.color});
+        }
+        if(ally.invincFrames > 0) ally.invincFrames--;
+    }
+}
+
+function drawAlly(ally) {
+    const sz = 10;
+    ctx.save(); ctx.translate(ally.x + 6, ally.y + 6);
+    if(ally.invincFrames > 0 && Math.floor(ally.invincFrames/3)%2===0) { ctx.restore(); return; }
+    ctx.shadowBlur=14; ctx.shadowColor=ally.color; ctx.fillStyle=ally.color;
+    ctx.beginPath();
+    ctx.moveTo(0,-sz); ctx.lineTo(sz*0.55,sz*0.65); ctx.lineTo(0,sz*0.25); ctx.lineTo(-sz*0.55,sz*0.65);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=0;
+    for(let i=0;i<ally.maxHp;i++) {
+        ctx.fillStyle = i < ally.hp ? '#0f0' : '#030';
+        ctx.fillRect(-sz*0.5 + i*8, sz*0.8, 6, 3);
+    }
+    ctx.restore();
+}
+
 function startLevel(idx) {
     levelStartScore = score; killCount = 0; bossKilledThisLevel = false; fireTimer = 0;
     bots=[]; bullets=[]; powerups=[]; boss=null; particles=[];
@@ -1632,6 +1821,7 @@ function retryLevel() {
 function checkLevelComplete() {
     if(gameState !== 'playing') return;
     if(endlessMode) return;
+    if(dlcMode) { checkDlcLevelComplete(); return; }
     const lvl = LEVELS[currentLevelIdx];
     const done = lvl.boss ? bossKilledThisLevel : (killCount >= lvl.quota);
     if(done) {
@@ -1641,6 +1831,123 @@ function checkLevelComplete() {
         gameState = 'levelComplete';
         playSound('levelComplete');
     }
+}
+
+
+function startDlc(dlcIdx) {
+    activeDlc = dlcIdx; dlcMode = true; dlcLevelIdx = 0;
+    score = 0; levelStartScore = 0; currentLevelIdx = 0;
+    player = { x:W/2-12, y:H*0.82, hp:3, maxHp:3, invincFrames:60, shieldActive:false, rapidTimer:0, laserTimer:0 };
+    bots=[]; bullets=[]; particles=[]; powerups=[]; boss=null; mineActive=[];
+    killCount=0; bossKilledThisLevel=false; fireTimer=0; floatingTexts=[];
+    scraps=0; screenShake=0; comboCount=0; comboTimer=0; nukeFlash=0;
+    freezeTimer=0; overdriveTimer=0; homingMissileTimer=0; timewarpTimer=0;
+    magnetTimer=0; ghostTimer=0; homingMissiles=[];
+    randomEventTimer=700; activeEventText=''; activeEventDisplayTimer=0;
+    bonusScrapActive=false; bonusScrapTimer=0; endlessMode=false;
+    upgrades={ fireRate:0, maxHpBonus:0, shieldOnStart:false };
+    droneActive=false; spreadShotUpgrade=false; armorUpgrade=0; healOnKillUpgrade=0;
+    scrapBonusUpgrade=0; healOnKillCount=0; levelDamageReceived=0;
+    customizationUnlocked=true;
+    const dlc = DLC_DATA[dlcIdx];
+    allies = [{ x:player.x-65, y:player.y+35, hp:3, maxHp:3, color:dlc.allyColor, fireTimer:0, invincFrames:60 }];
+    stars.forEach(s => s.color = dlc.color);
+    gameState='playing';
+    levelIntroTimer = 150;
+    levelStartTime = Date.now();
+    const lvl0 = DLC_DATA[dlcIdx].levels[0];
+    if(lvl0.boss) {
+        boss = Object.assign({}, lvl0.boss, { x:W/2-60, y:80, dir:lvl0.boss.speed, shootTimer:0 });
+    }
+    starZoneColor = dlc.color;
+}
+
+function checkDlcLevelComplete() {
+    if(gameState !== 'playing') return;
+    if(!dlcMode) return;
+    const lvl = DLC_DATA[activeDlc].levels[dlcLevelIdx];
+    const done = lvl.boss ? bossKilledThisLevel : (killCount >= lvl.quota);
+    if(done) {
+        levelBonus = killCount * 3 + (lvl.boss ? 150 : 50) + dlcLevelIdx * 15;
+        score += levelBonus;
+        if(dlcLevelIdx >= 9) {
+            if(score > highScore) { highScore = score; localStorage.setItem('neon_hs', highScore); }
+            gameState = 'dlcVictory';
+        } else {
+            gameState = 'levelComplete';
+        }
+        playSound('levelComplete');
+    }
+}
+
+function advanceDlcLevel() {
+    dlcLevelIdx++;
+    if(dlcLevelIdx >= DLC_DATA[activeDlc].levels.length) {
+        if(score > highScore) { highScore = score; localStorage.setItem('neon_hs', highScore); }
+        gameState = 'dlcVictory';
+        return;
+    }
+    killCount = 0; bossKilledThisLevel = false; fireTimer = 0;
+    bots=[]; bullets=[]; powerups=[]; boss=null; particles=[];
+    player.x = W/2-12; player.y = H*0.82; player.invincFrames = 60;
+    floatingTexts = [];
+    comboCount = 0; comboTimer = 0; nukeFlash = 0; freezeTimer = 0; overdriveTimer = 0;
+    levelDamageReceived = 0; levelIntroTimer = 150; bossEnraged = false;
+    homingMissiles = []; mineActive = []; timewarpTimer = 0; magnetTimer = 0; ghostTimer = 0;
+    const lvl = DLC_DATA[activeDlc].levels[dlcLevelIdx];
+    starZoneColor = DLC_DATA[activeDlc].color;
+    stars.forEach(s => s.color = DLC_DATA[activeDlc].color);
+    if(lvl.boss) {
+        boss = Object.assign({}, lvl.boss, { x:W/2-60, y:80, dir:lvl.boss.speed, shootTimer:0 });
+    }
+    gameState = 'playing';
+}
+
+function drawDlcSelectScreen() {
+    ctx.fillStyle='rgba(0,0,0,0.92)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.shadowBlur=22; ctx.shadowColor='#0ff'; ctx.fillStyle='#0ff';
+    ctx.font='bold 26px Courier New';
+    ctx.fillText('SELECT DLC CAMPAIGN', W/2, H*0.09);
+    ctx.shadowBlur=0; ctx.fillStyle='#666'; ctx.font='13px Courier New';
+    ctx.fillText('Choose your campaign - each has 10 levels and a unique ally', W/2, H*0.155);
+
+    const cols = 2;
+    const cardW = W * 0.42, cardH = H * 0.22;
+    const startX = W * 0.05, startY = H * 0.2;
+    const padX = W * 0.08, padY = H * 0.03;
+
+    DLC_DATA.forEach((dlc, i) => {
+        const col = i % cols, row = Math.floor(i / cols);
+        const cx = startX + col * (cardW + padX);
+        const cy = startY + row * (cardH + padY);
+
+        ctx.save();
+        ctx.shadowBlur=16; ctx.shadowColor=dlc.color;
+        ctx.strokeStyle=dlc.color; ctx.lineWidth=2;
+        ctx.fillStyle='rgba(0,0,0,0.7)';
+        ctx.fillRect(cx, cy, cardW, cardH);
+        ctx.strokeRect(cx, cy, cardW, cardH);
+        ctx.restore();
+
+        ctx.shadowBlur=14; ctx.shadowColor=dlc.color; ctx.fillStyle=dlc.color;
+        ctx.font='bold 17px Courier New'; ctx.textAlign='center';
+        ctx.fillText(dlc.name + ' DLC', cx + cardW/2, cy + cardH*0.28);
+
+        ctx.shadowBlur=0; ctx.fillStyle='#aaa'; ctx.font='11px Courier New';
+        ctx.fillText(dlc.tagline, cx + cardW/2, cy + cardH*0.52);
+
+        ctx.fillStyle='#888'; ctx.font='10px Courier New';
+        ctx.fillText('ALLY: ' + dlc.allyName, cx + cardW/2, cy + cardH*0.72);
+
+        ctx.fillStyle='#555'; ctx.font='10px Courier New';
+        ctx.fillText('10 LEVELS  |  2 BOSS FIGHTS', cx + cardW/2, cy + cardH*0.88);
+    });
+
+    ctx.shadowBlur=12; ctx.shadowColor='#888'; ctx.fillStyle='#888';
+    ctx.font='bold 14px Courier New'; ctx.textAlign='center';
+    ctx.fillText('< BACK', W/2, H*0.955);
+    ctx.shadowBlur=0; ctx.textAlign='left';
 }
 
 // ================================================================
@@ -1655,7 +1962,7 @@ function spawnParticles(cx, cy, color, count) {
 }
 
 function spawnEnemy() {
-    const mix = endlessMode ? getEndlessEnemyMix(endlessWave) : LEVELS[currentLevelIdx].enemyMix;
+    const mix = endlessMode ? getEndlessEnemyMix(endlessWave) : (dlcMode ? DLC_DATA[activeDlc].levels[dlcLevelIdx].enemyMix : LEVELS[currentLevelIdx].enemyMix);
     if(!mix || mix.length === 0) return;
     let total = mix.reduce((s,e) => s+e.w, 0), r = Math.random()*total, type = mix[0].type;
     for(let em of mix) { r -= em.w; if(r <= 0) { type = em.type; break; } }
@@ -3378,8 +3685,9 @@ function loop() {
     // Starfield (slower on non-playing screens)
     ctx.shadowBlur=0;
     const sSpeed = (gameState==='playing') ? 1 : 0.25;
-    if(gameState==='playing' && !endlessMode && LEVELS[currentLevelIdx]) {
-        starZoneColor = LEVELS[currentLevelIdx].starColor || '#adf';
+    if(gameState==='playing' && !endlessMode) {
+        if(dlcMode && activeDlc !== null) { starZoneColor = DLC_DATA[activeDlc].color; }
+        else if(LEVELS[currentLevelIdx]) { starZoneColor = LEVELS[currentLevelIdx].starColor || '#adf'; }
     }
     for(let s of stars) {
         s.y += s.speed * sSpeed;
@@ -3423,7 +3731,21 @@ function loop() {
         ctx.shadowBlur=14; ctx.shadowColor='#f0f'; ctx.fillStyle='#f0f';
         ctx.font='bold 16px Courier New';
         ctx.fillText('\u221e  ENDLESS MODE  \u221e', W/2, H*0.74);
+        ctx.shadowBlur=14; ctx.shadowColor='#0f8'; ctx.fillStyle='#0f8';
+        ctx.font='bold 16px Courier New';
+        ctx.fillText('\u2734  DLC CAMPAIGNS  \u2734', W/2, H*0.63);
         ctx.shadowBlur=0; ctx.textAlign='left';
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'dlcSelect') {
+        drawDlcSelectScreen();
+        requestAnimationFrame(loop); return;
+    }
+    if(gameState === 'dlcVictory') {
+        const dlcName = activeDlc !== null ? DLC_DATA[activeDlc].name : 'DLC';
+        drawOverlay(dlcName + ' DLC COMPLETE!', '#0f0',
+            ['You have conquered this campaign!', '', 'FINAL SCORE: '+score, '\u2B21 SCRAPS: '+scraps, '', 'Brave pilot, the cosmos salutes you.'],
+            '\u25B6  TOUCH OR CLICK TO RETURN  \u25C0');
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'paused') {
@@ -3567,6 +3889,8 @@ function loop() {
         }
         drawPlayerShip(player.x+12, player.y+12, player.rapidTimer>0 ? '#ff8' : SHIP_COLORS[shipConfig.color]);
     }
+    // Draw allies
+    if(dlcMode) { for(const ally of allies) drawAlly(ally); }
     // Engine trail
     if(showPlayer) {
         const engCol = ENGINE_COLORS[shipConfig.engine];
@@ -3627,7 +3951,7 @@ function loop() {
                 if(endlessMode) {
                     boss=null; bossKilledThisLevel=true;
                 } else {
-                    const lvlDef=LEVELS[currentLevelIdx];
+                    const lvlDef=dlcMode ? DLC_DATA[activeDlc].levels[dlcLevelIdx] : LEVELS[currentLevelIdx];
                     bossLoreHeadline=lvlDef.boss.name+' DESTROYED';
                     bossLoreLines=lvlDef.bossLore||['The enemy falls. Move forward.'];
                     boss=null; bossKilledThisLevel=true;
@@ -3818,6 +4142,8 @@ function loop() {
             ctx.beginPath(); ctx.moveTo(droneX,droneY-8); ctx.lineTo(droneX+6,droneY+6); ctx.lineTo(droneX-6,droneY+6); ctx.closePath(); ctx.fill();
             ctx.restore();
         }
+        // Ally update
+        if(dlcMode && allies.length > 0) updateAllies();
         // Level intro timer countdown
         if(levelIntroTimer > 0) levelIntroTimer--;
         // Achievement queue display
@@ -4169,6 +4495,25 @@ function loop() {
         if(b.enemy && Math.hypot(player.x+12-b.x, player.y+12-b.y) < 18) {
             bullets.splice(i,1); playerHit(); continue;
         }
+        if(b.enemy && dlcMode && allies.length > 0) {
+            let allyHitFlag = false;
+            for(let ai=allies.length-1; ai>=0; ai--) {
+                const ally = allies[ai];
+                if(ally.invincFrames > 0) continue;
+                if(Math.hypot(ally.x+6-b.x, ally.y+6-b.y) < 14) {
+                    bullets.splice(i,1); allyHitFlag=true;
+                    ally.hp--; ally.invincFrames=40;
+                    spawnParticles(ally.x+6,ally.y+6,ally.color,6);
+                    if(ally.hp <= 0) {
+                        floatingTexts.push({x:ally.x+6,y:ally.y,text:'ALLY LOST!',color:'#f44',life:2.0,decay:0.010,vy:-1.2});
+                        spawnParticles(ally.x+6,ally.y+6,ally.color,20);
+                        allies.splice(ai,1);
+                    }
+                    break;
+                }
+            }
+            if(allyHitFlag) continue;
+        }
         let removed=false;
         if(!b.enemy && boss && b.x+b.width>boss.x && b.x<boss.x+120 && b.y>boss.y && b.y<boss.y+90) {
             boss.hp--; bullets.splice(i,1); removed=true;
@@ -4187,7 +4532,7 @@ function loop() {
                 if(endlessMode) {
                     boss=null; bossKilledThisLevel=true;
                 } else {
-                    const lvlDef = LEVELS[currentLevelIdx];
+                    const lvlDef = dlcMode ? DLC_DATA[activeDlc].levels[dlcLevelIdx] : LEVELS[currentLevelIdx];
                     bossLoreHeadline = lvlDef.boss.name + ' DESTROYED';
                     bossLoreLines = lvlDef.bossLore || ['The enemy falls. Move forward.'];
                     boss=null; bossKilledThisLevel=true;
