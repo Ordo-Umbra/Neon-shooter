@@ -2115,8 +2115,8 @@ function drawDlcSelectScreen() {
     ctx.shadowBlur=22; ctx.shadowColor='#0ff'; ctx.fillStyle='#0ff';
     ctx.font='bold 26px Courier New';
     ctx.fillText('SELECT DLC CAMPAIGN', W/2, H*0.09);
-    ctx.shadowBlur=0; ctx.fillStyle='#666'; ctx.font='13px Courier New';
-    ctx.fillText('Choose your campaign - each has 10 levels and a unique ally', W/2, H*0.155);
+    ctx.shadowBlur=0; ctx.fillStyle='#888'; ctx.font='13px Courier New';
+    ctx.fillText('Choose your campaign — 50 levels each, unique ally & exclusive enemies', W/2, H*0.155);
 
     const cols = 2;
     const cardW = W * 0.42, cardH = H * 0.22;
@@ -2140,19 +2140,19 @@ function drawDlcSelectScreen() {
         ctx.font='bold 17px Courier New'; ctx.textAlign='center';
         ctx.fillText(dlc.name + ' DLC', cx + cardW/2, cy + cardH*0.28);
 
-        ctx.shadowBlur=0; ctx.fillStyle='#aaa'; ctx.font='11px Courier New';
-        ctx.fillText(dlc.tagline, cx + cardW/2, cy + cardH*0.52);
+        ctx.shadowBlur=0; ctx.fillStyle='#bbb'; ctx.font='12px Courier New';
+        ctx.fillText(dlc.tagline, cx + cardW/2, cy + cardH*0.50);
 
-        ctx.fillStyle='#888'; ctx.font='10px Courier New';
-        ctx.fillText('ALLY: ' + dlc.allyName, cx + cardW/2, cy + cardH*0.72);
+        ctx.fillStyle='#999'; ctx.font='12px Courier New';
+        ctx.fillText('ALLY: ' + dlc.allyName, cx + cardW/2, cy + cardH*0.70);
 
-        ctx.fillStyle='#555'; ctx.font='10px Courier New';
-        ctx.fillText('10 LEVELS  |  2 BOSS FIGHTS', cx + cardW/2, cy + cardH*0.88);
+        ctx.fillStyle='#666'; ctx.font='11px Courier New';
+        ctx.fillText('50 LEVELS  |  10 BOSS FIGHTS', cx + cardW/2, cy + cardH*0.88);
     });
 
-    ctx.shadowBlur=12; ctx.shadowColor='#888'; ctx.fillStyle='#888';
+    ctx.shadowBlur=12; ctx.shadowColor='#0af'; ctx.fillStyle='#0af';
     ctx.font='bold 14px Courier New'; ctx.textAlign='center';
-    ctx.fillText('< BACK', W/2, H*0.955);
+    ctx.fillText('◄  BACK TO MENU', W/2, H*0.955);
     ctx.shadowBlur=0; ctx.textAlign='left';
 }
 
@@ -3711,12 +3711,15 @@ function drawHUD() {
         ctx.fillText('♥', 15+i*30, 36);
     }
     let buffX = 110;
-    if(player.shieldActive)    { ctx.fillStyle='#0ff'; ctx.font='15px Courier New'; ctx.fillText('SHIELD',buffX,36); buffX+=80; }
-    if(player.rapidTimer > 0)  { ctx.fillStyle='#ff0'; ctx.font='15px Courier New'; ctx.fillText('RAPID', buffX,36); buffX+=70; }
-    if(player.laserTimer > 0)  { ctx.fillStyle='#f8f'; ctx.font='15px Courier New'; ctx.fillText('LASER', buffX,36); buffX+=70; }
-    if(overdriveTimer > 0)     { ctx.fillStyle='#f80'; ctx.font='15px Courier New'; ctx.fillText('OVERDRIVE', buffX,36); buffX+=110; }
-    if(freezeTimer > 0)        { ctx.fillStyle='#8ff'; ctx.font='15px Courier New'; ctx.fillText('FREEZE', buffX,36); buffX+=80; }
-    if(bonusScrapActive)       { ctx.fillStyle='#f0f'; ctx.font='15px Courier New'; ctx.fillText('x2\u2B21', buffX,36); }
+    ctx.font='13px Courier New';
+    if(player.shieldActive)    { ctx.fillStyle='#0ff'; ctx.fillText('SHIELD',buffX,36); buffX+=72; }
+    if(player.rapidTimer > 0)  { ctx.fillStyle='#ff0'; ctx.fillText('RAPID:'+Math.ceil(player.rapidTimer/60)+'s', buffX,36); buffX+=78; }
+    if(player.laserTimer > 0)  { ctx.fillStyle='#f8f'; ctx.fillText('LASER:'+Math.ceil(player.laserTimer/60)+'s', buffX,36); buffX+=78; }
+    if(overdriveTimer > 0)     { ctx.fillStyle='#f80'; ctx.fillText('OVDRV:'+Math.ceil(overdriveTimer/60)+'s', buffX,36); buffX+=88; }
+    if(freezeTimer > 0)        { ctx.fillStyle='#8ff'; ctx.fillText('FREEZE:'+Math.ceil(freezeTimer/60)+'s',buffX,36); buffX+=88; }
+    if(ghostTimer > 0)         { ctx.fillStyle='#aaf'; ctx.fillText('GHOST:'+Math.ceil(ghostTimer/60)+'s', buffX,36); buffX+=82; }
+    if(bonusScrapActive)       { ctx.fillStyle='#f0f'; ctx.fillText('x2⬡', buffX,36); buffX+=52; }
+    if(dlcArmorHits > 0)       { ctx.fillStyle='#0ff'; ctx.fillText('▣'+dlcArmorHits, buffX,36); }
     ctx.fillStyle='#0ff'; ctx.font='18px Courier New'; ctx.textAlign='center';
     ctx.fillText('SCORE: '+score, W/2, 30);
     ctx.fillStyle='#888'; ctx.font='13px Courier New';
@@ -3755,17 +3758,17 @@ function drawOverlay(title, titleColor, lines, footer, secondaryBtn) {
     ctx.textAlign='center';
     ctx.shadowBlur=22; ctx.shadowColor=titleColor;
     ctx.fillStyle=titleColor; ctx.font='bold 36px Courier New';
-    ctx.fillText(title, W/2, H*0.28);
-    ctx.shadowBlur=0; ctx.fillStyle='#ccc'; ctx.font='13px Courier New';
-    lines.forEach((l,i) => ctx.fillText(l, W/2, H*0.28+58+i*22));
+    ctx.fillText(title, W/2, H*0.24);
+    ctx.shadowBlur=0; ctx.fillStyle='#ccc'; ctx.font='14px Courier New';
+    lines.forEach((l,i) => ctx.fillText(l, W/2, H*0.24+54+i*23));
     if(secondaryBtn) {
         ctx.shadowBlur=14; ctx.shadowColor='#ff0'; ctx.fillStyle='#ff0';
         ctx.font='bold 17px Courier New';
         ctx.fillText(secondaryBtn, W/2, H*0.70);
         ctx.shadowBlur=0;
     }
-    ctx.fillStyle='#666'; ctx.font='15px Courier New';
-    ctx.fillText(footer, W/2, H-55);
+    ctx.shadowBlur=10; ctx.shadowColor='#0ff'; ctx.fillStyle='#aaa'; ctx.font='bold 15px Courier New';
+    ctx.fillText(footer, W/2, H-55); ctx.shadowBlur=0;
     ctx.textAlign='left';
 }
 
@@ -3780,8 +3783,8 @@ function drawBossLoreScreen() {
     ctx.fillText(bossLoreHeadline, W/2, H*0.32);
     ctx.shadowBlur=0; ctx.fillStyle='#ccc'; ctx.font='16px Courier New';
     bossLoreLines.forEach((l, i) => ctx.fillText(l, W/2, H*0.46 + i*36));
-    ctx.fillStyle='#555'; ctx.font='14px Courier New';
-    ctx.fillText('\u25B6  TOUCH OR CLICK TO CONTINUE  \u25C0', W/2, H-55);
+    ctx.shadowBlur=12; ctx.shadowColor='#f0f'; ctx.fillStyle='#ccc'; ctx.font='bold 14px Courier New';
+    ctx.fillText('\u25B6  TOUCH OR CLICK TO CONTINUE  \u25C0', W/2, H-55); ctx.shadowBlur=0;
     ctx.textAlign='left';
 }
 
@@ -3832,8 +3835,8 @@ function drawCustomizeScreen() {
         ctx.fillText('\u2B21  MORE PARTS AVAILABLE IN THE SHOP  \u2B21', W/2, H*0.74);
     }
 
-    ctx.fillStyle='#666'; ctx.font='15px Courier New';
-    ctx.fillText('\u25B6  CONFIRM & CONTINUE  \u25C0', W/2, H*0.85);
+    ctx.shadowBlur=14; ctx.shadowColor='#0f0'; ctx.fillStyle='#0f0'; ctx.font='bold 16px Courier New';
+    ctx.fillText('\u25B6  CONFIRM & CONTINUE  \u25C0', W/2, H*0.85); ctx.shadowBlur=0;
     ctx.textAlign='left'; ctx.shadowBlur=0;
 }
 function drawGuideScreen() {
@@ -4260,7 +4263,7 @@ function loop() {
         const subLine = subtitles[Math.floor(Date.now()/4000)%subtitles.length];
         drawOverlay('NEON SHOOTER', '#0ff',
             ['— '+subLine+' —', '',
-             '150 LEVELS  \u00B7  25 ENEMY TYPES  \u00B7  34 BOSSES',
+             '150 LEVELS  ·  77+ ENEMY TYPES  ·  34+ BOSSES',
              'TRAVERSE NEBULAE, ASTEROID FIELDS',
              'AND FACE THE ETERNAL',
              '', hsLine],
@@ -4275,7 +4278,9 @@ function loop() {
         ctx.fillText('\u221e  ENDLESS MODE  \u221e', W/2, H*0.74);
         ctx.shadowBlur=14; ctx.shadowColor='#0f8'; ctx.fillStyle='#0f8';
         ctx.font='bold 16px Courier New';
-        ctx.fillText('\u2734  DLC CAMPAIGNS  \u2734', W/2, H*0.63);
+        ctx.fillText('✴  DLC CAMPAIGNS  ✴', W/2, H*0.63);
+        ctx.shadowBlur=0; ctx.fillStyle='#444'; ctx.font='12px Courier New';
+        ctx.fillText('MOVE: MOUSE / TOUCH  ·  SHOOT: AUTOMATIC', W/2, H*0.955);
         ctx.shadowBlur=0; ctx.textAlign='left';
         requestAnimationFrame(loop); return;
     }
@@ -4298,8 +4303,10 @@ function loop() {
         ctx.fillText('PAUSED', W/2, H*0.38);
         ctx.shadowBlur=0; ctx.fillStyle='#888'; ctx.font='16px Courier New';
         ctx.fillText('PRESS ESC / P  OR  CLICK TO RESUME', W/2, H*0.52);
-        ctx.fillStyle='#444'; ctx.font='13px Courier New';
-        ctx.fillText('SCORE: '+score+'   \u2B21 SCRAPS: '+scraps, W/2, H*0.62);
+        ctx.fillStyle='#555'; ctx.font='13px Courier New';
+        ctx.fillText('SCORE: '+score+'   ⬡ SCRAPS: '+scraps, W/2, H*0.62);
+        ctx.fillStyle='#444'; ctx.font='12px Courier New';
+        ctx.fillText('MOVE: MOUSE / TOUCH  ·  SHOOT: AUTOMATIC  ·  NUKE: CLICK (when active)', W/2, H*0.72);
         ctx.textAlign='left';
         requestAnimationFrame(loop); return;
     }
@@ -4341,7 +4348,13 @@ function loop() {
         ctx.shadowBlur=20; ctx.shadowColor=ratingColor; ctx.fillStyle=ratingColor;
         ctx.font='bold 40px Courier New'; ctx.textAlign='right';
         ctx.fillText(rating, W-30, H*0.34);
-        ctx.shadowBlur=0; ctx.textAlign='left';
+        ctx.shadowBlur=0;
+        ctx.fillStyle='#666'; ctx.font='11px Courier New'; ctx.textAlign='right';
+        ctx.fillText('S = no hits', W-8, H*0.38);
+        ctx.fillText('A = ≤1 hit, >50% HP', W-8, H*0.42);
+        ctx.fillText('B = ≤3 hits', W-8, H*0.46);
+        ctx.fillText('C = survived', W-8, H*0.50);
+        ctx.textAlign='left';
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'shop') {
@@ -4353,16 +4366,16 @@ function loop() {
         requestAnimationFrame(loop); return;
     }
     if(gameState === 'gameover') {
-        const goTitle = endlessMode ? 'SHIP DESTROYED' : 'SHIP DESTROYED';
+        const goTitle = endlessMode ? 'WAVE ENDED' : 'SHIP DESTROYED';
         const goLines = endlessMode
             ? ['ENDLESS WAVE: '+(endlessWave+1), '', 'SCORE: '+score, 'TOTAL KILLS: '+killCount, '']
-            : ['LEVEL '+(currentLevelIdx+1)+': '+lvl.name, '', 'SCORE: '+score, 'KILLS THIS RUN: '+killCount, '', 'Score resets to start of this level.'];
+            : (dlcMode ? ['DLC: '+DLC_DATA[activeDlc].name, 'LEVEL '+(dlcLevelIdx+1), '', 'SCORE: '+score, 'KILLS: '+killCount] : ['LEVEL '+(currentLevelIdx+1)+': '+lvl.name, '', 'SCORE: '+score, 'KILLS THIS RUN: '+killCount, '', 'Progress saves — retry from this level.']);
         const goBtn = endlessMode ? '\u25B6  RETRY ENDLESS  \u25C0' : '\u25B6  TOUCH OR CLICK TO RETRY  \u25C0';
-        drawOverlay('SHIP DESTROYED', '#f44', goLines, goBtn);
+        drawOverlay(goTitle, '#f44', goLines, goBtn);
         ctx.textAlign='center';
-        ctx.shadowBlur=14; ctx.shadowColor='#888'; ctx.fillStyle='#888';
+        ctx.shadowBlur=14; ctx.shadowColor='#0af'; ctx.fillStyle='#0af';
         ctx.font='bold 16px Courier New';
-        ctx.fillText('\u25B6  MAIN MENU  \u25C0', W/2, H*0.84);
+        ctx.fillText('\u2302  MAIN MENU  \u2302', W/2, H*0.84);
         ctx.shadowBlur=0; ctx.textAlign='left';
         requestAnimationFrame(loop); return;
     }
