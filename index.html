@@ -1632,6 +1632,82 @@ function playSound(type) {
                 gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
                 osc.start(t); osc.stop(t + 0.18);
                 break;
+            case 'bossWarning':
+                // Deep rising alarm — ominous two-tone klaxon
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(110, t);
+                osc.frequency.setValueAtTime(220, t + 0.15);
+                osc.frequency.setValueAtTime(110, t + 0.30);
+                osc.frequency.setValueAtTime(220, t + 0.45);
+                gain.gain.setValueAtTime(0.28, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
+                osc.start(t); osc.stop(t + 0.65);
+                break;
+            case 'enemyShoot':
+                // Quick zap — enemy projectile fired
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(520, t);
+                osc.frequency.exponentialRampToValueAtTime(200, t + 0.07);
+                gain.gain.setValueAtTime(0.05, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+                osc.start(t); osc.stop(t + 0.09);
+                break;
+            case 'purchase':
+                // Coin-like chime — successful shop buy
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, t);
+                osc.frequency.setValueAtTime(1100, t + 0.08);
+                osc.frequency.setValueAtTime(1320, t + 0.16);
+                gain.gain.setValueAtTime(0.18, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
+                osc.start(t); osc.stop(t + 0.30);
+                break;
+            case 'teleport':
+                // Sci-fi whoosh — enemy teleports
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, t);
+                osc.frequency.exponentialRampToValueAtTime(2000, t + 0.12);
+                osc.frequency.exponentialRampToValueAtTime(400, t + 0.22);
+                gain.gain.setValueAtTime(0.10, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+                osc.start(t); osc.stop(t + 0.25);
+                break;
+            case 'armorHit':
+                // Metallic clank — DLC armor absorbs damage
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(800, t);
+                osc.frequency.exponentialRampToValueAtTime(300, t + 0.18);
+                gain.gain.setValueAtTime(0.22, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+                osc.start(t); osc.stop(t + 0.20);
+                break;
+            case 'allyFire':
+                // Soft blip — ally ship fires
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(660, t);
+                osc.frequency.exponentialRampToValueAtTime(440, t + 0.05);
+                gain.gain.setValueAtTime(0.04, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+                osc.start(t); osc.stop(t + 0.07);
+                break;
+            case 'menuClick':
+                // Subtle tick — UI button pressed
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1200, t);
+                osc.frequency.exponentialRampToValueAtTime(800, t + 0.04);
+                gain.gain.setValueAtTime(0.08, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+                osc.start(t); osc.stop(t + 0.06);
+                break;
+            case 'warp':
+                // Level-start warp-in effect
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(50, t);
+                osc.frequency.exponentialRampToValueAtTime(800, t + 0.35);
+                gain.gain.setValueAtTime(0.15, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.40);
+                osc.start(t); osc.stop(t + 0.40);
+                break;
         }
     } catch(e) {}
 }
@@ -1753,6 +1829,7 @@ function handleTap() {
     }
     if(gameState === 'paused') { gameState = pausedFromState || 'playing'; return; }
     if(gameState === 'title') {
+        playSound('menuClick');
         // Easter egg: tap title 7 times fast
         titleTapCount++; titleTapTimer = 180;
         if(titleTapCount >= 7) {
@@ -1786,23 +1863,23 @@ function handleTap() {
         } else if(shopTab === 'upgrades') {
             const rH = H*0.108, r0 = H*0.365;
             if(lastClickY >= r0 && lastClickY < r0+rH) {
-                if(scraps >= 15 && player.hp < player.maxHp) { scraps -= 15; player.hp++; }
+                if(scraps >= 15 && player.hp < player.maxHp) { scraps -= 15; player.hp++; playSound('purchase'); }
             } else if(lastClickY >= r0+rH && lastClickY < r0+2*rH) {
-                if(scraps >= 30 && upgrades.fireRate < 2) { scraps -= 30; upgrades.fireRate++; }
+                if(scraps >= 30 && upgrades.fireRate < 2) { scraps -= 30; upgrades.fireRate++; playSound('purchase'); }
             } else if(lastClickY >= r0+2*rH && lastClickY < r0+3*rH) {
-                if(scraps >= 50 && upgrades.maxHpBonus < 2) { scraps -= 50; upgrades.maxHpBonus++; player.maxHp = 3 + upgrades.maxHpBonus; }
+                if(scraps >= 50 && upgrades.maxHpBonus < 2) { scraps -= 50; upgrades.maxHpBonus++; player.maxHp = 3 + upgrades.maxHpBonus; playSound('purchase'); }
             } else if(lastClickY >= r0+3*rH && lastClickY < r0+4*rH) {
-                if(scraps >= 20 && !upgrades.shieldOnStart) { scraps -= 20; upgrades.shieldOnStart = true; }
+                if(scraps >= 20 && !upgrades.shieldOnStart) { scraps -= 20; upgrades.shieldOnStart = true; playSound('purchase'); }
             } else if(lastClickY >= r0+4*rH && lastClickY < r0+5*rH) {
-                if(scraps >= 50 && !spreadShotUpgrade) { scraps -= 50; spreadShotUpgrade = true; }
+                if(scraps >= 50 && !spreadShotUpgrade) { scraps -= 50; spreadShotUpgrade = true; playSound('purchase'); }
             } else if(lastClickY >= r0+5*rH && lastClickY < r0+6*rH) {
-                if(scraps >= 60 && armorUpgrade < 1) { scraps -= 60; armorUpgrade++; }
+                if(scraps >= 60 && armorUpgrade < 1) { scraps -= 60; armorUpgrade++; playSound('purchase'); }
             } else if(lastClickY >= r0+6*rH && lastClickY < r0+7*rH) {
-                if(scraps >= 80 && !droneActive) { scraps -= 80; droneActive = true; droneX = player.x; droneY = player.y; }
+                if(scraps >= 80 && !droneActive) { scraps -= 80; droneActive = true; droneX = player.x; droneY = player.y; playSound('purchase'); }
             } else if(lastClickY >= r0+7*rH && lastClickY < r0+8*rH) {
-                if(scraps >= 40 && healOnKillUpgrade < 3) { scraps -= 40; healOnKillUpgrade++; }
+                if(scraps >= 40 && healOnKillUpgrade < 3) { scraps -= 40; healOnKillUpgrade++; playSound('purchase'); }
             } else if(lastClickY >= r0+8*rH && lastClickY < r0+9*rH) {
-                if(scraps >= 35 && scrapBonusUpgrade < 2) { scraps -= 35; scrapBonusUpgrade++; }
+                if(scraps >= 35 && scrapBonusUpgrade < 2) { scraps -= 35; scrapBonusUpgrade++; playSound('purchase'); }
             } else if(lastClickY > H*0.89) { gameState = 'levelComplete'; }
         } else {
             // PARTS tab — sub-tab bar
@@ -1818,19 +1895,19 @@ function handleTap() {
                         const shopIdxs = HULL_PRICES.map((_,i)=>i).filter(i=>HULL_PRICES[i]>0);
                         if(idx < shopIdxs.length) {
                             const hi = shopIdxs[idx];
-                            if(!ownedHulls[hi] && scraps >= HULL_PRICES[hi]) { scraps -= HULL_PRICES[hi]; ownedHulls[hi] = true; }
+                            if(!ownedHulls[hi] && scraps >= HULL_PRICES[hi]) { scraps -= HULL_PRICES[hi]; ownedHulls[hi] = true; playSound('purchase'); }
                         }
                     } else if(partsSubTab === 'colors') {
                         const shopIdxs = COLOR_PRICES.map((_,i)=>i).filter(i=>COLOR_PRICES[i]>0);
                         if(idx < shopIdxs.length) {
                             const ci = shopIdxs[idx];
-                            if(!ownedColors[ci] && scraps >= COLOR_PRICES[ci]) { scraps -= COLOR_PRICES[ci]; ownedColors[ci] = true; }
+                            if(!ownedColors[ci] && scraps >= COLOR_PRICES[ci]) { scraps -= COLOR_PRICES[ci]; ownedColors[ci] = true; playSound('purchase'); }
                         }
                     } else {
                         const shopIdxs = ENGINE_PRICES.map((_,i)=>i).filter(i=>ENGINE_PRICES[i]>0);
                         if(idx < shopIdxs.length) {
                             const ei = shopIdxs[idx];
-                            if(!ownedEngines[ei] && scraps >= ENGINE_PRICES[ei]) { scraps -= ENGINE_PRICES[ei]; ownedEngines[ei] = true; }
+                            if(!ownedEngines[ei] && scraps >= ENGINE_PRICES[ei]) { scraps -= ENGINE_PRICES[ei]; ownedEngines[ei] = true; playSound('purchase'); }
                         }
                     }
                 }
@@ -1887,7 +1964,7 @@ function resetGame() {
     shipConfig = { hull:0, color:0, engine:0 }; customizationUnlocked = false;
     scraps = 0; screenShake = 0; floatingTexts = [];
     randomEventTimer = 700; activeEventText = ''; activeEventDisplayTimer = 0;
-    bonusScrapActive = false; bonusScrapTimer = 0;
+    bonusScrapActive = false; bonusScrapTimer = 0; bonusScrapTimer2 = 0;
     comboCount = 0; comboTimer = 0; nukeFlash = 0;
     upgrades = { fireRate: 0, maxHpBonus: 0, shieldOnStart: false };
     levelStartedWithShield = false;
@@ -1962,7 +2039,7 @@ function updateAllies() {
                 if(d < minD) { minD=d; const dx2=b.x+b.size/2-ally.x, dy2=b.y+b.size/2-ally.y, dist2=Math.hypot(dx2,dy2)||1; bvx=dx2/dist2*8; bvy=dy2/dist2*8; }
             });
             if(boss) { const dx2=boss.x+60-ally.x, dy2=boss.y+45-ally.y, dist2=Math.hypot(dx2,dy2)||1; if(dist2<minD){bvx=dx2/dist2*8; bvy=dy2/dist2*8;} }
-            bullets.push({x:ally.x+6, y:ally.y, vx:bvx, vy:bvy, v:bvy, enemy:false, ally:true, width:3, bColor:ally.color});
+            bullets.push({x:ally.x+6, y:ally.y, vx:bvx, vy:bvy, v:bvy, enemy:false, ally:true, width:3, bColor:ally.color}); if(Math.random()<0.35) playSound('allyFire');
         }
         if(ally.invincFrames > 0) ally.invincFrames--;
     }
@@ -1994,7 +2071,7 @@ function startLevel(idx) {
     if(upgrades.shieldOnStart) { player.shieldActive = true; upgrades.shieldOnStart = false; }
     floatingTexts = [];
     randomEventTimer = 700; activeEventText = ''; activeEventDisplayTimer = 0;
-    bonusScrapActive = false; bonusScrapTimer = 0;
+    bonusScrapActive = false; bonusScrapTimer = 0; bonusScrapTimer2 = 0;
     comboCount = 0; comboTimer = 0; nukeFlash = 0; freezeTimer = 0; overdriveTimer = 0;
     const lvl = LEVELS[idx];
     stars.forEach(s => s.color = lvl.starColor || '#fff');
@@ -2050,7 +2127,7 @@ function startDlc(dlcIdx) {
     freezeTimer=0; overdriveTimer=0; homingMissileTimer=0; timewarpTimer=0;
     magnetTimer=0; ghostTimer=0; homingMissiles=[];
     randomEventTimer=700; activeEventText=''; activeEventDisplayTimer=0;
-    bonusScrapActive=false; bonusScrapTimer=0; endlessMode=false;
+    bonusScrapActive=false; bonusScrapTimer=0; bonusScrapTimer2=0; endlessMode=false;
     upgrades={ fireRate:0, maxHpBonus:0, shieldOnStart:false };
     droneActive=false; spreadShotUpgrade=false; armorUpgrade=0; healOnKillUpgrade=0;
     scrapBonusUpgrade=0; healOnKillCount=0; levelDamageReceived=0;
@@ -2396,7 +2473,7 @@ function applyPowerup(type) {
 
 function playerHit() {
     if(gameState !== 'playing' || player.invincFrames > 0) return;
-    if(dlcArmorHits > 0) { dlcArmorHits--; spawnParticles(player.x+12,player.y+12,'#0ff',6); floatingTexts.push({x:player.x+12,y:player.y,text:'ARMOR!',color:'#0ff',life:0.8,decay:0.03,vy:-2.0}); return; }
+    if(dlcArmorHits > 0) { dlcArmorHits--; spawnParticles(player.x+12,player.y+12,'#0ff',6); floatingTexts.push({x:player.x+12,y:player.y,text:'ARMOR!',color:'#0ff',life:0.8,decay:0.03,vy:-2.0}); playSound('armorHit'); return; }
     screenShake = 14;
     if(player.shieldActive) {
         player.shieldActive = false; player.invincFrames = 80;
@@ -4548,7 +4625,7 @@ function loop() {
     if(boss !== null && prevBoss === null && !bossWarningShown) {
         bossWarningShown = true;
         floatingTexts.push({x:W/2,y:H*0.35,text:'!!! BOSS INCOMING !!!',color:'#f00',life:3.0,decay:0.005,vy:-0.2});
-        playSound('bossDie');
+        playSound('bossWarning');
     }
     if(boss === null) { bossWarningShown = false; }
     prevBoss = boss;
@@ -5012,7 +5089,7 @@ function loop() {
             }
             if(b.dlcTele && freezeTimer<=0) {
                 b.teleTimer=(b.teleTimer||0)+1;
-                if(b.teleTimer>=b.dlcTele){b.teleTimer=0;b.x=Math.random()*(W-60)+20;b.y=15+Math.random()*H*.35;spawnParticles(b.x+b.size/2,b.y+b.size/2,b.color,4);
+                if(b.teleTimer>=b.dlcTele){b.teleTimer=0;b.x=Math.random()*(W-60)+20;b.y=15+Math.random()*H*.35;spawnParticles(b.x+b.size/2,b.y+b.size/2,b.color,4);playSound('teleport');
                     if(b.dlcShootAfterTele){const a=Math.atan2(player.y+12-b.y,player.x+12-b.x);for(let si=0;si<b.dlcShootAfterTele;si++){const ao=a+(si-(b.dlcShootAfterTele-1)/2)*.32;bullets.push({x:b.x+b.size/2,y:b.y+b.size*.8,v:Math.sin(ao)*(b.dlcBulletV||4),vx:Math.cos(ao)*(b.dlcBulletV||4),enemy:true,width:b.dlcBulletW||4});}}
                 }
             }
